@@ -55,6 +55,7 @@ public class Main extends JFrame {
     main.add(buttons);
 
     this.add(main);
+    
     this.setVisible(true);
   }
 

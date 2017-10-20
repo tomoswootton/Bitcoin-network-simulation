@@ -1,10 +1,12 @@
 import java.util.LinkedList;
-import java.util.ArrayList;
 public class Simulation {
 
   //linked list used becasue blocks will only be added to the end
-  public static LinkedList<Block> chain = new LinkedList<Block>();
-  public static ArrayList<Node> nodes = new ArrayList<Node>();
+  public static LinkedList<Node> nodes = new LinkedList<Node>();
+
+  public static void main(String[] args) {
+    new Simulation();
+  }
 
   public Simulation() {
     //get data from UI fields
@@ -13,39 +15,31 @@ public class Simulation {
     //2.initialize nodes
     //3.start mine
 
-    //initial block
-    chain.add(new Block("1837372986"));
-    int counter = 0;
-    for (Integer  i = 0; i < 2000; i++) {
-      double temp = Math.random()*100;
-      temp = (int) temp;
-      if(temp == 0) {
-        counter++;
-      }
-    }
-    System.out.println(counter);
+    //create node
+    Node node = new Node(500);
+    this.nodes.add(node);
+    node.mine(true);
+    // node.mine(false);
+
   }
 
-
-  public static int getChainSize(){
-    return chain.size();
-  }
-
+//getters and setters
   public static int getNodesArraySize(){
     return nodes.size();
   }
 
-  public static void addNode(float mineSpeed) {
+//methods
+  public static void addNode(int mineSpeed) {
     nodes.add(new Node(mineSpeed));
   }
 
   //state=true, start mine
-  public static void mine(boolean state) {
+  public static void run(boolean state) {
     for (Node node : nodes) {
       if (state) {
-         node.mineStart();
+         node.mine(true);
       } else {
-          node.mineStop();
+          node.mine(false);
       }
      }
    }
