@@ -1,11 +1,11 @@
 class Block {
 
   public int id;
-  private int prevBlockHash;
-  private int nonce;
+  private String prevBlockHash;
+  private String nonce;
   private int hash;
 
-  public Block(int id, int prevBlockHash) {
+  public Block(int id, String prevBlockHash) {
     this.id = id;
     //prevBlockHash of nodes chain
     this.prevBlockHash = prevBlockHash;
@@ -13,27 +13,34 @@ class Block {
   }
 
 //getters and setters
-  public int getPrevBlockHash() {
+  public String getPrevBlockHash() {
     return this.prevBlockHash;
   }
 
-  public int getNonce() {
+  public String getNonce() {
     return this.nonce;
   }
 
 //methods
-  private int newNonce() {
-    int temp1 = (int) (Math.random() * 10);
+  private String newNonce() {
+    int temp1 = (int) (Math.random() * 1000);
     String temp = Integer.toString(temp1);
-    if (temp.length() == 1) {
-      temp = "00" + temp;
-    } else if (temp.length() == 3) {
-      temp = "0" + temp;
+
+    switch (temp.length()) {
+      case 1:
+        temp = "000" + temp;
+        break;
+      case 2:
+        temp = "00" + temp;
+        break;
+      case 3:
+        temp = "0" + temp;
+        break;
     }
-    return Integer.parseInt(temp);
+    return temp;
   }
 
-  public int genHash() {
+  public String genHash() {
     //hash is simply nonce for now
     // return block.getNonce;
     return this.nonce;

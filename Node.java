@@ -16,7 +16,7 @@ public class Node {
     // this.ID = simulation.getNodesArraySize();
     this.mineSpeed = mineSpeed;
     //init chain with genesis block
-    Block block = new Block(this.getChainSize(), 1234);
+    Block block = new Block(this.getChainSize(), "1234");
     chain.add(block);
     System.out.print("chain = " +chain);
   }
@@ -71,7 +71,7 @@ public class Node {
   }
 
 
-  private Boolean checkHash(int hash) {
+  private Boolean checkHash(String hash) {
     return true;
   }
 

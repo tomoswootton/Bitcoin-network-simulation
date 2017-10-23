@@ -1,5 +1,9 @@
+import javax.swing.*;
+import java.awt.FlowLayout;
+
 import java.util.LinkedList;
-public class Simulation {
+
+public class Simulation  extends JFrame{
 
   //linked list used becasue blocks will only be added to the end
   public static LinkedList<Node> nodes = new LinkedList<Node>();
@@ -9,6 +13,9 @@ public class Simulation {
   }
 
   public Simulation() {
+
+
+
     //get data from UI fields
 
     //1.create nodes
@@ -19,8 +26,16 @@ public class Simulation {
     Node node = new Node(500);
     this.nodes.add(node);
     node.mine(true);
-    // node.mine(false);
 
+    // //create new window
+    // JPanel page = new JPanel();
+    // page.setLayout(new FlowLayout());
+    //
+    //
+    //
+    //
+    // this.add(page);
+    // this.setVisible(true);
   }
 
 //getters and setters
