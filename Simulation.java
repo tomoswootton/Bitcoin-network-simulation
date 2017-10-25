@@ -19,7 +19,7 @@ public class Simulation  extends JFrame{
     //3.start mine
 
     //create node
-    Node node = new Node("name",500);
+    Node node = new Node(5,"name",500);
     this.nodes.add(node);
     node.mine(true);
 
@@ -41,7 +41,7 @@ public class Simulation  extends JFrame{
 
 //methods
   public void addNode(String name, int mineSpeed) {
-    nodes.add(new Node(name, mineSpeed));
+    nodes.add(new Node(getNodesArraySize(), name, mineSpeed));
   }
 
   //state=true, start mine

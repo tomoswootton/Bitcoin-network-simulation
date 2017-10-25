@@ -13,10 +13,11 @@ public class Node {
   private Timer timer = new Timer();
   private Block workingBlock;
 
-  public Node(String name, int mineSpeed) {
-    // this.id = simulation.getNodesArraySize();
+  public Node(int id, String name, int mineSpeed) {
+    this.id = id;
     this.setName(name);
     this.mineSpeed = mineSpeed;
+    System.out.println("i am node "+id);
     //init chain with genesis block
     Block block = new Block(this.getChainSize(), "1234");
     chain.add(block);

@@ -231,34 +231,52 @@ public class Main extends JFrame {
 
   //preview methods
   public void addNode() {
+    //get input values
     int mine_speed = 100;
     String name = nodeNameTextfield.getText();
+    //add to preview
     previewText.append(nodeIdLabel.getText()+"       "+name+"       "+mine_speed+"\n");
-    this.rawNodes.add(new Node(name, mine_speed));
+    //add to rawNodes array
+    rawNodes.add(new Node(rawNodes.size(), name, mine_speed));
     System.out.print("rawNodes: "+rawNodes+"\n");
+    //++1 to label
     nodeIdLabel.setText(""+rawNodes.size());
   }
 
   public void removeNode(int id) {
-    System.out.print("got to remove node method");
+    System.out.println("got to remove nodes");
     for (Node node : rawNodes) {
+      System.out.println("node "+node.id);
       if (node.id == id) {
+        System.out.println("got to id== "+id);
         rawNodes.remove(node);
+        refreshRawNodesList();
         refreshPreview();
-        System.out.print("rawNodes: "+rawNodes+"\n");
       }
     }
   }
 
   public void refreshPreview() {
-    System.out.println("refresh method got to");
     previewText.setText("");
-    System.out.println("text set to nothing");
-
+    System.out.print("rawNodes in refresh "+rawNodes+"\n");
     for (Node node : rawNodes) {
-      previewText.append(node.getName()+"       "+ node.getMineSpeed()+"\n");
+      previewText.append(node.id+"       "+node.getName()+"       "+node.getMineSpeed()+"\n");
     }
   }
+
+  //when a node is removed, the id's of the remaining nodes must be fixed
+  public void refreshRawNodesList() {
+    for (int i=0;i<rawNodes.size();i++) {
+      rawNodes.get(i).id = i;
+    }
+    // for (int i=1;i<rawNodes.size()-1;i++) {
+    //   if (rawNodes.get(i).id - rawNodes.get(i-1).id != 1) {
+    //     while(i<=raw.Nodes.size()-1) {
+    //       rawNodes(i+1)
+    //     }
+    //   }
+    }
+
 
 
   private class ListenForButton implements ActionListener {
@@ -275,6 +293,6 @@ public class Main extends JFrame {
       } else if (e.getSource() == removeNodeButton) {
         RemoveNodeWindow remove = new RemoveNodeWindow(main);
       }
+    }
   }
-}
 }
