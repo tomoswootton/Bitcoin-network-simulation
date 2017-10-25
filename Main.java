@@ -1,25 +1,37 @@
 import java.awt.*;
+
 import javax.swing.*;
 
 import java.awt.event.*;
 import java.awt.GridBagLayout;
+import java.util.LinkedList;
+
 
 public class Main extends JFrame {
+
+  public Main main;
 
   JButton startButton;
   JButton exitButton;
   JButton addNodeButton;
+  JButton removeNodeButton;
+  JLabel nodeIdLabel;
+  JTextField nodeNameTextfield;
+  TextArea previewText;
 
-  ListenForButton lForButton = new ListenForButton();
+
+  //raw nodes list, node objects created in simulation class
+  public LinkedList<Node> rawNodes = new LinkedList<Node>();
 
   public static void main(String[] args) {
     new Main();
   }
 
   public Main() {
-    //create UI
-    JPanel page = new JPanel();
-    page.setLayout(new GridBagLayout());
+
+    main = this;
+
+    ListenForButton lForButton = new ListenForButton();
 
     this.setSize(800, 400);
     this.setLocationRelativeTo(null);
@@ -27,10 +39,12 @@ public class Main extends JFrame {
     this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     this.setTitle("Network simulator");
 
+    //create UI
+    JPanel page = new JPanel();
+    page.setLayout(new GridBagLayout());
 
-  //header
+    //header
     JPanel header = new JPanel();
-    header.setBackground(Color.yellow);
     GridBagConstraints headerCons = new GridBagConstraints();
     setCons(headerCons, 0,0,1,1,GridBagConstraints.BOTH,0,0);
 
@@ -39,11 +53,10 @@ public class Main extends JFrame {
 
     page.add(header, headerCons);
 
-  //settings
+    //settings
     JPanel settings = new JPanel();
     settings.setLayout(new GridBagLayout());
     settings.setSize(400,600);
-    settings.setBackground(Color.green);
 
       //title
       JLabel settingsTitle = new JLabel("settings");
@@ -61,6 +74,7 @@ public class Main extends JFrame {
 
 
       JTextField globalHashrateTextField = new JTextField("number");
+      globalHashrateTextField.setColumns(5);
 
       GridBagConstraints globalHashrateTextFieldCons = new GridBagConstraints();
       setCons(globalHashrateTextFieldCons,1,1,1,1,GridBagConstraints.NONE,10,15);
@@ -72,42 +86,45 @@ public class Main extends JFrame {
     page.add(settings, settingsCons);
 
 
-  //add_node
+    //add_node
     JPanel addNode = new JPanel();
     addNode.setLayout(new GridBagLayout());
-    addNode.setSize(400, 800);
-    addNode.setBackground(Color.cyan);
+    addNode.setSize(800, 1000);
 
-    //title
+      //title
       JLabel addNodeTitle = new JLabel("Add node");
 
       GridBagConstraints addNodeTitleCons = new GridBagConstraints();
       setCons(addNodeTitleCons,0,0,2,1,GridBagConstraints.VERTICAL,0,25);
       addNode.add(addNodeTitle, addNodeTitleCons);
 
-    //node name
+      //node name
       JLabel nodeNameTitle = new JLabel("Name:");
 
       GridBagConstraints nodeNameTitleCons = new GridBagConstraints();
-      setCons(nodeNameTitleCons,0,1,1,1,GridBagConstraints.NONE,10,15);
+      setCons(nodeNameTitleCons,0,1,1,1,GridBagConstraints.BOTH,10,15);
       addNode.add(nodeNameTitle, nodeNameTitleCons);
 
 
-      JTextField nodeNameTextfield = new JTextField("Node name");
+      nodeNameTextfield = new JTextField("Node name");
+      nodeNameTextfield.setColumns(5);
+      globalHashrateTextField.setColumns(5);
+      //TODO remove text when clicked
+
 
       GridBagConstraints nodeNameTextfieldCons = new GridBagConstraints();
-      setCons(nodeNameTextfieldCons,1,1,1,1,GridBagConstraints.NONE,10,15);
+      setCons(nodeNameTextfieldCons,1,1,2,1,GridBagConstraints.BOTH,10,15);
       addNode.add(nodeNameTextfield, nodeNameTextfieldCons);
 
-    //node id
-      JLabel nodeIdTitle = new JLabel("Id:");
+      //node id
+      JLabel nodeIdTitle = new JLabel("Id: ");
 
       GridBagConstraints nodeIdTitleCons = new GridBagConstraints();
       setCons(nodeIdTitleCons,0,2,1,1,GridBagConstraints.NONE,10,15);
       addNode.add(nodeIdTitle, nodeIdTitleCons);
 
 
-      JLabel nodeIdLabel = new JLabel("$id");
+      nodeIdLabel = new JLabel(""+rawNodes.size());
 
       GridBagConstraints nodeIdLabelCons = new GridBagConstraints();
       setCons(nodeIdLabelCons,1,2,1,1,GridBagConstraints.NONE,10,15);
@@ -115,38 +132,54 @@ public class Main extends JFrame {
 
       //button add node
       addNodeButton = new JButton("Add node");
+      addNodeButton.addActionListener(lForButton);
 
       GridBagConstraints addNodeButtonCons = new GridBagConstraints();
       setCons(addNodeButtonCons,0,4,2,1,GridBagConstraints.NONE,10,15);
       addNode.add(addNodeButton, addNodeButtonCons);
 
+      //button remove node
+      removeNodeButton = new JButton("Remove node");
+      removeNodeButton.addActionListener(lForButton);
+
+      GridBagConstraints removeNodeButtonCons = new GridBagConstraints();
+      setCons(removeNodeButtonCons,0,5,2,1,GridBagConstraints.NONE,10,15);
+      addNode.add(removeNodeButton, removeNodeButtonCons);
+
     //add to page
     GridBagConstraints addNodeCons = new GridBagConstraints();
-    setCons(addNodeCons,0,2,1,1,GridBagConstraints.NONE,0,0);
+    setCons(addNodeCons,0,2,2,1,GridBagConstraints.NONE,0,0);
     page.add(addNode, addNodeCons);
 
 
-  //preview
+    //preview
     JPanel preview = new JPanel();
+    preview.setLayout(new GridBagLayout());
     preview.setSize(800,800);
-    preview.setBackground(Color.red);
+
+      //column titles
+      JLabel previewTitlesLabel = new JLabel("name      hashrate share");
+
+      GridBagConstraints previewTitlesLabelCons = new GridBagConstraints();
+      setCons(previewTitlesLabelCons,0,0,1,1,GridBagConstraints.NONE,10,15);
+      // previewTitlesLabelCons.anchor = GridBagConstraints.LINE_START;
+      preview.add(previewTitlesLabel, previewTitlesLabelCons);
 
       //text area
-      TextArea previewText = new TextArea("",30,50,TextArea.SCROLLBARS_BOTH);
+      previewText = new TextArea("",5,20,TextArea.SCROLLBARS_BOTH);
       previewText.setEditable(false);
-      preview.add(previewText);
-      for (int i=0; i<30; i++) {
-        previewText.append("beans");
 
-        previewText.append("\nhello");
-      }
-      previewText.append("hello");
+      GridBagConstraints previewTextCons = new GridBagConstraints();
+      setCons(previewTextCons,0,1,1,1,GridBagConstraints.NONE,10,15);
+      preview.add(previewText, previewTextCons);
+
+
 
     GridBagConstraints previewCons = new GridBagConstraints();
     setCons(previewCons,0,3,2,1,GridBagConstraints.BOTH,0,0);
     page.add(preview, previewCons);
 
-  //buttons
+    //buttons
     JPanel buttons = new JPanel();
 
       startButton = new JButton("Start");
@@ -161,13 +194,21 @@ public class Main extends JFrame {
     setCons(buttonsCons,0,4,1,1,GridBagConstraints.NONE,0,0);
     page.add(buttons, buttonsCons);
 
+    //set background colours for testing
+      // preview.setBackground(Color.red);
+      // addNode.setBackground(Color.cyan);
+      // header.setBackground(Color.yellow);
+      // settings.setBackground(Color.green);
+
+
     //add page to JFrame
     this.add(page);
     this.setVisible(true);
 
   }
+
   //method sets GridBagConstraints variables
-  public void setCons(GridBagConstraints gridCons, int x, int y, int width, int height, int fill, int ipadx, int ipady) {
+  private void setCons(GridBagConstraints gridCons, int x, int y, int width, int height, int fill, int ipadx, int ipady) {
     gridCons.gridx = x;
     gridCons.gridy = y;
     //number of col/row component takes up
@@ -187,15 +228,53 @@ public class Main extends JFrame {
     gridCons.weighty = 0.1;
   }
 
+
+  //preview methods
+  public void addNode() {
+    int mine_speed = 100;
+    String name = nodeNameTextfield.getText();
+    previewText.append(nodeIdLabel.getText()+"       "+name+"       "+mine_speed+"\n");
+    this.rawNodes.add(new Node(name, mine_speed));
+    System.out.print("rawNodes: "+rawNodes+"\n");
+    nodeIdLabel.setText(""+rawNodes.size());
+  }
+
+  public void removeNode(int id) {
+    System.out.print("got to remove node method");
+    for (Node node : rawNodes) {
+      if (node.id == id) {
+        rawNodes.remove(node);
+        refreshPreview();
+        System.out.print("rawNodes: "+rawNodes+"\n");
+      }
+    }
+  }
+
+  public void refreshPreview() {
+    System.out.println("refresh method got to");
+    previewText.setText("");
+    System.out.println("text set to nothing");
+
+    for (Node node : rawNodes) {
+      previewText.append(node.getName()+"       "+ node.getMineSpeed()+"\n");
+    }
+  }
+
+
   private class ListenForButton implements ActionListener {
 
     public void actionPerformed(ActionEvent e) {
 
       if(e.getSource() == startButton) {
-        Simulation simulation = new Simulation();
+        Simulation simulation = new Simulation(rawNodes);
       } else if (e.getSource() == exitButton) {
         System.exit(0);
+      } else if (e.getSource() == addNodeButton) {
+        addNode();
+        nodeNameTextfield.setText("Node name");
+      } else if (e.getSource() == removeNodeButton) {
+        RemoveNodeWindow remove = new RemoveNodeWindow(main);
       }
-    }
   }
+}
 }

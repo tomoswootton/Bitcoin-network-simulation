@@ -6,22 +6,30 @@ public class Node {
   // nodes version of chain
   public static LinkedList<Block> chain = new LinkedList<Block>();
 
-  public int ID;
+  public int id;
+  private String name;
   //measured in new hash per second
   private int mineSpeed;
   private Timer timer = new Timer();
   private Block workingBlock;
 
-  public Node(int mineSpeed) {
-    // this.ID = simulation.getNodesArraySize();
+  public Node(String name, int mineSpeed) {
+    // this.id = simulation.getNodesArraySize();
+    this.setName(name);
     this.mineSpeed = mineSpeed;
     //init chain with genesis block
     Block block = new Block(this.getChainSize(), "1234");
     chain.add(block);
-    System.out.print("chain = " +chain);
+    // System.out.print("chain = " +chain);
   }
 
 //getter and setters
+  public String getName() {
+    return this.name;
+  }
+  private void setName(String name) {
+    this.name = name;
+  }
   public int getMineSpeed() {
     return this.mineSpeed;
   }

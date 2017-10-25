@@ -6,24 +6,20 @@ import java.util.LinkedList;
 public class Simulation  extends JFrame{
 
   //linked list used becasue blocks will only be added to the end
-  public static LinkedList<Node> nodes = new LinkedList<Node>();
+  public LinkedList<Node> nodes = new LinkedList<Node>();
 
-  public static void main(String[] args) {
-    new Simulation();
-  }
+  public Simulation(LinkedList<Node> nodes) {
 
-  public Simulation() {
+    this.nodes = nodes;
 
-
-
-    //get data from UI fields
+    //get data from Main Class
 
     //1.create nodes
     //2.initialize nodes
     //3.start mine
 
     //create node
-    Node node = new Node(500);
+    Node node = new Node("name",500);
     this.nodes.add(node);
     node.mine(true);
 
@@ -39,17 +35,17 @@ public class Simulation  extends JFrame{
   }
 
 //getters and setters
-  public static int getNodesArraySize(){
+  public int getNodesArraySize(){
     return nodes.size();
   }
 
 //methods
-  public static void addNode(int mineSpeed) {
-    nodes.add(new Node(mineSpeed));
+  public void addNode(String name, int mineSpeed) {
+    nodes.add(new Node(name, mineSpeed));
   }
 
   //state=true, start mine
-  public static void run(boolean state) {
+  public void run(boolean state) {
     for (Node node : nodes) {
       if (state) {
          node.mine(true);
