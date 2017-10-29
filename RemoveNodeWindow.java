@@ -4,7 +4,7 @@ import java.awt.event.*;
 public class RemoveNodeWindow extends JFrame {
 
   Main main;
-  JTextField nodeId;
+  JTextField nodeIdTextfield;
   JButton removeButton;
   JButton cancelButton;
 
@@ -12,11 +12,12 @@ public class RemoveNodeWindow extends JFrame {
   //   new RemoveNodeWindow();
   // }
 
+
   public RemoveNodeWindow(Main main) {
     this.main = main;
     ListenForButton lForButton = new ListenForButton();
 
-    this.setSize(400, 100);
+    this.setSize(200, 100);
     this.setLocationRelativeTo(null);
     this.setResizable(false);
     this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -25,9 +26,12 @@ public class RemoveNodeWindow extends JFrame {
     JPanel page = new JPanel();
 
       //components
-      nodeId = new JTextField();
-      nodeId.setColumns(5);
-      page.add(nodeId);
+      JLabel nodeIdLabel = new JLabel("id:");
+      page.add(nodeIdLabel);
+
+      nodeIdTextfield = new JTextField();
+      nodeIdTextfield.setColumns(2);
+      page.add(nodeIdTextfield);
 
 
       removeButton = new JButton("Remove Node");
@@ -47,7 +51,7 @@ public class RemoveNodeWindow extends JFrame {
     public void actionPerformed(ActionEvent e) {
 
       if(e.getSource() == removeButton) {
-        main.removeNode(Integer.parseInt(nodeId.getText()));
+        main.removeNode(Integer.parseInt(nodeIdTextfield.getText()));
         dispose();
       } else if (e.getSource() == cancelButton) {
         dispose();

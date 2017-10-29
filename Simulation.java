@@ -18,8 +18,8 @@ public class Simulation  extends JFrame{
     //2.initialize nodes
     //3.start mine
 
-    //create node
     Node node = new Node(5,"name",500);
+    //create node
     this.nodes.add(node);
     node.mine(true);
 

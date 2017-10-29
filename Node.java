@@ -17,7 +17,6 @@ public class Node {
     this.id = id;
     this.setName(name);
     this.mineSpeed = mineSpeed;
-    System.out.println("i am node "+id);
     //init chain with genesis block
     Block block = new Block(this.getChainSize(), "1234");
     chain.add(block);
