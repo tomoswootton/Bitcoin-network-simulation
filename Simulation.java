@@ -1,6 +1,7 @@
 import javax.swing.*;
 import java.awt.FlowLayout;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 
 public class Simulation  extends JFrame{
@@ -8,11 +9,11 @@ public class Simulation  extends JFrame{
   //linked list used becasue blocks will only be added to the end
   public LinkedList<Node> nodes = new LinkedList<Node>();
 
-  public Simulation(LinkedList<Node> nodes) {
+  public Simulation(ArrayList<String[]> rawNodes) {
 
-    this.nodes = nodes;
-
-    //get data from Main Class
+  //init
+    //fill nodes linkedlist
+    createNodeObjects(rawNodes);
 
     //1.create nodes
     //2.initialize nodes
@@ -40,9 +41,18 @@ public class Simulation  extends JFrame{
   }
 
 //methods
-  public void addNode(String name, int mineSpeed) {
-    nodes.add(new Node(getNodesArraySize(), name, mineSpeed));
+  //convert rawNodes input into linkedlist of node object
+  public void createNodeObjects(ArrayList<String[]> rawNodes) {
+    for (String[] nodes : rawNodes) {
+      addNode(Integer.parseInt(nodes[0]),nodes[1],Integer.parseInt(nodes[2]));
+    }
   }
+
+  public void addNode(int id, String name, int mineSpeed) {
+    nodes.add(new Node(id, name, mineSpeed));
+  }
+
+
 
   //state=true, start mine
   public void run(boolean state) {

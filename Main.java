@@ -18,9 +18,7 @@ public class Main extends JFrame {
   JButton removeNodeButton;
   JLabel nodeIdLabel;
   JTextField nodeNameTextfield;
-  TextArea previewTextId;
-  TextArea previewTextName;
-  TextArea previewTextHashrate;
+  TextArea previewText;
 
 
   //variable used to save state of node name text field.
@@ -40,7 +38,7 @@ public class Main extends JFrame {
   public Main() {
 
     main = this;
-    this.setSize(800, 500);
+    this.setSize(800, 600);
 
     ListenForButton lForButton = new ListenForButton();
 
@@ -55,19 +53,18 @@ public class Main extends JFrame {
 
     //header
     JPanel header = new JPanel();
-    GridBagConstraints headerCons = new GridBagConstraints();
-    setCons(headerCons, 0,0,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
 
       JLabel title = new JLabel("Network Simulator");
       title.setFont(title.getFont().deriveFont(28.0f));
       header.add(title);
 
+    GridBagConstraints headerCons = new GridBagConstraints();
+    setCons(headerCons, 1,0,4,2,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
     page.add(header, headerCons);
 
     //settings
     JPanel settings = new JPanel();
     settings.setLayout(new GridBagLayout());
-    settings.setSize(800,1000);
 
       //title
       JLabel settingsTitle = new JLabel("<HTML><U>settings</U></HTML>");
@@ -78,7 +75,7 @@ public class Main extends JFrame {
       settings.add(settingsTitle, settingsTitleCons);
 
       //global hashes input
-      JLabel globalHashrateLabel = new JLabel("Global hashes per second:");
+      JLabel globalHashrateLabel = new JLabel("<html>Global hashes to be <br>performed per second:</html>");
 
       GridBagConstraints globalHashrateLabelCons = new GridBagConstraints();
       setCons(globalHashrateLabelCons,0,1,1,1,GridBagConstraints.NONE,GridBagConstraints.LINE_END,10,10);
@@ -89,12 +86,12 @@ public class Main extends JFrame {
       globalHashrateTextField.setColumns(5);
 
       GridBagConstraints globalHashrateTextFieldCons = new GridBagConstraints();
-      setCons(globalHashrateTextFieldCons,1,1,1,1,GridBagConstraints.NONE,GridBagConstraints.LINE_START,10,10);
+      setCons(globalHashrateTextFieldCons,1,1,1,1,GridBagConstraints.NONE,GridBagConstraints.LINE_START,10,0);
       settings.add(globalHashrateTextField, globalHashrateTextFieldCons);
 
 
     GridBagConstraints settingsCons = new GridBagConstraints();
-    setCons(settingsCons,0,1,2,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
+    setCons(settingsCons,1,2,4,2,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
     page.add(settings, settingsCons);
 
 
@@ -108,7 +105,7 @@ public class Main extends JFrame {
       addNodeTitle.setFont(addNodeTitle.getFont().deriveFont(16.0f));
 
       GridBagConstraints addNodeTitleCons = new GridBagConstraints();
-      setCons(addNodeTitleCons,0,0,2,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,40);
+      setCons(addNodeTitleCons,0,0,2,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,10);
       addNode.add(addNodeTitle, addNodeTitleCons);
 
       //node name
@@ -129,12 +126,10 @@ public class Main extends JFrame {
             nodeNameTextfieldClear = false;
           }
         }
+
       });
-      //TODO remove text when clicked
-
-
       GridBagConstraints nodeNameTextfieldCons = new GridBagConstraints();
-      setCons(nodeNameTextfieldCons,1,1,1,1,GridBagConstraints.NONE,GridBagConstraints.LINE_START,10,10);
+      setCons(nodeNameTextfieldCons,1,1,1,1,GridBagConstraints.NONE,GridBagConstraints.LINE_START,10,0);
       addNode.add(nodeNameTextfield, nodeNameTextfieldCons);
 
       //node id
@@ -163,13 +158,13 @@ public class Main extends JFrame {
         removeNodeButton.addActionListener(lForButton);
 
       GridBagConstraints addNodeButtonsCons = new GridBagConstraints();
-      setCons(addNodeButtonsCons,0,4,2,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,20);
+      setCons(addNodeButtonsCons,0,4,2,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,10);
       addNode.add(addNodeButtons, addNodeButtonsCons);
 
 
     //add to page
     GridBagConstraints addNodeCons = new GridBagConstraints();
-    setCons(addNodeCons,0,2,2,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
+    setCons(addNodeCons,1,4,4,4,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
     page.add(addNode, addNodeCons);
 
 
@@ -182,46 +177,31 @@ public class Main extends JFrame {
       JLabel previewTitlesIdLabel = new JLabel("id");
 
       GridBagConstraints previewTitlesIdLabelCons = new GridBagConstraints();
-      setCons(previewTitlesIdLabelCons,0,0,1,1,GridBagConstraints.NONE,GridBagConstraints.LINE_END,10,10);
+      setCons(previewTitlesIdLabelCons,0,0,1,1,GridBagConstraints.NONE,GridBagConstraints.LINE_END,40,0);
       preview.add(previewTitlesIdLabel, previewTitlesIdLabelCons);
 
       JLabel previewTitlesNameLabel = new JLabel("Name");
 
       GridBagConstraints previewTitlesNameLabelCons = new GridBagConstraints();
-      setCons(previewTitlesNameLabelCons,1,0,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
+      setCons(previewTitlesNameLabelCons,1,0,1,1,GridBagConstraints.NONE,GridBagConstraints.LINE_START,10,0);
       preview.add(previewTitlesNameLabel, previewTitlesNameLabelCons);
 
       JLabel previewTitlesHashrateLabel = new JLabel("hashrate share");
 
       GridBagConstraints previewTitlesHashrateLabelCons = new GridBagConstraints();
-      setCons(previewTitlesHashrateLabelCons,2,0,1,1,GridBagConstraints.NONE,GridBagConstraints.LINE_START,10,10);
+      setCons(previewTitlesHashrateLabelCons,2,0,1,1,GridBagConstraints.NONE,GridBagConstraints.LINE_START,0,10);
       preview.add(previewTitlesHashrateLabel, previewTitlesHashrateLabelCons);
 
       //text area
-      previewTextId = new TextArea("",5,20,TextArea.SCROLLBARS_BOTH);
-      previewTextId.setEditable(false);
+      previewText = new TextArea("",8,38,TextArea.SCROLLBARS_BOTH);
+      previewText.setEditable(false);
 
-      GridBagConstraints previewTextIdCons = new GridBagConstraints();
-      setCons(previewTextIdCons,0,1,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,20);
-      preview.add(previewTextId, previewTextIdCons);
-
-      previewTextName = new TextArea("",5,20,TextArea.SCROLLBARS_BOTH);
-      previewTextName.setEditable(false);
-
-      GridBagConstraints previewTextNameCons = new GridBagConstraints();
-      setCons(previewTextNameCons,1,1,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,20);
-      preview.add(previewTextName, previewTextNameCons);
-
-      previewTextHashrate = new TextArea("",5,20,TextArea.SCROLLBARS_BOTH);
-      previewTextHashrate.setEditable(false);
-
-      GridBagConstraints previewTextHashrateCons = new GridBagConstraints();
-      setCons(previewTextHashrateCons,2,1,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,20);
-      preview.add(previewTextHashrate, previewTextHashrateCons);
-
+      GridBagConstraints previewTextCons = new GridBagConstraints();
+      setCons(previewTextCons,0,1,3,2,GridBagConstraints.NONE,GridBagConstraints.CENTER,100,0);
+      preview.add(previewText, previewTextCons);
 
     GridBagConstraints previewCons = new GridBagConstraints();
-    setCons(previewCons,0,3,2,1,GridBagConstraints.BOTH,GridBagConstraints.CENTER,10,10);
+    setCons(previewCons,0,8,6,3,GridBagConstraints.BOTH,GridBagConstraints.CENTER,10,10);
     page.add(preview, previewCons);
 
     //buttons
@@ -236,7 +216,7 @@ public class Main extends JFrame {
       exitButton.addActionListener(lForButton);
 
     GridBagConstraints buttonsCons = new GridBagConstraints();
-    setCons(buttonsCons,0,4,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
+    setCons(buttonsCons,1,11,4,2,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
     page.add(buttons, buttonsCons);
 
     //set background colours for testing
@@ -298,37 +278,40 @@ public class Main extends JFrame {
       if (Integer.parseInt(node[0]) == id) {
         rawNodes.remove(node);
         refreshRawNodesList();
+        nodeIdLabel.setText(Integer.toString(Integer.parseInt(nodeIdLabel.getText())-1));
         refreshPreview();
+        break;
       }
     }
   }
 
   public void refreshPreview() {
-    previewTextId.setText("");
-    previewTextName.setText("");
-    previewTextHashrate.setText("");
+    // previewTextId.setText("");
+    // previewTextName.setText("");
+    // previewTextHashrate.setText("");
     for (String[] node : rawNodes) {
       printToPreview(node[0], node[1], node[2]);
     }
   }
 
   public void printToPreview(String id, String name, String mine_speed) {
-    previewTextId.append(id+"\n");
-    previewTextName.append(name+"\n");
-    previewTextHashrate.append(mine_speed+"\n");
-  }
+      if (name.length() > 15) {
+        name = name.substring(0,13).concat("...   ");
+      }
+      String temp = "";
+      int j = 30-name.length();
+      for (int i=0;i<=j;i++) {
+        temp = temp.concat("  ");
+      }
+      previewText.append(id+"            "+name+temp+mine_speed+"\n");
+    }
+
 
   //when a node is removed, the id's of the remaining nodes must be fixed
   public void refreshRawNodesList() {
     for (int i=0;i<rawNodes.size();i++) {
       rawNodes.get(i)[0] = ""+i;
     }
-    // for (int i=1;i<rawNodes.size()-1;i++) {
-    //   if (rawNodes.get(i).id - rawNodes.get(i-1).id != 1) {
-    //     while(i<=raw.Nodes.size()-1) {
-    //       rawNodes(i+1)
-    //     }
-    //   }
     }
 
 
@@ -338,7 +321,7 @@ public class Main extends JFrame {
     public void actionPerformed(ActionEvent e) {
 
       if(e.getSource() == startButton) {
-        // Simulation simulation = new Simulation(rawNodes);
+        Simulation simulation = new Simulation(rawNodes);
       } else if (e.getSource() == exitButton) {
         System.exit(0);
       } else if (e.getSource() == addNodeButton) {
