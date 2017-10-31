@@ -4,7 +4,7 @@ import javax.swing.*;
 
 import java.awt.event.*;
 import java.awt.GridBagLayout;
-import java.util.ArrayList;
+import java.util.LinkedList;
 
 
 public class Main extends JFrame {
@@ -17,19 +17,23 @@ public class Main extends JFrame {
   JButton addNodeButton;
   JButton removeNodeButton;
   JLabel nodeIdLabel;
-  JTextField nodeNameTextfield;
+  JTextField nodeNameTextField;
+  JTextField hashShareTextField;
   TextArea previewText;
 
 
   //variable used to save state of node name text field.
   //if a name has been typed but node not yet added, dont remove text upon clicked
   //true if clear upon click
-  Boolean nodeNameTextfieldClear = true;
+  Boolean nodeNameTextFieldClear = true;
+  Boolean hashShareFieldClear = true;
+
+  //variable holds percentage of hash share available
+  Double hashShareAvailable = 100.0;
 
 
-  //raw nodes list, node objects created in simulation class
-  //{id, name, mine speed}
-  ArrayList<String[]> rawNodes = new ArrayList<String[]>();
+  //nodesList list, contains node objects
+    public LinkedList<Node> nodesList = new LinkedList<Node>();
 
   public static void main(String[] args) {
     new Main();
@@ -116,21 +120,21 @@ public class Main extends JFrame {
       addNode.add(nodeNameTitle, nodeNameTitleCons);
 
 
-      nodeNameTextfield = new JTextField("Node name");
-      nodeNameTextfield.setColumns(5);
-      nodeNameTextfield.addMouseListener(new MouseAdapter() {
+      nodeNameTextField = new JTextField("Node name");
+      nodeNameTextField.setColumns(10);
+      nodeNameTextField.addMouseListener(new MouseAdapter() {
         @Override
         public void mouseClicked(MouseEvent e) {
-          if (nodeNameTextfieldClear) {
-            nodeNameTextfield.setText("");
-            nodeNameTextfieldClear = false;
+          if (nodeNameTextFieldClear) {
+            nodeNameTextField.setText("");
+            nodeNameTextFieldClear = false;
           }
         }
 
       });
-      GridBagConstraints nodeNameTextfieldCons = new GridBagConstraints();
-      setCons(nodeNameTextfieldCons,1,1,1,1,GridBagConstraints.NONE,GridBagConstraints.LINE_START,10,0);
-      addNode.add(nodeNameTextfield, nodeNameTextfieldCons);
+      GridBagConstraints nodeNameTextFieldCons = new GridBagConstraints();
+      setCons(nodeNameTextFieldCons,1,1,1,1,GridBagConstraints.NONE,GridBagConstraints.LINE_START,10,0);
+      addNode.add(nodeNameTextField, nodeNameTextFieldCons);
 
       //node id
       JLabel nodeIdTitle = new JLabel("Id: ");
@@ -140,12 +144,35 @@ public class Main extends JFrame {
       addNode.add(nodeIdTitle, nodeIdTitleCons);
 
 
-      nodeIdLabel = new JLabel(""+rawNodes.size());
+      nodeIdLabel = new JLabel(""+nodesList.size());
 
       GridBagConstraints nodeIdLabelCons = new GridBagConstraints();
       setCons(nodeIdLabelCons,1,2,1,1,GridBagConstraints.NONE,GridBagConstraints.LINE_START,10,10);
       addNode.add(nodeIdLabel, nodeIdLabelCons);
 
+      //hash share
+      JLabel hashShareTitle = new JLabel("Hash Share(%):");
+
+      GridBagConstraints hashShareTitleCons = new GridBagConstraints();
+      setCons(hashShareTitleCons,0,3,1,1,GridBagConstraints.NONE,GridBagConstraints.LINE_END,10,10);
+      addNode.add(hashShareTitle, hashShareTitleCons);
+
+
+      hashShareTextField = new JTextField(Double.toString(hashShareAvailable));
+      hashShareTextField.setColumns(10);
+      hashShareTextField.addMouseListener(new MouseAdapter() {
+        @Override
+        public void mouseClicked(MouseEvent e) {
+          if (hashShareFieldClear) {
+            hashShareTextField.setText("");
+            hashShareFieldClear = false;
+          }
+        }
+      });
+
+      GridBagConstraints hashShareTextFieldCons = new GridBagConstraints();
+      setCons(hashShareTextFieldCons,1,3,1,1,GridBagConstraints.NONE,GridBagConstraints.LINE_START,10,10);
+      addNode.add(hashShareTextField, hashShareTextFieldCons);
       //addnode buttons
       JPanel addNodeButtons = new JPanel();
 
@@ -258,42 +285,46 @@ public class Main extends JFrame {
   //preview methods
   public void addNode() {
     //get input values
-    String mine_speed = "100";
-    String name = nodeNameTextfield.getText();
+    String name = nodeNameTextField.getText();
+    String mine_speed = hashShareTextField.getText();
+    //input error catcher
+    if (hashShareAvailable < Double.parseDouble(hashShareTextField.getText())) {
+      // JOptionPane.showMessageDialog(main, "Unavailable hash share chosen");
+      JOptionPane.showMessageDialog(main,hashShareAvailable+"% hash share available","Error",JOptionPane.PLAIN_MESSAGE);
+      return;
+    }
     //add to preview
-    printToPreview(nodeIdLabel.getText(), name,mine_speed);
-    //add to rawNodes array
-    String[] nodeArray = new String[3];
-    nodeArray[0] = Integer.toString(rawNodes.size());
-    nodeArray[1] = name;
-    nodeArray[2] = mine_speed;
-    rawNodes.add(nodeArray);
-    // rawNodes.add({cInteger.toString(rawNodes.size()), name, mine_speed});
+    printToPreview(nodeIdLabel.getText(),name,mine_speed);
+    //add to nodesList array
+    nodesList.add(new Node(nodeIdLabel.getText(),name,mine_speed));
     //++1 to label
-    nodeIdLabel.setText(""+rawNodes.size());
+    nodeIdLabel.setText(""+nodesList.size());
+    //recalculate available hash share value
+    refreshHashShareAvailble();
   }
 
   public void removeNode(int id) {
-    for (String[] node : rawNodes) {
-      if (Integer.parseInt(node[0]) == id) {
-        rawNodes.remove(node);
-        refreshRawNodesList();
+    for (Node node : nodesList) {
+      if (node.id == id) {
+        nodesList.remove(node);
+        refreshNodesList();
         nodeIdLabel.setText(Integer.toString(Integer.parseInt(nodeIdLabel.getText())-1));
         refreshPreview();
+        refreshHashShareAvailble();
         break;
       }
     }
   }
 
+
   public void refreshPreview() {
-    // previewTextId.setText("");
-    // previewTextName.setText("");
-    // previewTextHashrate.setText("");
-    for (String[] node : rawNodes) {
-      printToPreview(node[0], node[1], node[2]);
+    previewText.setText("");
+    for (Node node : nodesList) {
+      printToPreview(Integer.toString(node.id),node.getName(),Double.toString(node.getMineSpeed()));
     }
   }
 
+  //format and print nodes info to preview Text Area
   public void printToPreview(String id, String name, String mine_speed) {
       if (name.length() > 15) {
         name = name.substring(0,13).concat("...   ");
@@ -303,16 +334,25 @@ public class Main extends JFrame {
       for (int i=0;i<=j;i++) {
         temp = temp.concat("  ");
       }
-      previewText.append(id+"            "+name+temp+mine_speed+"\n");
+      previewText.append(id+"            "+name+temp+mine_speed+"%\n");
     }
 
 
-  //when a node is removed, the id's of the remaining nodes must be fixed
-  public void refreshRawNodesList() {
-    for (int i=0;i<rawNodes.size();i++) {
-      rawNodes.get(i)[0] = ""+i;
+  //when a node is removed, the id's of the remaining nodesList must be fixed
+  public void refreshNodesList() {
+    for (int i=0;i<nodesList.size();i++) {
+      nodesList.get(i).id = i;
     }
     }
+
+  public void refreshHashShareAvailble() {
+    Double hsAvailble = 100.0;
+    for (Node node : nodesList) {
+      hsAvailble = hsAvailble - node.getMineSpeed();
+    }
+    hashShareAvailable = hsAvailble;
+    hashShareTextField.setText(Double.toString(hashShareAvailable));
+  }
 
 
 
@@ -321,15 +361,19 @@ public class Main extends JFrame {
     public void actionPerformed(ActionEvent e) {
 
       if(e.getSource() == startButton) {
-        Simulation simulation = new Simulation(rawNodes);
+        Simulation simulation = new Simulation(nodesList);
       } else if (e.getSource() == exitButton) {
         System.exit(0);
       } else if (e.getSource() == addNodeButton) {
         addNode();
-        nodeNameTextfield.setText("Node name");
-        nodeNameTextfieldClear = true;
+        nodeNameTextField.setText("Node name");
+        hashShareTextField.setText(Double.toString(hashShareAvailable));
+        nodeNameTextFieldClear = true;
+        hashShareFieldClear = true;
       } else if (e.getSource() == removeNodeButton) {
-        RemoveNodeWindow remove = new RemoveNodeWindow(main);
+        // RemoveNodeWindow remove = new RemoveNodeWindow(main);
+        String inputValue = JOptionPane.showInputDialog(main,"Id of node to remove:","Remove Node",1);
+        System.out.print(inputValue);
       }
     }
   }
