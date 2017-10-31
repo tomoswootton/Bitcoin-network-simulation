@@ -371,10 +371,25 @@ public class Main extends JFrame {
         nodeNameTextFieldClear = true;
         hashShareFieldClear = true;
       } else if (e.getSource() == removeNodeButton) {
-        // RemoveNodeWindow remove = new RemoveNodeWindow(main);
-        String inputValue = JOptionPane.showInputDialog(main,"Id of node to remove:","Remove Node",1);
-        System.out.print(inputValue);
+        removeNodeWindow();
       }
+    }
+
+    public void removeNodeWindow() {
+      //catch if nodesList is empty
+      int size = nodesList.size();
+      if (size==0) {
+        JOptionPane.showMessageDialog(null,"No nodes to remove.","Remove Node",JOptionPane.WARNING_MESSAGE);
+        return;
+      }
+      int inputValue = Integer.parseInt(JOptionPane.showInputDialog(main,"Id of node to remove:","Remove Node",1));
+      //catch value out of range
+      if (inputValue<0 || inputValue>size-1) {
+        JOptionPane.showMessageDialog(null,"Input value out of range.","Remove Node",JOptionPane.WARNING_MESSAGE);
+        removeNodeWindow();
+        return;
+      }
+      removeNode(inputValue);
     }
   }
 }
