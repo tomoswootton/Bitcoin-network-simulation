@@ -1,15 +1,15 @@
 import java.awt.*;
 
 import javax.swing.*;
-
 import java.awt.event.*;
+
 import java.awt.GridBagLayout;
 import java.util.LinkedList;
 
 
-public class Main extends JFrame {
+public class Main {
 
-  public Main main;
+  JFrame main = new JFrame();
 
   JButton startButton;
   JTextField globalHashrateTextField;
@@ -20,6 +20,8 @@ public class Main extends JFrame {
   JTextField nodeNameTextField;
   JTextField hashShareTextField;
   TextArea previewText;
+  JComboBox<String> nodesDisplayedCBox;
+
 
 
   //variable used to save state of node name text field.
@@ -33,7 +35,7 @@ public class Main extends JFrame {
 
 
   //nodesList list, contains node objects
-    public LinkedList<Node> nodesList = new LinkedList<Node>();
+  LinkedList<Node> nodesList = new LinkedList<Node>();
 
   public static void main(String[] args) {
     new Main();
@@ -41,30 +43,29 @@ public class Main extends JFrame {
 
   public Main() {
 
-    main = this;
-    this.setSize(800, 600);
+    main.setSize(800, 600);
+
+    main.setLocationRelativeTo(null);
+    main.setResizable(false);
+    main.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    main.setTitle("Menu");
 
     ListenForButton lForButton = new ListenForButton();
-
-    this.setLocationRelativeTo(null);
-    this.setResizable(false);
-    this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    this.setTitle("Network simulator");
 
     //create UI
     JPanel page = new JPanel();
     page.setLayout(new GridBagLayout());
 
     //header
-    JPanel header = new JPanel();
+    JPanel headerPanel = new JPanel();
 
       JLabel title = new JLabel("Network Simulator");
       title.setFont(title.getFont().deriveFont(28.0f));
-      header.add(title);
+      headerPanel.add(title);
 
-    GridBagConstraints headerCons = new GridBagConstraints();
-    setCons(headerCons, 1,0,4,2,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
-    page.add(header, headerCons);
+    GridBagConstraints headerPanelCons = new GridBagConstraints();
+    setCons(headerPanelCons, 1,0,4,2,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
+    page.add(headerPanel, headerPanelCons);
 
     //settings
     JPanel settings = new JPanel();
@@ -216,7 +217,7 @@ public class Main extends JFrame {
       JLabel previewTitlesHashrateLabel = new JLabel("hashrate share");
 
       GridBagConstraints previewTitlesHashrateLabelCons = new GridBagConstraints();
-      setCons(previewTitlesHashrateLabelCons,2,0,1,1,GridBagConstraints.NONE,GridBagConstraints.LINE_START,0,10);
+      setCons(previewTitlesHashrateLabelCons,2,0,1,1,GridBagConstraints.NONE,GridBagConstraints.LINE_START,0,0);
       preview.add(previewTitlesHashrateLabel, previewTitlesHashrateLabelCons);
 
       //text area
@@ -226,6 +227,24 @@ public class Main extends JFrame {
       GridBagConstraints previewTextCons = new GridBagConstraints();
       setCons(previewTextCons,0,1,3,2,GridBagConstraints.NONE,GridBagConstraints.CENTER,100,0);
       preview.add(previewText, previewTextCons);
+
+      //nodes per page panel
+      JPanel nodesPPPanel = new JPanel();
+
+        JLabel nodesPPTitle = new JLabel("Display ");
+        nodesPPPanel.add(nodesPPTitle);
+
+        //combo box
+        String[] nodesDisplayedList = {"3","6","9"};
+        nodesDisplayedCBox = new JComboBox<String>(nodesDisplayedList);
+        nodesPPPanel.add(nodesDisplayedCBox);
+
+        JLabel nodesPPTitle2 = new JLabel("nodes per page.");
+        nodesPPPanel.add(nodesPPTitle2);
+
+      GridBagConstraints nodesPPPanelCons = new GridBagConstraints();
+      setCons(nodesPPPanelCons,0,3,3,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
+      preview.add(nodesPPPanel, nodesPPPanelCons);
 
     GridBagConstraints previewCons = new GridBagConstraints();
     setCons(previewCons,0,8,6,3,GridBagConstraints.BOTH,GridBagConstraints.CENTER,10,10);
@@ -242,21 +261,17 @@ public class Main extends JFrame {
       startButton.addActionListener(lForButton);
       exitButton.addActionListener(lForButton);
 
+
+
     GridBagConstraints buttonsCons = new GridBagConstraints();
     setCons(buttonsCons,1,11,4,2,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
     page.add(buttons, buttonsCons);
 
-    //set background colours for testing
-      // header.setBackground(Color.yellow);
-      // settings.setBackground(Color.green);
-      // preview.setBackground(Color.red);
-      // addNode.setBackground(Color.cyan);
-      // buttons.setBackground(Color.blue);
 
 
     //add page to JFrame
-    this.add(page);
-    this.setVisible(true);
+    main.add(page);
+    main.setVisible(true);
 
   }
 
@@ -361,7 +376,13 @@ public class Main extends JFrame {
     public void actionPerformed(ActionEvent e) {
 
       if(e.getSource() == startButton) {
-        Simulation simulation = new Simulation(nodesList);
+        // System.out.print((nodesDisplayedCBox.getSelectedItem()));
+        String nodesPP = nodesDisplayedCBox.getSelectedItem().toString();
+        switch(nodesPP) {
+          case "3":
+            Simulation3Nodes simulation = new Simulation3Nodes(nodesList);
+            break;
+        }
       } else if (e.getSource() == exitButton) {
         System.exit(0);
       } else if (e.getSource() == addNodeButton) {
