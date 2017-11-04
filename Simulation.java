@@ -13,6 +13,8 @@ public abstract class Simulation {
 
   ListenForButton lForButton = new ListenForButton();
 
+  JPanel nodesPanel;
+
   JButton pauseButton;
   JButton exitButton;
 
@@ -68,48 +70,56 @@ public abstract class Simulation {
     JPanel page = new JPanel();
     page.setLayout(new GridBagLayout());
 
-    //header
-    JPanel headerPanel = new JPanel();
+      //header
+      JPanel headerPanel = new JPanel();
 
-      JLabel title = new JLabel("Network Simulator");
-      title.setFont(title.getFont().deriveFont(28.0f));
-      headerPanel.add(title);
+        JLabel title = new JLabel("Network Simulator");
+        title.setFont(title.getFont().deriveFont(28.0f));
+        headerPanel.add(title);
 
-    GridBagConstraints headerPanelCons = new GridBagConstraints();
-    setCons(headerPanelCons, 1,0,4,2,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
-    page.add(headerPanel, headerPanelCons);
+      GridBagConstraints headerPanelCons = new GridBagConstraints();
+      setCons(headerPanelCons, 1,0,4,2,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
+      page.add(headerPanel, headerPanelCons);
 
-    //nodes
-    JPanel nodesPanel = new JPanel();
-    nodesPanel.setLayout(new GridBagLayout());
+      //nodes
+      nodesPanel = new JPanel();
+      nodesPanel.setLayout(new GridBagLayout());
 
-    makeNodesPanel(nodesPanel);
+        constructNodesPanel(nodesPanel);
 
-    GridBagConstraints nodesPanelCons = new GridBagConstraints();
-    setCons(nodesPanelCons, 0,1,6,4,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
-    page.add(nodesPanel, nodesPanelCons);
+      GridBagConstraints nodesPanelCons = new GridBagConstraints();
+      setCons(nodesPanelCons, 0,1,6,4,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
+      page.add(nodesPanel, nodesPanelCons);
+
+
+      //buttons
+      JPanel buttons = new JPanel();
+
+        pauseButton = new JButton("Start");
+        buttons.add(pauseButton);
+        exitButton = new JButton("Exit");
+        buttons.add(exitButton);
+
+      pauseButton.addActionListener(lForButton);
+      exitButton.addActionListener(lForButton);
+
+
+      GridBagConstraints buttonsCons = new GridBagConstraints();
+      setCons(buttonsCons,1,5,4,2,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
+      page.add(buttons, buttonsCons);
 
     simulation.add(page);
     simulation.setVisible(true);
-
-    //buttons
-    JPanel buttons = new JPanel();
-
-    pauseButton = new JButton("Start");
-    buttons.add(pauseButton);
-    exitButton = new JButton("Exit");
-    buttons.add(exitButton);
-
-    pauseButton.addActionListener(lForButton);
-    exitButton.addActionListener(lForButton);
-
-    GridBagConstraints buttonsCons = new GridBagConstraints();
-    setCons(buttonsCons,1,11,4,2,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
-    page.add(buttons, buttonsCons);
   }
 
-  public void makeNodesPanel(JPanel nodesPanel) {
+  private void constructNodesPanel(JPanel nodesPanel) {
     System.out.println("Failed to overwrite makeNoedsPanel method from abstract class Simulation.");
+  }
+
+  private void addNodesToPanel(Node node) {
+    for (Node node : nodesList) {
+      
+    }
   }
 
   private void setCons(GridBagConstraints gridCons, int x, int y, int width, int height, int fill, int anchor, int ipadx, int ipady) {
@@ -132,18 +142,14 @@ public abstract class Simulation {
     gridCons.weighty = 0.2;
   }
 
+  private class ListenForButton implements ActionListener {
 
-
-   private class ListenForButton implements ActionListener {
-
-     public void actionPerformed(ActionEvent e) {
-
-       if(e.getSource() == pauseButton) {
-         System.out.println("sim paused.");
-       } else if (e.getSource() == exitButton) {
-         simulation.dispose();
-       }
+   public void actionPerformed(ActionEvent e) {
+     if(e.getSource() == pauseButton) {
+       System.out.println("sim paused.");
+     } else if (e.getSource() == exitButton) {
+       simulation.dispose();
      }
    }
-
+  }
 }

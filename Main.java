@@ -380,7 +380,13 @@ public class Main {
         String nodesPP = nodesDisplayedCBox.getSelectedItem().toString();
         switch(nodesPP) {
           case "3":
-            Simulation3Nodes simulation = new Simulation3Nodes(nodesList);
+            Simulation3Nodes simulation3Nodes = new Simulation3Nodes(nodesList);
+            break;
+          case "6":
+            Simulation6Nodes simulation6Nodes = new Simulation6Nodes(nodesList);
+            break;
+          case "9":
+            Simulation9Nodes simulation9Nodes = new Simulation9Nodes(nodesList);
             break;
         }
       } else if (e.getSource() == exitButton) {

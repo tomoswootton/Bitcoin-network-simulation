@@ -1,3 +1,5 @@
+import javax.swing.*;
+
 import java.util.LinkedList;
 import java.util.*;
 
@@ -85,5 +87,9 @@ public class Node {
 
   public void verify(Block block) {
     // if (toString(block.hash)[0]
+  }
+
+  public JPanel makePanel() {
+    
   }
 }
