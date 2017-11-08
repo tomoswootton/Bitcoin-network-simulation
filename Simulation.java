@@ -29,7 +29,6 @@ public class Simulation {
   public Simulation(int nodesPP, LinkedList<Node> nodesList) {
 
     this.nodesPP = nodesPP;
-    System.out.println("nodespp = "+ this.nodesPP);
     this.nodesList = nodesList;
     //init
     simulation.setSize(1000,800);
@@ -91,7 +90,7 @@ public class Simulation {
       //nodes
       nodesPanel = new JPanel();
         nodesPanel.setLayout(new GridBagLayout());
-        constructNodesPanel(0);
+        constructNodesPanels(0);
 
       GridBagConstraints nodesPanelCons = new GridBagConstraints();
       setCons(nodesPanelCons, 0,1,6,4,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
@@ -140,25 +139,52 @@ public class Simulation {
     simulation.setVisible(true);
   }
 
-  //displays nodes in panel, pages start on 0
-  public void constructNodesPanel(int page) {
-    int max = 3;
-    if (nodesList.size() < max) {
-      max = nodesList.size()-1;
-    }
-    System.out.println(nodesPP/3);
-    //y axis
-    for (int i=0;i<nodesPP/3;i++) {
-      //x axis
-      for (int j=page*nodesPP;j<max;j++) {
-        System.out.println("i="+i+"  j="+j);
-        GridBagConstraints panelCons = new GridBagConstraints();
-        setCons(panelCons,j*2,i,2,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,20,0);
-        nodesPanel.add(nodesList.get(j).getPanel(),panelCons);
+  //displays nodes in panel, pages start on 1
+  public void constructNodesPanels(int page) {
+    // int row = 3;
+    // if (nodesList.size()-(page*nodesPP) < row) {
+    //   row = nodesList.size()-(page*nodesPP)-1;
+    // }
+    // //y axis
+    // for (int i=0;i<nodesPP/3;i++) {
+    //   //x axis
+    //   for (int j=0;j<=2;j++) {
+    //     System.out.println("i="+i+"  j="+j);
+    //     GridBagConstraints panelCons = new GridBagConstraints();
+    //     setCons(panelCons,j*2,i,2,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,20,0);
+    //     nodesPanel.add(nodesList.get(j*page).getPanel(),panelCons);
+    //   }
+    //
+    // }
+    int i = nodesList.size() - (nodesList.size()-3*page);
+    System.out.println("i="+i);
+    if (i<2) {
+      switch (i) {
+        case 1:
+          addNode(3*page,0,0);
+          break;
+        case 2:
+          addNode(3*page,0,0);
+          addNode(3*page+1,1,0);
+          break;
+        case 3:
+          addNode(3*page,0,0);
+          addNode(3*page+1,1,0);
+          addNode(3*page+2,2,0);
       }
-
+    } else {
+      for (int j=0;j<=2;j++) {
+        addNode(3*page+j,j,0);;
+      }
     }
   }
+
+    private void addNode(int node, int xpos, int ypos) {
+      GridBagConstraints panelCons = new GridBagConstraints();
+      setCons(panelCons,xpos*2,ypos,2,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,20,0);
+      nodesPanel.add(nodesList.get(node).getPanel(),panelCons);
+    }
+
 
 
   public void setCons(GridBagConstraints gridCons, int x, int y, int width, int height, int fill, int anchor, int ipadx, int ipady) {
