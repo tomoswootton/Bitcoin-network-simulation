@@ -7,23 +7,29 @@ import java.awt.GridBagLayout;
 import java.util.LinkedList;
 
 
-public abstract class Simulation {
+public class Simulation {
 
   JFrame simulation = new JFrame();
 
   ListenForButton lForButton = new ListenForButton();
 
+  int nodesPP;
+
   JPanel nodesPanel;
 
   JButton pauseButton;
   JButton exitButton;
+  JButton nextPageButton;
+  JButton prevPageButton;
   JLabel label1;
 
   //linked list used becasue blocks will only be added to the end
    LinkedList<Node> nodesList;
 
-  public Simulation(LinkedList<Node> nodesList) {
+  public Simulation(int nodesPP, LinkedList<Node> nodesList) {
 
+    this.nodesPP = nodesPP;
+    System.out.println("nodespp = "+ this.nodesPP);
     this.nodesList = nodesList;
     //init
     simulation.setSize(1000,800);
@@ -84,8 +90,8 @@ public abstract class Simulation {
 
       //nodes
       nodesPanel = new JPanel();
-        // nodesPanel.setLayout(new GridBagLayout());
-        constructNodesPanel();
+        nodesPanel.setLayout(new GridBagLayout());
+        constructNodesPanel(0);
 
       GridBagConstraints nodesPanelCons = new GridBagConstraints();
       setCons(nodesPanelCons, 0,1,6,4,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
@@ -94,13 +100,34 @@ public abstract class Simulation {
 
       //buttons
       JPanel buttonsPanel = new JPanel();
+      buttonsPanel.setLayout(new GridBagLayout());
+
+        prevPageButton = new JButton("<< previous page");
+
+        GridBagConstraints prevPageButtonCons = new GridBagConstraints();
+        setCons(prevPageButtonCons, 0,0,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
+        buttonsPanel.add(prevPageButton, prevPageButtonCons);
+
+        nextPageButton = new JButton("Next page >>");
+
+        GridBagConstraints nextPageButtonCons = new GridBagConstraints();
+        setCons(nextPageButtonCons, 1,0,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
+        buttonsPanel.add(nextPageButton, nextPageButtonCons);
 
         pauseButton = new JButton("Start");
-        buttonsPanel.add(pauseButton);
+
+        GridBagConstraints pauseButtonCons = new GridBagConstraints();
+        setCons(pauseButtonCons, 0,1,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
+        buttonsPanel.add(pauseButton, pauseButtonCons);
+
         exitButton = new JButton("Exit");
-        buttonsPanel.add(exitButton);
 
+        GridBagConstraints exitButtonCons = new GridBagConstraints();
+        setCons(exitButtonCons, 1,1,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
+        buttonsPanel.add(exitButton, exitButtonCons);
 
+      prevPageButton.addActionListener(lForButton);
+      nextPageButton.addActionListener(lForButton);
       pauseButton.addActionListener(lForButton);
       exitButton.addActionListener(lForButton);
 
@@ -113,15 +140,28 @@ public abstract class Simulation {
     simulation.setVisible(true);
   }
 
-  public void constructNodesPanel() {
-    System.out.println("Failed to overwrite makeNoedsPanel method from abstract class Simulation.");
+  //displays nodes in panel, pages start on 0
+  public void constructNodesPanel(int page) {
+    int max = 3;
+    if (nodesList.size() < max) {
+      max = nodesList.size()-1;
+    }
+    System.out.println(nodesPP/3);
+    //y axis
+    for (int i=0;i<nodesPP/3;i++) {
+      //x axis
+      for (int j=page*nodesPP;j<max;j++) {
+        System.out.println("i="+i+"  j="+j);
+        GridBagConstraints panelCons = new GridBagConstraints();
+        setCons(panelCons,j*2,i,2,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,20,0);
+        nodesPanel.add(nodesList.get(j).getPanel(),panelCons);
+      }
+
+    }
   }
 
-  public void addNodeToPanel(Node node) {
-    nodesPanel.add(node.getPanel());
-  }
 
-  private void setCons(GridBagConstraints gridCons, int x, int y, int width, int height, int fill, int anchor, int ipadx, int ipady) {
+  public void setCons(GridBagConstraints gridCons, int x, int y, int width, int height, int fill, int anchor, int ipadx, int ipady) {
     gridCons.gridx = x;
     gridCons.gridy = y;
     //number of col/row component takes up
@@ -148,6 +188,8 @@ public abstract class Simulation {
        System.out.println("sim paused.");
      } else if (e.getSource() == exitButton) {
        simulation.dispose();
+     } else if (e.getSource() == prevPageButton) {
+
      }
    }
   }

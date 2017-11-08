@@ -6,18 +6,21 @@ import java.awt.event.*;
 
 import java.util.LinkedList;
 
-//testing
-public static void main(String[] args) {
-  JFrame testFrame = new Jframe;
-  testFrame.setSize(600,800);
-  Node testNode = new Node(0,node-name,100);
-  testPanel = testNode.getPanel();
-  testPanel.setBackground(color.green);
-  testFrame.add(testPanel);
-
-}
 
 public class Node {
+  //testing
+  public static void main(String[] args) {
+    JFrame testFrame = new JFrame();
+    testFrame.setSize(300,400);
+
+    Node testNode = new Node("0","node-name","100");
+    JPanel testPanel = testNode.getPanel();
+    testPanel.setBackground(Color.green);
+    testFrame.add(testPanel);
+    testFrame.setVisible(true);
+
+
+  }
 
   // nodes version of chain
   public static LinkedList<Block> chain = new LinkedList<Block>();
@@ -30,6 +33,7 @@ public class Node {
   private Block workingBlock;
 
   private JPanel panel;
+  private TextArea logText;
 
   public Node(String id, String name, String mineSpeed) {
     this.id = Integer.parseInt(id);
@@ -118,24 +122,39 @@ public class Node {
     panel = new JPanel();
     panel.setLayout(new GridBagLayout());
 
+    //node info
       JLabel nameLabel = new JLabel(this.name);
 
       GridBagConstraints nameLabelCons = new GridBagConstraints();
-      setCons(nameLabelCons,1,0,2,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
+      setCons(nameLabelCons,1,0,2,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,20,10);
       panel.add(nameLabel, nameLabelCons);
 
-      JLabel idLabel = new JLabel("id:");
+      JLabel idLabel = new JLabel("id: " +Integer.toString(this.id));
 
       GridBagConstraints idLabelCons = new GridBagConstraints();
-      setCons(idLabelCons,3,0,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
+      setCons(idLabelCons,3,0,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,20,10);
       panel.add(idLabel, idLabelCons);
 
-      JLabel idLabel2 = new JLabel(Integer.toString(this.id));
+      JLabel mineSpeedLabel = new JLabel("Hash share: "+Double.toString(this.mineSpeed));
 
-      GridBagConstraints idLabel2Cons = new GridBagConstraints();
-      setCons(idLabel2Cons,4,0,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
-      panel.add(idLabel2, idLabel2Cons);
+      GridBagConstraints mineSpeedLabelCons = new GridBagConstraints();
+      setCons(mineSpeedLabelCons,2,1,2,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,20,10);
+      panel.add(mineSpeedLabel, mineSpeedLabelCons);
 
+
+    //current block info
+
+
+    //chain info
+
+
+    //log
+      logText = new TextArea("LOG",8,20,TextArea.SCROLLBARS_BOTH);
+      logText.setEditable(false);
+
+      GridBagConstraints logTextCons = new GridBagConstraints();
+      setCons(logTextCons,0,6,6,2,GridBagConstraints.NONE,GridBagConstraints.CENTER,100,0);
+      panel.add(logText, logTextCons);
   }
 
   //method sets GridBagConstraints variables

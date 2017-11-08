@@ -175,6 +175,7 @@ public class Main {
       GridBagConstraints hashShareTextFieldCons = new GridBagConstraints();
       setCons(hashShareTextFieldCons,1,3,1,1,GridBagConstraints.NONE,GridBagConstraints.LINE_START,10,10);
       addNode.add(hashShareTextField, hashShareTextFieldCons);
+
       //addnode buttons
       JPanel addNodeButtons = new JPanel();
 
@@ -187,7 +188,7 @@ public class Main {
         removeNodeButton.addActionListener(lForButton);
 
       GridBagConstraints addNodeButtonsCons = new GridBagConstraints();
-      setCons(addNodeButtonsCons,0,4,2,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,10);
+      setCons(addNodeButtonsCons,0,4,2,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
       addNode.add(addNodeButtons, addNodeButtonsCons);
 
 
@@ -378,18 +379,7 @@ public class Main {
 
       if(e.getSource() == startButton) {
         // System.out.print((nodesDisplayedCBox.getSelectedItem()));
-        String nodesPP = nodesDisplayedCBox.getSelectedItem().toString();
-        switch(nodesPP) {
-          case "3":
-            Simulation3Nodes simulation3Nodes = new Simulation3Nodes(nodesList);
-            break;
-          case "6":
-            Simulation6Nodes simulation6Nodes = new Simulation6Nodes(nodesList);
-            break;
-          case "9":
-            Simulation9Nodes simulation9Nodes = new Simulation9Nodes(nodesList);
-            break;
-        }
+        Simulation simulation = new Simulation(Integer.parseInt(nodesDisplayedCBox.getSelectedItem().toString()), nodesList);
       } else if (e.getSource() == exitButton) {
         System.exit(0);
       } else if (e.getSource() == addNodeButton) {
