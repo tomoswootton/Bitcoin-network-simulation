@@ -17,6 +17,7 @@ public abstract class Simulation {
 
   JButton pauseButton;
   JButton exitButton;
+  JLabel label1;
 
   //linked list used becasue blocks will only be added to the end
    LinkedList<Node> nodesList;
@@ -78,14 +79,13 @@ public abstract class Simulation {
         headerPanel.add(title);
 
       GridBagConstraints headerPanelCons = new GridBagConstraints();
-      setCons(headerPanelCons, 1,0,4,2,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
+      setCons(headerPanelCons, 1,0,4,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
       page.add(headerPanel, headerPanelCons);
 
       //nodes
       nodesPanel = new JPanel();
-      nodesPanel.setLayout(new GridBagLayout());
-
-        constructNodesPanel(nodesPanel);
+        // nodesPanel.setLayout(new GridBagLayout());
+        constructNodesPanel();
 
       GridBagConstraints nodesPanelCons = new GridBagConstraints();
       setCons(nodesPanelCons, 0,1,6,4,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
@@ -93,33 +93,32 @@ public abstract class Simulation {
 
 
       //buttons
-      JPanel buttons = new JPanel();
+      JPanel buttonsPanel = new JPanel();
 
         pauseButton = new JButton("Start");
-        buttons.add(pauseButton);
+        buttonsPanel.add(pauseButton);
         exitButton = new JButton("Exit");
-        buttons.add(exitButton);
+        buttonsPanel.add(exitButton);
+
 
       pauseButton.addActionListener(lForButton);
       exitButton.addActionListener(lForButton);
 
 
-      GridBagConstraints buttonsCons = new GridBagConstraints();
-      setCons(buttonsCons,1,5,4,2,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
-      page.add(buttons, buttonsCons);
+      GridBagConstraints buttonsPanelCons = new GridBagConstraints();
+      setCons(buttonsPanelCons,1,5,4,2,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
+      page.add(buttonsPanel, buttonsPanelCons);
 
     simulation.add(page);
     simulation.setVisible(true);
   }
 
-  private void constructNodesPanel(JPanel nodesPanel) {
+  public void constructNodesPanel() {
     System.out.println("Failed to overwrite makeNoedsPanel method from abstract class Simulation.");
   }
 
-  private void addNodesToPanel(Node node) {
-    for (Node node : nodesList) {
-      
-    }
+  public void addNodeToPanel(Node node) {
+    nodesPanel.add(node.getPanel());
   }
 
   private void setCons(GridBagConstraints gridCons, int x, int y, int width, int height, int fill, int anchor, int ipadx, int ipady) {

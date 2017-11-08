@@ -12,8 +12,11 @@ public class Simulation3Nodes extends Simulation {
       System.out.println("sim 3 selected");
     }
 
-    public void constructNodesPanel(JPanel nodesPanel) {
-      // nodesPanel.add()
+    public void constructNodesPanel() {
+      for (Node node : nodesList) {
+        addNodeToPanel(node);
+        System.out.println("node "+node.id+ " added");
+      }
     }
 
 }
