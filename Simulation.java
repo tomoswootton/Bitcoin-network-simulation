@@ -16,12 +16,14 @@ public class Simulation {
   int nodesPP;
 
   JPanel nodesPanel;
+  int currentPage;
+  int totalPages;
 
+  JLabel currentPageLabel;
   JButton pauseButton;
   JButton exitButton;
   JButton nextPageButton;
   JButton prevPageButton;
-  JLabel label1;
 
   //linked list used becasue blocks will only be added to the end
    LinkedList<Node> nodesList;
@@ -30,6 +32,8 @@ public class Simulation {
 
     this.nodesPP = nodesPP;
     this.nodesList = nodesList;
+    this.currentPage = 1;
+    this.totalPages = (int) Math.ceil(nodesList.size()/nodesPP);
     //init
     simulation.setSize(1000,800);
 
@@ -87,10 +91,17 @@ public class Simulation {
       setCons(headerPanelCons, 1,0,4,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
       page.add(headerPanel, headerPanelCons);
 
+      //current page
+      currentPageLabel = new JLabel("current page: "+ currentPage);
+
+      GridBagConstraints currentPageLabelCons = new GridBagConstraints();
+      setCons(currentPageLabelCons, 0,0,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
+      headerPanel.add(currentPageLabel, currentPageLabelCons);
+
       //nodes
       nodesPanel = new JPanel();
         nodesPanel.setLayout(new GridBagLayout());
-        constructNodesPanels(0);
+        constructNodesPanels(1);
 
       GridBagConstraints nodesPanelCons = new GridBagConstraints();
       setCons(nodesPanelCons, 0,1,6,4,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
@@ -141,40 +152,24 @@ public class Simulation {
 
   //displays nodes in panel, pages start on 1
   public void constructNodesPanels(int page) {
-    // int row = 3;
-    // if (nodesList.size()-(page*nodesPP) < row) {
-    //   row = nodesList.size()-(page*nodesPP)-1;
-    // }
-    // //y axis
-    // for (int i=0;i<nodesPP/3;i++) {
-    //   //x axis
-    //   for (int j=0;j<=2;j++) {
-    //     System.out.println("i="+i+"  j="+j);
-    //     GridBagConstraints panelCons = new GridBagConstraints();
-    //     setCons(panelCons,j*2,i,2,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,20,0);
-    //     nodesPanel.add(nodesList.get(j*page).getPanel(),panelCons);
-    //   }
-    //
-    // }
-    int i = nodesList.size() - (nodesList.size()-3*page);
+
+    int size = nodesList.size();
+    int i = size - (size-3*page);
     System.out.println("i="+i);
-    if (i<2) {
-      switch (i) {
+    if (size < 3) {
+      switch (size) {
         case 1:
-          addNode(3*page,0,0);
+          addNode(0,0,0);
           break;
         case 2:
-          addNode(3*page,0,0);
-          addNode(3*page+1,1,0);
+          addNode(0,0,0);
+          addNode(1,1,0);
           break;
-        case 3:
-          addNode(3*page,0,0);
-          addNode(3*page+1,1,0);
-          addNode(3*page+2,2,0);
       }
     } else {
-      for (int j=0;j<=2;j++) {
-        addNode(3*page+j,j,0);;
+      for (int j=2;j>=0;j--) {
+        i -= 1;
+        addNode(i,j,0);;
       }
     }
   }
@@ -184,8 +179,6 @@ public class Simulation {
       setCons(panelCons,xpos*2,ypos,2,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,20,0);
       nodesPanel.add(nodesList.get(node).getPanel(),panelCons);
     }
-
-
 
   public void setCons(GridBagConstraints gridCons, int x, int y, int width, int height, int fill, int anchor, int ipadx, int ipady) {
     gridCons.gridx = x;
@@ -215,8 +208,20 @@ public class Simulation {
      } else if (e.getSource() == exitButton) {
        simulation.dispose();
      } else if (e.getSource() == prevPageButton) {
-
+       System.out.println("current: "+currentPage+"\ntotal: "+totalPages);
+       if (currentPage > 1) {
+         currentPage -= 1;
+         constructNodesPanels(currentPage);
+         currentPageLabel.setText("current page: "+ currentPage);
+       }
+     } else if (e.getSource() == nextPageButton) {
+       System.out.println("current: "+currentPage+"\ntotal: "+totalPages);
+       if (currentPage < totalPages) {
+         currentPage += 1;
+         constructNodesPanels(currentPage);
+         currentPageLabel.setText("current page: "+ currentPage);
+       }
+      }
      }
    }
-  }
 }
