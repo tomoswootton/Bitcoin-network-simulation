@@ -15,9 +15,10 @@ public class Simulation {
 
   int nodesPP;
 
+  JPanel page;
   JPanel nodesPanel;
   int currentPage;
-  int totalPages;
+  double totalPages;
 
   JLabel currentPageLabel;
   JButton pauseButton;
@@ -33,7 +34,7 @@ public class Simulation {
     this.nodesPP = nodesPP;
     this.nodesList = nodesList;
     this.currentPage = 1;
-    this.totalPages = (int) Math.ceil(nodesList.size()/nodesPP);
+    this.totalPages = Math.ceil((double) nodesList.size()/nodesPP);
     //init
     simulation.setSize(1000,800);
 
@@ -100,8 +101,9 @@ public class Simulation {
 
       //nodes
       nodesPanel = new JPanel();
-        nodesPanel.setLayout(new GridBagLayout());
-        constructNodesPanels(1);
+      nodesPanel.setLayout(new GridBagLayout());
+
+        constructNodesPanels(currentPage);
 
       GridBagConstraints nodesPanelCons = new GridBagConstraints();
       setCons(nodesPanelCons, 0,1,6,4,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
@@ -152,24 +154,13 @@ public class Simulation {
 
   //displays nodes in panel, pages start on 1
   public void constructNodesPanels(int page) {
-
-    int size = nodesList.size();
-    int i = size - (size-3*page);
-    System.out.println("i="+i);
-    if (size < 3) {
-      switch (size) {
-        case 1:
-          addNode(0,0,0);
+    nodesPanel.removeAll();
+    for (int j=0;j<nodesPP/3;j++) {
+      for (int i=0;i<=2;i++) {
+        if(i+(j*3)+(page-1)*nodesPP > nodesList.size()-1) {
           break;
-        case 2:
-          addNode(0,0,0);
-          addNode(1,1,0);
-          break;
-      }
-    } else {
-      for (int j=2;j>=0;j--) {
-        i -= 1;
-        addNode(i,j,0);;
+        }
+        addNode(i+(j*3)+(page-1)*nodesPP,i,j);
       }
     }
   }
@@ -208,18 +199,16 @@ public class Simulation {
      } else if (e.getSource() == exitButton) {
        simulation.dispose();
      } else if (e.getSource() == prevPageButton) {
-       System.out.println("current: "+currentPage+"\ntotal: "+totalPages);
        if (currentPage > 1) {
          currentPage -= 1;
-         constructNodesPanels(currentPage);
          currentPageLabel.setText("current page: "+ currentPage);
+         constructNodesPanels(currentPage);
        }
      } else if (e.getSource() == nextPageButton) {
-       System.out.println("current: "+currentPage+"\ntotal: "+totalPages);
        if (currentPage < totalPages) {
          currentPage += 1;
-         constructNodesPanels(currentPage);
          currentPageLabel.setText("current page: "+ currentPage);
+         constructNodesPanels(currentPage);
        }
       }
      }
