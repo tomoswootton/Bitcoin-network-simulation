@@ -13,6 +13,8 @@ public class Simulation {
 
   ListenForButton lForButton = new ListenForButton();
 
+  // page variables
+  Boolean running = false;
   int nodesPP;
 
   JPanel page;
@@ -21,7 +23,7 @@ public class Simulation {
   double totalPages;
 
   JLabel currentPageLabel;
-  JButton pauseButton;
+  JButton startPauseButton;
   JButton exitButton;
   JButton nextPageButton;
   JButton prevPageButton;
@@ -57,12 +59,6 @@ public class Simulation {
     return nodesList.size();
   }
 
-
-//methods
-  public void addNode(String id, String name, String mineSpeed) {
-    nodesList.add(new Node(id, name, mineSpeed));
-  }
-
   //state=true, start mine
   // public void run(boolean state) {
   //   for (Node node : nodesList) {
@@ -92,13 +88,6 @@ public class Simulation {
       setCons(headerPanelCons, 1,0,4,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
       page.add(headerPanel, headerPanelCons);
 
-      //current page
-      currentPageLabel = new JLabel("current page: "+ currentPage);
-
-      GridBagConstraints currentPageLabelCons = new GridBagConstraints();
-      setCons(currentPageLabelCons, 0,0,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
-      headerPanel.add(currentPageLabel, currentPageLabelCons);
-
       //nodes
       nodesPanel = new JPanel();
       nodesPanel.setLayout(new GridBagLayout());
@@ -126,11 +115,11 @@ public class Simulation {
         setCons(nextPageButtonCons, 1,0,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
         buttonsPanel.add(nextPageButton, nextPageButtonCons);
 
-        pauseButton = new JButton("Start");
+        startPauseButton = new JButton("Start");
 
-        GridBagConstraints pauseButtonCons = new GridBagConstraints();
-        setCons(pauseButtonCons, 0,1,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
-        buttonsPanel.add(pauseButton, pauseButtonCons);
+        GridBagConstraints startPauseButtonCons = new GridBagConstraints();
+        setCons(startPauseButtonCons, 0,1,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
+        buttonsPanel.add(startPauseButton, startPauseButtonCons);
 
         exitButton = new JButton("Exit");
 
@@ -140,7 +129,7 @@ public class Simulation {
 
       prevPageButton.addActionListener(lForButton);
       nextPageButton.addActionListener(lForButton);
-      pauseButton.addActionListener(lForButton);
+      startPauseButton.addActionListener(lForButton);
       exitButton.addActionListener(lForButton);
 
 
@@ -191,11 +180,27 @@ public class Simulation {
     gridCons.weighty = 0.2;
   }
 
+  public void run(Boolean state) {
+    for (Node node : nodesList) {
+      node.mine(state);
+    }
+  }
+
   private class ListenForButton implements ActionListener {
 
    public void actionPerformed(ActionEvent e) {
-     if(e.getSource() == pauseButton) {
-       System.out.println("sim paused.");
+     if(e.getSource() == startPauseButton) {
+       if (running) {
+         startPauseButton.setText("Start");
+         run(false);
+         running = false;
+       } else {
+         startPauseButton.setText("Pause");
+         run(true);
+         running = true;
+       }
+
+
      } else if (e.getSource() == exitButton) {
        simulation.dispose();
      } else if (e.getSource() == prevPageButton) {

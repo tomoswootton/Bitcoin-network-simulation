@@ -13,7 +13,7 @@ public class Main {
   JFrame main = new JFrame();
 
   JButton startButton;
-  JTextField globalHashrateTextField;
+  JTextField globalHashPSTextField;
   JButton exitButton;
   JButton addNodeButton;
   JButton removeNodeButton;
@@ -30,6 +30,8 @@ public class Main {
   //true if clear upon click
   Boolean nodeNameTextFieldClear = true;
   Boolean hashShareFieldClear = true;
+  Boolean globalHashPSTextFieldClear = true;
+
 
   //variable holds percentage of hash share available
   Double hashShareAvailable = 100.0;
@@ -88,12 +90,22 @@ public class Main {
       settings.add(globalHashrateLabel, globalHashrateLabelCons);
 
 
-      globalHashrateTextField = new JTextField("number");
-      globalHashrateTextField.setColumns(5);
+      globalHashPSTextField = new JTextField("10");
+      globalHashPSTextField.setColumns(5);
+      globalHashPSTextField.addMouseListener(new MouseAdapter() {
+        @Override
+        public void mouseClicked(MouseEvent e) {
+          if (globalHashPSTextFieldClear) {
+            globalHashPSTextField.setText("");
+            globalHashPSTextFieldClear = false;
+          }
+        }
 
-      GridBagConstraints globalHashrateTextFieldCons = new GridBagConstraints();
-      setCons(globalHashrateTextFieldCons,1,1,1,1,GridBagConstraints.NONE,GridBagConstraints.LINE_START,10,0);
-      settings.add(globalHashrateTextField, globalHashrateTextFieldCons);
+      });
+
+      GridBagConstraints globalHashPSTextFieldCons = new GridBagConstraints();
+      setCons(globalHashPSTextFieldCons,1,1,1,1,GridBagConstraints.NONE,GridBagConstraints.LINE_START,10,0);
+      settings.add(globalHashPSTextField, globalHashPSTextFieldCons);
 
 
     GridBagConstraints settingsCons = new GridBagConstraints();
@@ -301,19 +313,22 @@ public class Main {
 
   //preview methods
   public void addNode() {
-    //get input values
-    String name = nodeNameTextField.getText();
-    String mine_speed = hashShareTextField.getText();
+
     //input error catcher
     if (hashShareAvailable < Double.parseDouble(hashShareTextField.getText())) {
       // JOptionPane.showMessageDialog(main, "Unavailable hash share chosen");
       JOptionPane.showMessageDialog(main,hashShareAvailable+"% hash share available","Error",JOptionPane.PLAIN_MESSAGE);
       return;
     }
+
+    //get input values
+    String name = nodeNameTextField.getText();
+    //percentage of share * global hashes per second
+    Double mine_speed = (Double.parseDouble(hashShareTextField.getText())/100)*Double.parseDouble(globalHashPSTextField.getText());
     //add to preview
-    printToPreview(nodeIdLabel.getText(),name,mine_speed);
+    printToPreview(nodeIdLabel.getText(),name,hashShareTextField.getText(),mine_speed);
     //add to nodesList array
-    nodesList.add(new Node(nodeIdLabel.getText(),name,mine_speed));
+    nodesList.add(new Node(nodeIdLabel.getText(),name,hashShareTextField.getText(),mine_speed));
     //++1 to label
     nodeIdLabel.setText(""+nodesList.size());
     //recalculate available hash share value
@@ -337,12 +352,12 @@ public class Main {
   public void refreshPreview() {
     previewText.setText("");
     for (Node node : nodesList) {
-      printToPreview(Integer.toString(node.id),node.getName(),Double.toString(node.getMineSpeed()));
+      printToPreview(Integer.toString(node.id),node.getName(),node.getHashShare(),node.getMineSpeed());
     }
   }
 
   //format and print nodes info to preview Text Area
-  public void printToPreview(String id, String name, String mine_speed) {
+  public void printToPreview(String id, String name, String hash_share, Double mine_speed) {
       if (name.length() > 15) {
         name = name.substring(0,13).concat("...   ");
       }
@@ -351,7 +366,7 @@ public class Main {
       for (int i=0;i<=j;i++) {
         temp = temp.concat("  ");
       }
-      previewText.append(id+"            "+name+temp+mine_speed+"%\n");
+      previewText.append(id+"            "+name+temp+hash_share+"%\n");
     }
 
 
@@ -365,7 +380,7 @@ public class Main {
   public void refreshHashShareAvailble() {
     Double hsAvailble = 100.0;
     for (Node node : nodesList) {
-      hsAvailble = hsAvailble - node.getMineSpeed();
+      hsAvailble = hsAvailble - Double.parseDouble(node.getHashShare());
     }
     hashShareAvailable = hsAvailble;
     hashShareTextField.setText(Double.toString(hashShareAvailable));
