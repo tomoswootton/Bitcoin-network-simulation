@@ -107,18 +107,20 @@ public class Node {
       timer.scheduleAtFixedRate(new TimerTask() {
         @Override
         public void run() {
-
           int hash = workingBlock.genHash();
-          System.out.println("block id: "+workingBlock.id);
           //check for valid hash
+          logText.append(formatHash(hash)+"\n");
           //TODO add log of all attempted hashes
-          logText.append(Integer.toString(hash)+"\n");
 
           if (checkHash(hash)) {
             //TODO get vaildation from other blocks
 
             //add to preview
-            logText.append("valid hash found: "+Integer.toString(hash)+"\n");
+            logText.append("valid hash found: "+formatHash(hash)+"\n");
+
+            logText.append("Adding block to chain..\n");
+            logText.append("Find new block. id: "+getChainSize()+"\n");
+
 
             //add to chain
             setChainLastElement(workingBlock);
@@ -141,11 +143,25 @@ public class Node {
   private Boolean checkHash(int hash) {
     //USING NONCE FOR NOW
     //nonce must by less than 2 digits
-    String temp = Integer.toString(hash);
-    if (temp.length() < 2) {
+    if (hash < 100) {
       return true;
     }
     return false;
+  }
+
+  private String formatHash(int hash) {
+    String formatted_hash = Integer.toString(hash);
+    switch (formatted_hash.length()) {
+      case (1) :
+        formatted_hash = "000"+formatted_hash;
+        break;
+      case (2) :
+        formatted_hash = "00"+formatted_hash;
+        break;
+      case (3) :
+        formatted_hash = "0"+formatted_hash;
+    }
+    return formatted_hash;
   }
 
   public void verify(Block block) {

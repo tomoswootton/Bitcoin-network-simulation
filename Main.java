@@ -350,6 +350,7 @@ public class Main {
 
 
   public void refreshPreview() {
+    System.out.println(nodesList);
     previewText.setText("");
     for (Node node : nodesList) {
       printToPreview(Integer.toString(node.id),node.getName(),node.getHashShare(),node.getMineSpeed());

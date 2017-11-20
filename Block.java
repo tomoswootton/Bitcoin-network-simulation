@@ -60,7 +60,6 @@ class Block {
     //hash is simply nonce for now
     // return block.getNonce;
     newNonce();
-    System.out.println("genHash hit: "+ this.nonce);
     return this.nonce;
   }
 
