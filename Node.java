@@ -99,14 +99,17 @@ public class Node {
   public void mine(Boolean state){
     int timerExecutionTime = (int) Math.ceil(1000/this.mineSpeed);
     if (state) {
+      //create new timer
+      timer = new Timer();
       //init block
       setNewWorkingBlock();
       //timer mines
       timer.scheduleAtFixedRate(new TimerTask() {
         @Override
         public void run() {
-          // timer = new Timer();
+
           int hash = workingBlock.genHash();
+          System.out.println("block id: "+workingBlock.id);
           //check for valid hash
           //TODO add log of all attempted hashes
           logText.append(Integer.toString(hash)+"\n");

@@ -63,4 +63,5 @@ class Block {
     System.out.println("genHash hit: "+ this.nonce);
     return this.nonce;
   }
+
 }
