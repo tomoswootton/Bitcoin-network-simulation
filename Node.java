@@ -30,9 +30,9 @@ public class Node {
   public int id;
   private String name;
   //percentage of total hash rate
-  private String hashShare;
+  private String hash_share;
   //measured in new hash per second
-  private double mineSpeed;
+  private double mine_speed;
   private Block workingBlock;
 
   private JPanel panel;
@@ -41,11 +41,11 @@ public class Node {
   private Timer timer;
 
 
-  public Node(String id, String name, String hashShare, Double mineSpeed) {
+  public Node(String id, String name, String hash_share, Double mine_speed) {
     this.id = Integer.parseInt(id);
     this.setName(name);
-    this.hashShare = hashShare;
-    this.mineSpeed = mineSpeed;
+    this.hash_share = hash_share;
+    this.mine_speed = mine_speed;
     makePanel();
     //init chain with genesis block
     Block block = new Block(this.getChainSize(), "1234");
@@ -62,17 +62,17 @@ public class Node {
     this.name = name;
   }
   public String getHashShare() {
-    return this.hashShare;
+    return this.hash_share;
   }
-  public void setHashShare(String hashShare) {
-    this.hashShare = hashShare;
+  public void setHashShare(String hash_share) {
+    this.hash_share = hash_share;
   }
   public double getMineSpeed() {
-    return this.mineSpeed;
+    return this.mine_speed;
   }
 
   public double setMineSpeed() {
-    return this.mineSpeed;
+    return this.mine_speed;
   }
 
   public static int getChainSize(){
@@ -83,7 +83,7 @@ public class Node {
     return chain.getLast();
   }
 
-  private void setChainLastElement(Block block) {
+  private addBlockToChain(Block block) {
     chain.add(block);
   }
 
@@ -97,7 +97,12 @@ public class Node {
 
 //methodss
   public void mine(Boolean state){
-    int timerExecutionTime = (int) Math.ceil(1000/this.mineSpeed);
+    //dont start timer if no mine speed, otherwise run() will be run once
+    if (mine_speed == 0.0) {
+      return;
+    }
+
+    int timerExecutionTime = (int) Math.ceil(1000/this.mine_speed);
     if (state) {
       //create new timer
       timer = new Timer();
@@ -116,17 +121,20 @@ public class Node {
             //TODO get vaildation from other blocks
 
             //add to preview
-            logText.append("valid hash found: "+formatHash(hash)+"\n");
+            logText.append("Valid hash found: "+formatHash(hash)+"\n");
 
+            //add block to chain
             logText.append("Adding block to chain..\n");
-            logText.append("Find new block. id: "+getChainSize()+"\n");
+            addBlockToChain(workingBlock);
 
-
-            //add to chain
-            setChainLastElement(workingBlock);
+            //propogate
+            logText.append("Propogating across network..\n");
+            propogateBlock(workingBlock);
 
             //start on new block
+            logText.append("Find new block. id: "+getChainSize()+"\n");
             setNewWorkingBlock();
+
           }
         }
         //task, delay from creation, time between task executions
@@ -136,7 +144,6 @@ public class Node {
       timer.cancel();
       timer.purge();
     }
-
   }
 
 
@@ -164,8 +171,20 @@ public class Node {
     return formatted_hash;
   }
 
-  public void verify(Block block) {
-    // if (toString(block.hash)[0]
+  public void receiveBlock(Block block) {
+    logText.append("Block received.\n");
+    //check block hash is valid
+    if (!checkHash(block.getHash)) {
+      logText.append("Invalid block, return to mine block id: "+getChainSize()+"\n");
+      return;
+    }
+    //add to chain
+    logText.append("Block verified, adding to chain..");
+    addBlockToChain(block);
+
+    //continue mine
+    logText.append("Find new block. id: "+getChainSize()+"\n");
+    setNewWorkingBlock();
   }
 
   private void makePanel() {
@@ -185,13 +204,13 @@ public class Node {
       setCons(idLabelCons,3,0,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,20,10);
       panel.add(idLabel, idLabelCons);
 
-      JLabel hashShareLabel = new JLabel("Hash share: "+this.hashShare);
+      JLabel hashShareLabel = new JLabel("Hash share: "+this.hash_share);
 
       GridBagConstraints hashShareLabelCons = new GridBagConstraints();
       setCons(hashShareLabelCons,2,2,2,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
       panel.add(hashShareLabel, hashShareLabelCons);
 
-      JLabel mineSpeedLabel = new JLabel("Hashes per second "+Double.toString(this.mineSpeed));
+      JLabel mineSpeedLabel = new JLabel("Hashes per second "+Double.toString(this.mine_speed));
 
       GridBagConstraints mineSpeedLabelCons = new GridBagConstraints();
       setCons(mineSpeedLabelCons,2,3,2,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
