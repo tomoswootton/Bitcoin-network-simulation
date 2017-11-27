@@ -43,6 +43,9 @@ public class Node {
   private TextArea logText;
 
   private Timer timer;
+  private int timerExecutionTime;
+  //used to catch running restart error
+  public Boolean runningState;
 
 
   public Node(String id, String name, String hash_share, Double mine_speed) {
@@ -55,8 +58,7 @@ public class Node {
     Block block = new Block(this.getChainSize(), "1234");
     chain.add(block);
     timer = new Timer();
-    System.out.println("chain size :"+getChainSize());
-
+    timerExecutionTime = (int) Math.ceil(1000/this.mine_speed);
   }
 
 //getter and setters
@@ -104,62 +106,67 @@ public class Node {
     this.nodesList = nodesList;
   }
 
-//methodss
-  public void mine(Boolean state){
+//timer methods
+  public void mine(Boolean state) {
     //dont start timer if no mine speed, otherwise run() will be run once
     if (mine_speed == 0.0) {
       return;
     }
-
-    int timerExecutionTime = (int) Math.ceil(1000/this.mine_speed);
-    if (state) {
-      //create new timer
-      timer = new Timer();
+    //runningState prevents code from receivedBlock() restarting mining when global mining
+    //has been paused
+    if (state && runningState) {
       //init block
       setNewWorkingBlock();
-      //timer mines
-      timer.scheduleAtFixedRate(new TimerTask() {
-        @Override
-        public void run() {
-          workingBlock.newNonce();
-          String hash = workingBlock.genHash();
-          //check for valid hash
-          logText.append(hash+"\n");
-          //TODO add log of all attempted hashes
-
-          if (checkHash(hash)) {
-            //TODO get vaildation from other blocks
-
-
-            //add to preview
-            logText.append("Valid hash found: "+hash+"\n");
-
-            //add block to chain
-            logText.append("Adding block to chain..\n");
-            addBlockToChain(workingBlock);
-
-            //propogate
-            logText.append("Propogating across network..\n");
-            propogateBlock(workingBlock);
-
-            //start on new block
-            logText.append("Find new block. id: "+getChainSize()+"\n");
-            setNewWorkingBlock();
-
-          }
-        }
-        //task, delay from creation, time between task executions
-      }, 0, timerExecutionTime);
+      startTimer();
     } else {
-      System.out.println("timer "+this.id+" stopped.");
-      timer.cancel();
-      timer.purge();
+      pauseTimer();
     }
   }
 
+  private void startTimer() {
+    timer = new Timer();
+    timer.scheduleAtFixedRate(new TimerTask() {
+      @Override
+      public void run() {
+        workingBlock.newNonce();
+        String hash = workingBlock.genHash();
+        //check for valid hash
+        logText.append(hash+"\n");
+        //TODO add log of all attempted hashes
+
+        if (checkHash(hash)) {
+          //TODO get vaildation from other blocks
+
+
+          //add to preview
+          logText.append("Valid hash found: "+hash+"\n");
+
+          //add block to chain
+          logText.append("Adding block to chain..\n");
+          addBlockToChain(workingBlock);
+
+          //propogate
+          logText.append("Propogating across network..\n");
+          propogateBlock(workingBlock);
+
+          //start on new block
+          logText.append("Find new block. id: "+getChainSize()+"\n");
+          setNewWorkingBlock();
+        }
+      }
+    }, 0, timerExecutionTime);
+  }
+
+  private void pauseTimer() {
+    // System.out.println("timer "+this.id+" stopped.");
+    timer.cancel();
+    timer.purge();
+  }
+
+  //methods
+
   private Boolean checkHash(String hash) {
-    //USING NONCE FOR NOW
-    //nonce must by less than 2 digits
+    //nonce must by less than 4 digits
     if (Integer.parseInt(hash) < 1000) {
       return true;
     }
@@ -176,7 +183,11 @@ public class Node {
   }
 
   public void receiveBlock(Block block) {
-    logText.append("Block received.\n");
+
+    //pause mining for execution of new block code
+    this.mine(false);
+
+    logText.append("Block received. Hash: "+block.getHash()+".\n");
     //check block hash is valid
     if (!checkHash(block.getHash())) {
       logText.append("Invalid block, return to mine block id: "+getChainSize()+"\n");
@@ -189,6 +200,9 @@ public class Node {
     //continue mine
     logText.append("Find new block. id: "+getChainSize()+"\n");
     setNewWorkingBlock();
+
+    //restart mining
+    this.mine(true);
   }
 
   private void makePanel() {

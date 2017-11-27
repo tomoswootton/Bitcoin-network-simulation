@@ -182,6 +182,7 @@ public class Simulation {
 
   public void run(Boolean state) {
     for (Node node : nodesList) {
+      node.runningState = state;
       node.mine(state);
     }
   }
