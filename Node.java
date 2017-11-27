@@ -5,9 +5,9 @@ import java.awt.GridBagLayout;
 import java.awt.event.*;
 
 import java.util.*;
+import java.util.LinkedList;
 import java.util.Timer;
 
-// import java.Math.ceil;
 
 
 public class Node {
@@ -22,10 +22,11 @@ public class Node {
     testPanel.setBackground(Color.green);
     testFrame.add(testPanel);
     testFrame.setVisible(true);
+
   }
 
   // nodes version of chain
-  public static LinkedList<Block> chain = new LinkedList<Block>();
+  public LinkedList<Block> chain = new LinkedList<Block>();
   //id needs to be changed by main class
   public int id;
   private String name;
@@ -34,6 +35,9 @@ public class Node {
   //measured in new hash per second
   private double mine_speed;
   private Block workingBlock;
+
+  //list of nodes in network
+  private LinkedList<Node> nodesList;
 
   private JPanel panel;
   private TextArea logText;
@@ -51,6 +55,7 @@ public class Node {
     Block block = new Block(this.getChainSize(), "1234");
     chain.add(block);
     timer = new Timer();
+    System.out.println("chain size :"+getChainSize());
 
   }
 
@@ -75,15 +80,15 @@ public class Node {
     return this.mine_speed;
   }
 
-  public static int getChainSize(){
+  public int getChainSize(){
     return chain.size();
   }
 
-  public static Block getChainLastElement() {
+  public Block getChainLastElement() {
     return chain.getLast();
   }
 
-  private addBlockToChain(Block block) {
+  private void addBlockToChain(Block block) {
     chain.add(block);
   }
 
@@ -93,6 +98,10 @@ public class Node {
 
   public JPanel getPanel() {
     return this.panel;
+  }
+
+  public void setNodesList(LinkedList<Node> nodesList) {
+    this.nodesList = nodesList;
   }
 
 //methodss
@@ -112,16 +121,18 @@ public class Node {
       timer.scheduleAtFixedRate(new TimerTask() {
         @Override
         public void run() {
-          int hash = workingBlock.genHash();
+          workingBlock.newNonce();
+          String hash = workingBlock.genHash();
           //check for valid hash
-          logText.append(formatHash(hash)+"\n");
+          logText.append(hash+"\n");
           //TODO add log of all attempted hashes
 
           if (checkHash(hash)) {
             //TODO get vaildation from other blocks
 
+
             //add to preview
-            logText.append("Valid hash found: "+formatHash(hash)+"\n");
+            logText.append("Valid hash found: "+hash+"\n");
 
             //add block to chain
             logText.append("Adding block to chain..\n");
@@ -140,46 +151,39 @@ public class Node {
         //task, delay from creation, time between task executions
       }, 0, timerExecutionTime);
     } else {
-      System.out.println("timer stopped.");
+      System.out.println("timer "+this.id+" stopped.");
       timer.cancel();
       timer.purge();
     }
   }
 
-
-  private Boolean checkHash(int hash) {
+  private Boolean checkHash(String hash) {
     //USING NONCE FOR NOW
     //nonce must by less than 2 digits
-    if (hash < 100) {
+    if (Integer.parseInt(hash) < 1000) {
       return true;
     }
     return false;
   }
 
-  private String formatHash(int hash) {
-    String formatted_hash = Integer.toString(hash);
-    switch (formatted_hash.length()) {
-      case (1) :
-        formatted_hash = "000"+formatted_hash;
-        break;
-      case (2) :
-        formatted_hash = "00"+formatted_hash;
-        break;
-      case (3) :
-        formatted_hash = "0"+formatted_hash;
+  private void propogateBlock(Block block) {
+    //send block to all nodes in network, apart from self
+    for (Node node : nodesList) {
+      if (node.id != this.id) {
+        node.receiveBlock(block);
+      }
     }
-    return formatted_hash;
   }
 
   public void receiveBlock(Block block) {
     logText.append("Block received.\n");
     //check block hash is valid
-    if (!checkHash(block.getHash)) {
+    if (!checkHash(block.getHash())) {
       logText.append("Invalid block, return to mine block id: "+getChainSize()+"\n");
       return;
     }
     //add to chain
-    logText.append("Block verified, adding to chain..");
+    logText.append("Block verified, adding to chain..\n");
     addBlockToChain(block);
 
     //continue mine

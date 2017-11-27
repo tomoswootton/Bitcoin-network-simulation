@@ -90,7 +90,7 @@ public class Main {
       settings.add(globalHashrateLabel, globalHashrateLabelCons);
 
 
-      globalHashPSTextField = new JTextField("10");
+      globalHashPSTextField = new JTextField("4");
       globalHashPSTextField.setColumns(5);
       globalHashPSTextField.addMouseListener(new MouseAdapter() {
         @Override
@@ -387,6 +387,19 @@ public class Main {
     hashShareTextField.setText(Double.toString(hashShareAvailable));
   }
 
+  private void startSimulation() {
+    //send all nodes their nodesList
+    //TODO add split chain option
+
+    // temp so entire list can be passed through, while iterating through original list
+    LinkedList<Node> nodesListTemp = this.nodesList;
+    for (Node node : nodesList) {
+      node.setNodesList(nodesListTemp);
+    }
+
+    Simulation simulation = new Simulation(Integer.parseInt(nodesDisplayedCBox.getSelectedItem().toString()), nodesList);
+  }
+
 
 
   private class ListenForButton implements ActionListener {
@@ -394,8 +407,7 @@ public class Main {
     public void actionPerformed(ActionEvent e) {
 
       if(e.getSource() == startButton) {
-        // System.out.print((nodesDisplayedCBox.getSelectedItem()));
-        Simulation simulation = new Simulation(Integer.parseInt(nodesDisplayedCBox.getSelectedItem().toString()), nodesList);
+        startSimulation();
       } else if (e.getSource() == exitButton) {
         System.exit(0);
       } else if (e.getSource() == addNodeButton) {

@@ -6,8 +6,8 @@ class Block {
   private String hash;
 
   public static void main(String[] args) {
-    // genPreviewString("2","CHINABIGMINER","100");
-    // genPreviewString("2","japan","100");
+    new Block(1,"3455");
+
   }
 
   // static void genPreviewString(String id, String name, String mine_speed) {
@@ -31,6 +31,7 @@ class Block {
     //prevBlockHash of nodes chain
     this.prevBlockHash = prevBlockHash;
     newNonce();
+    this.genHash();
   }
 
 //getters and setters
@@ -47,20 +48,38 @@ class Block {
   }
 
 //methods
-  private void newNonce() {
-    this.nonce = (int) (Math.random() * 1000);
+  public void newNonce() {
+    this.nonce = (int) (Math.random() * 10000);
   }
 
-
-  private Boolean validNonce() {
-    return true;
+  public String genHash() {
+    //hash is simply nonce
+    this.hash = formatHash(this.nonce);
+    return this.hash;
   }
 
-  public int genHash() {
-    //hash is simply nonce for now
-    // return block.getNonce;
-    newNonce();
-    return this.nonce;
+  private String formatHash(int hash) {
+    String formatted_hash = Integer.toString(hash);
+    switch (formatted_hash.length()) {
+      case (1) :
+        formatted_hash = "0000"+formatted_hash;
+        break;
+      case (2) :
+        formatted_hash = "000"+formatted_hash;
+        break;
+      case (3) :
+        formatted_hash = "00"+formatted_hash;
+        break;
+      case (4) :
+        formatted_hash = "0"+formatted_hash;
+        break;
+    }
+    return formatted_hash;
   }
+
+  // @Override
+  // public int hashCode() {
+  //   return nonce.hashCode();
+  // }
 
 }
