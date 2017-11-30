@@ -38,7 +38,7 @@ public class Simulation {
     this.currentPage = 1;
     this.totalPages = Math.ceil((double) nodesList.size()/nodesPP);
     //init
-    simulation.setSize(1000,800);
+    simulation.setSize(1200,900);
 
     simulation.setLocationRelativeTo(null);
     simulation.setResizable(false);

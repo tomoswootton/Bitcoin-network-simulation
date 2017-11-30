@@ -15,7 +15,7 @@ public class Node {
   //testing
   public static void main(String[] args) {
     JFrame testFrame = new JFrame();
-    testFrame.setSize(300,400);
+    testFrame.setSize (300,400);
 
     Node testNode = new Node("0","node-name","0.1", 10.0);
     JPanel testPanel = testNode.getPanel();
@@ -139,7 +139,7 @@ public class Node {
 
 
           //add to preview
-          logText.append("Valid hash found: "+hash+"\n");
+          logText.append("\nValid hash found: "+hash+"\n");
 
           //add block to chain
           logText.append("Adding block to chain..\n");
@@ -150,7 +150,7 @@ public class Node {
           propogateBlock(workingBlock);
 
           //start on new block
-          logText.append("Find new block. id: "+getChainSize()+"\n");
+          logText.append("Find new block. id: "+getChainSize()+"\n\n");
           setNewWorkingBlock();
         }
       }
@@ -187,7 +187,7 @@ public class Node {
     //pause mining for execution of new block code
     this.mine(false);
 
-    logText.append("Block received. Hash: "+block.getHash()+".\n");
+    logText.append("\nBlock received. Hash: "+block.getHash()+".\n");
     //check block hash is valid
     if (!checkHash(block.getHash())) {
       logText.append("Invalid block, return to mine block id: "+getChainSize()+"\n");
@@ -198,7 +198,7 @@ public class Node {
     addBlockToChain(block);
 
     //continue mine
-    logText.append("Find new block. id: "+getChainSize()+"\n");
+    logText.append("Find new block. id: "+getChainSize()+"\n\n");
     setNewWorkingBlock();
 
     //restart mining
@@ -242,7 +242,7 @@ public class Node {
 
 
     //log
-      logText = new TextArea("",8,20,TextArea.SCROLLBARS_BOTH);
+      logText = new TextArea("",20,20,TextArea.SCROLLBARS_BOTH);
       logText.setEditable(false);
 
       GridBagConstraints logTextCons = new GridBagConstraints();
