@@ -49,15 +49,10 @@ public class Simulation {
 
     simulation.setLocationRelativeTo(null);
     simulation.setResizable(false);
-    simulation.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    simulation.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     simulation.setTitle("Simulation");
 
-
     makePage();
-
-    //1.create nodes
-    //2.initialize nodes
-    //3.start mine
 
   }
 

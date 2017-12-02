@@ -38,6 +38,7 @@ public class Node {
   private double mine_speed;
   private Block workingBlock;
   private ArrayList<String> log = new ArrayList<String>();
+  private int blocks_mined;
 
   //list of nodes in network
   private LinkedList<Node> nodesList;
@@ -48,7 +49,7 @@ public class Node {
 
   private Timer timer;
   private int timerExecutionTime;
-  //used to catch running restart error
+  //stores true if node is mining
   public Boolean runningState;
 
 
@@ -57,6 +58,7 @@ public class Node {
     this.setName(name);
     this.hash_share = hash_share;
     this.mine_speed = mine_speed;
+    this.blocks_mined = 0;
     makeNodeDispPanel();
     //init chain with genesis block
     Block block = new Block(this.getChainSize(), "1234");
@@ -136,7 +138,7 @@ public class Node {
       //init block
       setNewWorkingBlock();
       startTimer();
-    } else {
+    } else if (!state) {
       pauseTimer();
     }
   }
@@ -280,6 +282,7 @@ public class Node {
           }
         }
       });
+
       JPanel viewLogButtonPanel = new JPanel();
       viewLogButtonPanel.setPreferredSize(new Dimension(10,20));
       viewLogButtonPanel.add(viewLogButton);
@@ -293,14 +296,15 @@ public class Node {
   private void dispLogDispWindow() {
     //make window each time
     JFrame window = new JFrame();
-    window.setSize(200,300);
+    window.setSize(250,300);
     window.setMinimumSize(new Dimension(100,200));
     window.setLocationRelativeTo(null);
-    window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    window.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     window.setTitle("Log");
 
 
     TextArea textArea = new TextArea("",8,38,TextArea.SCROLLBARS_BOTH);
+    textArea.setEditable(false);
     window.add(textArea);
     printLog(textArea);
 
