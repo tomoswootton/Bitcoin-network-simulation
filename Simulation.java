@@ -31,6 +31,13 @@ public class Simulation {
   //linked list used becasue blocks will only be added to the end
    LinkedList<Node> nodesList;
 
+   public static void main(String[] args) {
+     LinkedList<Node> nodesList= new LinkedList<Node>();
+     nodesList.add(new Node("0","test","30",0.5));
+     nodesList.add(new Node("1","test2","30",0.8));
+     new Simulation(1,nodesList);
+   }
+
   public Simulation(int nodesPP, LinkedList<Node> nodesList) {
 
     this.nodesPP = nodesPP;
@@ -59,17 +66,6 @@ public class Simulation {
     return nodesList.size();
   }
 
-  //state=true, start mine
-  // public void run(boolean state) {
-  //   for (Node node : nodesList) {
-  //     if (state) {
-  //        node.mine(true);
-  //     } else {
-  //         node.mine(false);
-  //     }
-  //    }
-  //  }
-
   //JFrame stuff
   public void makePage() {
 
@@ -89,14 +85,26 @@ public class Simulation {
       page.add(headerPanel, headerPanelCons);
 
       //nodes
+      //title
+      JLabel titleLabel = new JLabel("Name                          id          hash share          blcoks mined");
+
+      GridBagConstraints titleLabelCons = new GridBagConstraints();
+      setCons(titleLabelCons, 0,1,5,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
+      page.add(titleLabel, titleLabelCons);
+
+      //scroll box
       nodesPanel = new JPanel();
-      nodesPanel.setLayout(new GridBagLayout());
+      nodesPanel.setLayout(new BoxLayout(nodesPanel, BoxLayout.Y_AXIS));
+
+      JScrollPane scroll = new JScrollPane(nodesPanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+      scroll.setViewportView(nodesPanel);
+      scroll.setPreferredSize(new Dimension(500,100));
 
         constructNodesPanels(currentPage);
 
       GridBagConstraints nodesPanelCons = new GridBagConstraints();
-      setCons(nodesPanelCons, 0,1,6,4,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
-      page.add(nodesPanel, nodesPanelCons);
+      setCons(nodesPanelCons, 1,2,4,2,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
+      page.add(scroll, nodesPanelCons);
 
 
       //buttons
@@ -144,20 +152,15 @@ public class Simulation {
   //displays nodes in panel, pages start on 1
   public void constructNodesPanels(int page) {
     nodesPanel.removeAll();
-    for (int j=0;j<nodesPP/3;j++) {
-      for (int i=0;i<=2;i++) {
-        if(i+(j*3)+(page-1)*nodesPP > nodesList.size()-1) {
-          break;
-        }
-        addNode(i+(j*3)+(page-1)*nodesPP,i,j);
-      }
+    for (Node node : nodesList) {
+      nodesPanel.add(node.getNodeDispPanel());
     }
   }
 
     private void addNode(int node, int xpos, int ypos) {
       GridBagConstraints panelCons = new GridBagConstraints();
       setCons(panelCons,xpos*2,ypos,2,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,20,0);
-      nodesPanel.add(nodesList.get(node).getPanel(),panelCons);
+      nodesPanel.add(nodesList.get(node).getLogPanel());
     }
 
   public void setCons(GridBagConstraints gridCons, int x, int y, int width, int height, int fill, int anchor, int ipadx, int ipady) {
@@ -219,4 +222,5 @@ public class Simulation {
       }
      }
    }
-}
+
+ }

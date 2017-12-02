@@ -8,6 +8,8 @@ import java.util.*;
 import java.util.LinkedList;
 import java.util.Timer;
 
+import java.awt.event.ActionListener;
+
 
 
 public class Node {
@@ -15,14 +17,14 @@ public class Node {
   //testing
   public static void main(String[] args) {
     JFrame testFrame = new JFrame();
-    testFrame.setSize (300,400);
+    testFrame.setSize(500,500);
 
     Node testNode = new Node("0","node-name","0.1", 10.0);
-    JPanel testPanel = testNode.getPanel();
-    testPanel.setBackground(Color.green);
+    JPanel testPanel = testNode.getNodeDispPanel();
+
+
     testFrame.add(testPanel);
     testFrame.setVisible(true);
-
   }
 
   // nodes version of chain
@@ -35,11 +37,13 @@ public class Node {
   //measured in new hash per second
   private double mine_speed;
   private Block workingBlock;
+  private ArrayList<String> log = new ArrayList<String>();
 
   //list of nodes in network
   private LinkedList<Node> nodesList;
 
-  private JPanel panel;
+  private JPanel nodeDispPanel;
+  private JPanel logDispPanel;
   private TextArea logText;
 
   private Timer timer;
@@ -53,7 +57,7 @@ public class Node {
     this.setName(name);
     this.hash_share = hash_share;
     this.mine_speed = mine_speed;
-    makePanel();
+    makeNodeDispPanel();
     //init chain with genesis block
     Block block = new Block(this.getChainSize(), "1234");
     chain.add(block);
@@ -98,12 +102,26 @@ public class Node {
     workingBlock = new Block(getChainSize(), getChainLastElement().getHash());
   }
 
-  public JPanel getPanel() {
-    return this.panel;
+  public JPanel getNodeDispPanel() {
+    return this.nodeDispPanel;
+  }
+
+  public JPanel getLogPanel() {
+    return this.logDispPanel;
   }
 
   public void setNodesList(LinkedList<Node> nodesList) {
     this.nodesList = nodesList;
+  }
+  //log methods
+  private void addToLog(String string) {
+    this.log.add(string);
+  }
+
+  private void printLog(TextArea textArea) {
+    for (String string : log) {
+      textArea.append(string);
+    }
   }
 
 //timer methods
@@ -131,7 +149,7 @@ public class Node {
         workingBlock.newNonce();
         String hash = workingBlock.genHash();
         //check for valid hash
-        logText.append(hash+"\n");
+        addToLog(hash+"\n");
         //TODO add log of all attempted hashes
 
         if (checkHash(hash)) {
@@ -139,18 +157,18 @@ public class Node {
 
 
           //add to preview
-          logText.append("\nValid hash found: "+hash+"\n");
+          addToLog("\nValid hash found: "+hash+"\n");
 
           //add block to chain
-          logText.append("Adding block to chain..\n");
+          addToLog("Adding block to chain..\n");
           addBlockToChain(workingBlock);
 
           //propogate
-          logText.append("Propogating across network..\n");
+          addToLog("Propogating across network..\n");
           propogateBlock(workingBlock);
 
           //start on new block
-          logText.append("Find new block. id: "+getChainSize()+"\n\n");
+          addToLog("Find new block. id: "+getChainSize()+"\n\n");
           setNewWorkingBlock();
         }
       }
@@ -187,67 +205,106 @@ public class Node {
     //pause mining for execution of new block code
     this.mine(false);
 
-    logText.append("\nBlock received. Hash: "+block.getHash()+".\n");
+    addToLog("\nBlock received. Hash: "+block.getHash()+".\n");
     //check block hash is valid
     if (!checkHash(block.getHash())) {
-      logText.append("Invalid block, return to mine block id: "+getChainSize()+"\n");
+      addToLog("Invalid block, return to mine block id: "+getChainSize()+"\n");
       return;
     }
     //add to chain
-    logText.append("Block verified, adding to chain..\n");
+    addToLog("Block verified, adding to chain..\n");
     addBlockToChain(block);
 
     //continue mine
-    logText.append("Find new block. id: "+getChainSize()+"\n\n");
+    addToLog("Find new block. id: "+getChainSize()+"\n\n");
     setNewWorkingBlock();
 
     //restart mining
     this.mine(true);
   }
 
-  private void makePanel() {
-    panel = new JPanel();
-    panel.setLayout(new GridBagLayout());
+  private void makeNodeDispPanel() {
+    //TODO change to gridbaglayout so each column is fixed size
 
-    //node info
-      JLabel nameLabel = new JLabel(this.name);
+    nodeDispPanel = new JPanel(new GridBagLayout());
+    nodeDispPanel.setBorder(BorderFactory.createLineBorder(Color.black));
 
-      GridBagConstraints nameLabelCons = new GridBagConstraints();
-      setCons(nameLabelCons,1,0,2,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,20,10);
-      panel.add(nameLabel, nameLabelCons);
+      //check for name length too long
+      String name = this.name;
+      if (name.length() > 10) {
+        name = name.substring(0,10) + "..";
+      }
 
-      JLabel idLabel = new JLabel("id: " +Integer.toString(this.id));
+      JLabel nameLabel = new JLabel(name);
+      JPanel namePanel = new JPanel();
+      namePanel.setPreferredSize(new Dimension(30,20));
 
-      GridBagConstraints idLabelCons = new GridBagConstraints();
-      setCons(idLabelCons,3,0,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,20,10);
-      panel.add(idLabel, idLabelCons);
+      namePanel.add(nameLabel);
 
-      JLabel hashShareLabel = new JLabel("Hash share: "+this.hash_share);
+      GridBagConstraints namePanelCons = new GridBagConstraints();
+      setCons(namePanelCons,0,0,1,1,GridBagConstraints.NONE,GridBagConstraints.LINE_START,100,10);
+      nodeDispPanel.add(namePanel, namePanelCons);
 
-      GridBagConstraints hashShareLabelCons = new GridBagConstraints();
-      setCons(hashShareLabelCons,2,2,2,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
-      panel.add(hashShareLabel, hashShareLabelCons);
+      JLabel idLabel = new JLabel(Integer.toString(this.id));
+      JPanel idPanel = new JPanel();
+      idPanel.setPreferredSize(new Dimension(5,20));
+      idPanel.add(idLabel);
 
-      JLabel mineSpeedLabel = new JLabel("Hashes per second "+Double.toString(this.mine_speed));
+      GridBagConstraints idPanelCons = new GridBagConstraints();
+      setCons(idPanelCons,1,0,1,1,GridBagConstraints.NONE,GridBagConstraints.LINE_START,30,10);
+      nodeDispPanel.add(idPanel, idPanelCons);
 
-      GridBagConstraints mineSpeedLabelCons = new GridBagConstraints();
-      setCons(mineSpeedLabelCons,2,3,2,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
-      panel.add(mineSpeedLabel, mineSpeedLabelCons);
+      JLabel hashShareLabel = new JLabel(this.hash_share);
+      JPanel hashSharePanel = new JPanel();
+      hashSharePanel.setPreferredSize(new Dimension(10,20));
+      hashSharePanel.add(hashShareLabel);
+
+      GridBagConstraints hashSharePanelCons = new GridBagConstraints();
+      setCons(hashSharePanelCons,2,0,1,1,GridBagConstraints.NONE,GridBagConstraints.LINE_START,30,10);
+      nodeDispPanel.add(hashSharePanel, hashSharePanelCons);
+
+      JLabel blocksMinedLabel = new JLabel("number of blocks mine");
+      JPanel blocksMinedPanel = new JPanel();
+      blocksMinedPanel.setPreferredSize(new Dimension(10,20));
+      blocksMinedPanel.add(blocksMinedLabel);
+
+      GridBagConstraints blocksMinedPanelCons = new GridBagConstraints();
+      setCons(blocksMinedPanelCons,3,0,1,1,GridBagConstraints.NONE,GridBagConstraints.LINE_START,30,10);
+      nodeDispPanel.add(blocksMinedPanel, blocksMinedPanelCons);
+
+      JButton viewLogButton = new JButton("view Log");
+      viewLogButton.addActionListener(new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+          if(e.getSource() == viewLogButton) {
+            dispLogDispWindow();
+          }
+        }
+      });
+      JPanel viewLogButtonPanel = new JPanel();
+      viewLogButtonPanel.setPreferredSize(new Dimension(10,20));
+      viewLogButtonPanel.add(viewLogButton);
+
+      GridBagConstraints viewLogButtonPanelCons = new GridBagConstraints();
+      setCons(viewLogButtonPanelCons,4,0,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,100,10);
+      nodeDispPanel.add(viewLogButtonPanel, viewLogButtonPanelCons);
+  }
+
+  //makes window that displays log
+  private void dispLogDispWindow() {
+    //make window each time
+    JFrame window = new JFrame();
+    window.setSize(200,300);
+    window.setMinimumSize(new Dimension(100,200));
+    window.setLocationRelativeTo(null);
+    window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    window.setTitle("Log");
 
 
-    //current block info
+    TextArea textArea = new TextArea("",8,38,TextArea.SCROLLBARS_BOTH);
+    window.add(textArea);
+    printLog(textArea);
 
-
-    //chain info
-
-
-    //log
-      logText = new TextArea("",20,20,TextArea.SCROLLBARS_BOTH);
-      logText.setEditable(false);
-
-      GridBagConstraints logTextCons = new GridBagConstraints();
-      setCons(logTextCons,0,6,6,2,GridBagConstraints.NONE,GridBagConstraints.CENTER,100,0);
-      panel.add(logText, logTextCons);
+    window.setVisible(true);
   }
 
   //method sets GridBagConstraints variables
@@ -270,5 +327,7 @@ public class Node {
     gridCons.weightx = 0.2;
     gridCons.weighty = 0.2;
   }
+
+
 
 }

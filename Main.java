@@ -116,7 +116,6 @@ public class Main {
     //add_node
     JPanel addNode = new JPanel();
     addNode.setLayout(new GridBagLayout());
-    addNode.setSize(800, 1000);
 
     JLabel addNodeTitle = new JLabel("<HTML><U>Add node</U></HTML>");
       //title
@@ -339,8 +338,8 @@ public class Main {
     for (Node node : nodesList) {
       if (node.id == id) {
         nodesList.remove(node);
-        refreshNodesList();
         nodeIdLabel.setText(Integer.toString(Integer.parseInt(nodeIdLabel.getText())-1));
+        refreshNodesList();
         refreshPreview();
         refreshHashShareAvailble();
         break;
@@ -350,8 +349,8 @@ public class Main {
 
 
   public void refreshPreview() {
-    System.out.println(nodesList);
-    previewText.setText("");
+    System.out.println("got here");
+    previewText.setText(null);
     for (Node node : nodesList) {
       printToPreview(Integer.toString(node.id),node.getName(),node.getHashShare(),node.getMineSpeed());
     }
