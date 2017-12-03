@@ -11,6 +11,7 @@ import java.util.LinkedList;
 public class Main {
 
   JFrame main = new JFrame();
+  JPanel page;
 
   JButton startButton;
   JTextField globalHashPSTextField;
@@ -55,7 +56,7 @@ public class Main {
     ListenForButton lForButton = new ListenForButton();
 
     //create UI
-    JPanel page = new JPanel();
+    page = new JPanel();
     page.setLayout(new GridBagLayout());
 
     //header
@@ -217,7 +218,9 @@ public class Main {
 
     //scroll box
     previewPanel = new JPanel();
-    previewPanel.setLayout(new BoxLayout(previewPanel, BoxLayout.Y_AXIS));
+    // previewPanel.setLayout(new BoxLayout(previewPanel, BoxLayout.Y_AXIS));
+    previewPanel.setLayout(new GridBagLayout());
+
 
     JScrollPane scroll = new JScrollPane(previewPanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
     scroll.setViewportView(previewPanel);
@@ -274,6 +277,12 @@ public class Main {
     gridCons.weighty = 0.2;
   }
 
+  //extra method for if weight option is wanted
+  private void setCons(GridBagConstraints gridCons,int x,int y,int width,int height,int fill,int anchor,int ipadx,int ipady,int weightx,int weighty) {
+    setCons(gridCons,x,y,width,height,fill,anchor,ipadx,ipady);
+    gridCons.weightx = weightx;
+    gridCons.weighty = weighty;
+}
 
   //preview methods
   public void addNode() {
@@ -302,13 +311,15 @@ public class Main {
   }
 
   private void addNodeToPreview(Node node) {
-    previewPanel.add(node.getNodeDispPanel());
+    // previewPanel.add(node.getNodeDispPanel());
+    GridBagConstraints nodeCons = new GridBagConstraints();
+    setCons(nodeCons,0,nodesList.size(),2,1,GridBagConstraints.HORIZONTAL,GridBagConstraints.PAGE_START,10,0);
+    previewPanel.add(node.getNodeDispPanel(), nodeCons);
   }
 
   public void removeNode(int id) {
     for (Node node : nodesList) {
       if (node.id == id) {
-        System.out.println("remove node id: "+id);
         nodesList.remove(node);
         nodeIdLabel.setText(Integer.toString(Integer.parseInt(nodeIdLabel.getText())-1));
         refreshNodesList();
@@ -321,6 +332,7 @@ public class Main {
 
   public void refreshPreview() {
     previewPanel.removeAll();
+    previewPanel.repaint();
     // previewPanel.repaint();
     for (Node node : nodesList) {
       addNodeToPreview(node);
@@ -336,8 +348,6 @@ public class Main {
       node.makeNodeDispPanel();
 
     }
-    System.out.println("nodes list: "+nodesList);
-
     }
 
   public void refreshHashShareAvailble() {
@@ -390,14 +400,20 @@ public class Main {
         JOptionPane.showMessageDialog(null,"No nodes to remove.","Remove Node",JOptionPane.WARNING_MESSAGE);
         return;
       }
-      int inputValue = Integer.parseInt(JOptionPane.showInputDialog(main,"Id of node to remove:","Remove Node",1));
+      String inputValue = JOptionPane.showInputDialog(main,"Id of node to remove:","Remove Node",1);
+
+      if (inputValue.length() == 0) {
+        System.out.println("inputValue = null");
+        return;
+      }
+      int inputValueInt = Integer.parseInt(inputValue);
       //catch value out of range
-      if (inputValue<0 || inputValue>size-1) {
+      if (inputValueInt<0 || inputValueInt>size-1) {
         JOptionPane.showMessageDialog(null,"Input value out of range.","Remove Node",JOptionPane.WARNING_MESSAGE);
         removeNodeWindow();
         return;
       }
-      removeNode(inputValue);
+      removeNode(inputValueInt);
     }
   }
 }

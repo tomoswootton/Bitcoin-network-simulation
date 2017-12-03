@@ -96,6 +96,7 @@ public class Simulation {
       setCons(nodesPanelCons, 1,2,4,2,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
       page.add(scroll, nodesPanelCons);
 
+      //chain
 
       //buttons
       JPanel buttonsPanel = new JPanel();
