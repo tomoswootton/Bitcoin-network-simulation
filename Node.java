@@ -44,6 +44,7 @@ public class Node {
   private LinkedList<Node> nodesList;
 
   private JPanel nodeDispPanel;
+  private JLabel blocksMinedLabel;
   private JPanel logDispPanel;
   private TextArea logText;
 
@@ -156,21 +157,7 @@ public class Node {
 
         if (checkHash(hash)) {
           //TODO get vaildation from other blocks
-
-
-          //add to preview
-          addToLog("\nValid hash found: "+hash+"\n");
-
-          //add block to chain
-          addToLog("Adding block to chain..\n");
-          addBlockToChain(workingBlock);
-
-          //propogate
-          addToLog("Propogating across network..\n");
-          propogateBlock(workingBlock);
-
-          //start on new block
-          addToLog("Find new block. id: "+getChainSize()+"\n\n");
+          blockFound(hash);
           setNewWorkingBlock();
         }
       }
@@ -191,6 +178,23 @@ public class Node {
       return true;
     }
     return false;
+  }
+
+  private void blockFound(String hash) {
+    //add to preview
+    addToLog("\nValid hash found: "+hash+"\n");
+    //add block to chain
+    addToLog("Adding block to chain..\n");
+    addBlockToChain(workingBlock);
+    //propogate
+    addToLog("Propogating across network..\n");
+    propogateBlock(workingBlock);
+    //start on new block
+    addToLog("Find new block. id: "+getChainSize()+"\n\n");
+    //update nodeDispPanel
+    blocks_mined += 1;
+    blocksMinedLabel.setText(Integer.toString(blocks_mined));
+
   }
 
   private void propogateBlock(Block block) {
@@ -225,8 +229,7 @@ public class Node {
     this.mine(true);
   }
 
-  private void makeNodeDispPanel() {
-    //TODO change to gridbaglayout so each column is fixed size
+  public void makeNodeDispPanel() {
 
     nodeDispPanel = new JPanel(new GridBagLayout());
     nodeDispPanel.setBorder(BorderFactory.createLineBorder(Color.black));
@@ -240,6 +243,7 @@ public class Node {
       JLabel nameLabel = new JLabel(name);
       JPanel namePanel = new JPanel();
       namePanel.setPreferredSize(new Dimension(30,20));
+      namePanel.setMaximumSize(new Dimension(30,20));
 
       namePanel.add(nameLabel);
 
@@ -250,6 +254,7 @@ public class Node {
       JLabel idLabel = new JLabel(Integer.toString(this.id));
       JPanel idPanel = new JPanel();
       idPanel.setPreferredSize(new Dimension(5,20));
+      idPanel.setMaximumSize(new Dimension(50,20));
       idPanel.add(idLabel);
 
       GridBagConstraints idPanelCons = new GridBagConstraints();
@@ -259,15 +264,18 @@ public class Node {
       JLabel hashShareLabel = new JLabel(this.hash_share);
       JPanel hashSharePanel = new JPanel();
       hashSharePanel.setPreferredSize(new Dimension(10,20));
+      hashSharePanel.setMaximumSize(new Dimension(50,20));
       hashSharePanel.add(hashShareLabel);
 
       GridBagConstraints hashSharePanelCons = new GridBagConstraints();
       setCons(hashSharePanelCons,2,0,1,1,GridBagConstraints.NONE,GridBagConstraints.LINE_START,30,10);
       nodeDispPanel.add(hashSharePanel, hashSharePanelCons);
 
-      JLabel blocksMinedLabel = new JLabel("number of blocks mine");
+      blocksMinedLabel = new JLabel("0");
       JPanel blocksMinedPanel = new JPanel();
       blocksMinedPanel.setPreferredSize(new Dimension(10,20));
+      blocksMinedPanel.setMaximumSize(new Dimension(50,20));
+
       blocksMinedPanel.add(blocksMinedLabel);
 
       GridBagConstraints blocksMinedPanelCons = new GridBagConstraints();
@@ -285,10 +293,11 @@ public class Node {
 
       JPanel viewLogButtonPanel = new JPanel();
       viewLogButtonPanel.setPreferredSize(new Dimension(10,20));
+      viewLogButtonPanel.setMaximumSize(new Dimension(50,20));
       viewLogButtonPanel.add(viewLogButton);
 
       GridBagConstraints viewLogButtonPanelCons = new GridBagConstraints();
-      setCons(viewLogButtonPanelCons,4,0,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,100,10);
+      setCons(viewLogButtonPanelCons,4,0,1,1,GridBagConstraints.BOTH,GridBagConstraints.CENTER,100,20);
       nodeDispPanel.add(viewLogButtonPanel, viewLogButtonPanelCons);
   }
 

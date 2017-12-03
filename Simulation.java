@@ -15,7 +15,6 @@ public class Simulation {
 
   // page variables
   Boolean running = false;
-  int nodesPP;
 
   JPanel page;
   JPanel nodesPanel;
@@ -25,8 +24,7 @@ public class Simulation {
   JLabel currentPageLabel;
   JButton startPauseButton;
   JButton exitButton;
-  JButton nextPageButton;
-  JButton prevPageButton;
+
 
   //linked list used becasue blocks will only be added to the end
    LinkedList<Node> nodesList;
@@ -35,15 +33,12 @@ public class Simulation {
      LinkedList<Node> nodesList= new LinkedList<Node>();
      nodesList.add(new Node("0","test","30",0.5));
      nodesList.add(new Node("1","test2","30",0.8));
-     new Simulation(1,nodesList);
+    //  new Simulation(nodesList);
    }
 
-  public Simulation(int nodesPP, LinkedList<Node> nodesList) {
+  public Simulation(LinkedList<Node> nodesList) {
 
-    this.nodesPP = nodesPP;
     this.nodesList = nodesList;
-    this.currentPage = 1;
-    this.totalPages = Math.ceil((double) nodesList.size()/nodesPP);
     //init
     simulation.setSize(1200,900);
 
@@ -81,10 +76,10 @@ public class Simulation {
 
       //nodes
       //title
-      JLabel titleLabel = new JLabel("Name                          id          hash share          blcoks mined");
+      JLabel titleLabel = new JLabel("                Name                     id         power      blocks                                                  ");
 
       GridBagConstraints titleLabelCons = new GridBagConstraints();
-      setCons(titleLabelCons, 0,1,5,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
+      setCons(titleLabelCons, 0,1,5,1,GridBagConstraints.NONE,GridBagConstraints.PAGE_END,0,0);
       page.add(titleLabel, titleLabelCons);
 
       //scroll box
@@ -106,18 +101,6 @@ public class Simulation {
       JPanel buttonsPanel = new JPanel();
       buttonsPanel.setLayout(new GridBagLayout());
 
-        prevPageButton = new JButton("<< previous page");
-
-        GridBagConstraints prevPageButtonCons = new GridBagConstraints();
-        setCons(prevPageButtonCons, 0,0,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
-        buttonsPanel.add(prevPageButton, prevPageButtonCons);
-
-        nextPageButton = new JButton("Next page >>");
-
-        GridBagConstraints nextPageButtonCons = new GridBagConstraints();
-        setCons(nextPageButtonCons, 1,0,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
-        buttonsPanel.add(nextPageButton, nextPageButtonCons);
-
         startPauseButton = new JButton("Start");
 
         GridBagConstraints startPauseButtonCons = new GridBagConstraints();
@@ -130,8 +113,6 @@ public class Simulation {
         setCons(exitButtonCons, 1,1,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
         buttonsPanel.add(exitButton, exitButtonCons);
 
-      prevPageButton.addActionListener(lForButton);
-      nextPageButton.addActionListener(lForButton);
       startPauseButton.addActionListener(lForButton);
       exitButton.addActionListener(lForButton);
 
@@ -202,20 +183,8 @@ public class Simulation {
 
      } else if (e.getSource() == exitButton) {
        simulation.dispose();
-     } else if (e.getSource() == prevPageButton) {
-       if (currentPage > 1) {
-         currentPage -= 1;
-         currentPageLabel.setText("current page: "+ currentPage);
-         constructNodesPanels(currentPage);
-       }
-     } else if (e.getSource() == nextPageButton) {
-       if (currentPage < totalPages) {
-         currentPage += 1;
-         currentPageLabel.setText("current page: "+ currentPage);
-         constructNodesPanels(currentPage);
-       }
-      }
      }
    }
 
+ }
  }

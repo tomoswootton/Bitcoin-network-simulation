@@ -20,10 +20,9 @@ public class Main {
   JLabel nodeIdLabel;
   JTextField nodeNameTextField;
   JTextField hashShareTextField;
-  TextArea previewText;
   JComboBox<String> nodesDisplayedCBox;
 
-
+  JPanel previewPanel;
 
   //variable used to save state of node name text field.
   //if a name has been typed but node not yet added, dont remove text upon clicked
@@ -208,60 +207,26 @@ public class Main {
     setCons(addNodeCons,1,4,4,4,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
     page.add(addNode, addNodeCons);
 
-
     //preview
-    JPanel preview = new JPanel();
-    preview.setLayout(new GridBagLayout());
-    preview.setSize(800,800);
+    //title
+    JLabel titleLabel = new JLabel("                Name                     id         power      blocks                                                  ");
 
-      //column titles
-      JLabel previewTitlesIdLabel = new JLabel("id");
+    GridBagConstraints titleLabelCons = new GridBagConstraints();
+    setCons(titleLabelCons, 0,8,2,1,GridBagConstraints.NONE,GridBagConstraints.PAGE_END,0,0);
+    page.add(titleLabel, titleLabelCons);
 
-      GridBagConstraints previewTitlesIdLabelCons = new GridBagConstraints();
-      setCons(previewTitlesIdLabelCons,0,0,1,1,GridBagConstraints.NONE,GridBagConstraints.LINE_END,40,0);
-      preview.add(previewTitlesIdLabel, previewTitlesIdLabelCons);
+    //scroll box
+    previewPanel = new JPanel();
+    previewPanel.setLayout(new BoxLayout(previewPanel, BoxLayout.Y_AXIS));
 
-      JLabel previewTitlesNameLabel = new JLabel("Name");
+    JScrollPane scroll = new JScrollPane(previewPanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+    scroll.setViewportView(previewPanel);
+    scroll.setPreferredSize(new Dimension(500,100));
 
-      GridBagConstraints previewTitlesNameLabelCons = new GridBagConstraints();
-      setCons(previewTitlesNameLabelCons,1,0,1,1,GridBagConstraints.NONE,GridBagConstraints.LINE_START,10,0);
-      preview.add(previewTitlesNameLabel, previewTitlesNameLabelCons);
 
-      JLabel previewTitlesHashrateLabel = new JLabel("hashrate share");
-
-      GridBagConstraints previewTitlesHashrateLabelCons = new GridBagConstraints();
-      setCons(previewTitlesHashrateLabelCons,2,0,1,1,GridBagConstraints.NONE,GridBagConstraints.LINE_START,0,0);
-      preview.add(previewTitlesHashrateLabel, previewTitlesHashrateLabelCons);
-
-      //text area
-      previewText = new TextArea("",8,38,TextArea.SCROLLBARS_BOTH);
-      previewText.setEditable(false);
-
-      GridBagConstraints previewTextCons = new GridBagConstraints();
-      setCons(previewTextCons,0,1,3,2,GridBagConstraints.NONE,GridBagConstraints.CENTER,100,0);
-      preview.add(previewText, previewTextCons);
-
-      //nodes per page panel
-      JPanel nodesPPPanel = new JPanel();
-
-        JLabel nodesPPTitle = new JLabel("Display ");
-        nodesPPPanel.add(nodesPPTitle);
-
-        //combo box
-        String[] nodesDisplayedList = {"3","6","9"};
-        nodesDisplayedCBox = new JComboBox<String>(nodesDisplayedList);
-        nodesPPPanel.add(nodesDisplayedCBox);
-
-        JLabel nodesPPTitle2 = new JLabel("nodes per page.");
-        nodesPPPanel.add(nodesPPTitle2);
-
-      GridBagConstraints nodesPPPanelCons = new GridBagConstraints();
-      setCons(nodesPPPanelCons,0,3,3,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
-      preview.add(nodesPPPanel, nodesPPPanelCons);
-
-    GridBagConstraints previewCons = new GridBagConstraints();
-    setCons(previewCons,0,8,6,3,GridBagConstraints.BOTH,GridBagConstraints.CENTER,10,10);
-    page.add(preview, previewCons);
+    GridBagConstraints previewPanelCons = new GridBagConstraints();
+    setCons(previewPanelCons, 0,9,6,2,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
+    page.add(scroll, previewPanelCons);
 
     //buttons
     JPanel buttons = new JPanel();
@@ -324,19 +289,26 @@ public class Main {
     String name = nodeNameTextField.getText();
     //percentage of share * global hashes per second
     Double mine_speed = (Double.parseDouble(hashShareTextField.getText())/100)*Double.parseDouble(globalHashPSTextField.getText());
-    //add to preview
-    printToPreview(nodeIdLabel.getText(),name,hashShareTextField.getText(),mine_speed);
+    //create node
+    Node node = new Node(nodeIdLabel.getText(),name,hashShareTextField.getText(),mine_speed);
     //add to nodesList array
-    nodesList.add(new Node(nodeIdLabel.getText(),name,hashShareTextField.getText(),mine_speed));
+    nodesList.add(node);
+    //add to preview
+    addNodeToPreview(node);
     //++1 to label
     nodeIdLabel.setText(""+nodesList.size());
     //recalculate available hash share value
     refreshHashShareAvailble();
   }
 
+  private void addNodeToPreview(Node node) {
+    previewPanel.add(node.getNodeDispPanel());
+  }
+
   public void removeNode(int id) {
     for (Node node : nodesList) {
       if (node.id == id) {
+        System.out.println("remove node id: "+id);
         nodesList.remove(node);
         nodeIdLabel.setText(Integer.toString(Integer.parseInt(nodeIdLabel.getText())-1));
         refreshNodesList();
@@ -347,34 +319,25 @@ public class Main {
     }
   }
 
-
   public void refreshPreview() {
-    System.out.println("got here");
-    previewText.setText(null);
+    previewPanel.removeAll();
+    // previewPanel.repaint();
     for (Node node : nodesList) {
-      printToPreview(Integer.toString(node.id),node.getName(),node.getHashShare(),node.getMineSpeed());
+      addNodeToPreview(node);
     }
   }
-
-  //format and print nodes info to preview Text Area
-  public void printToPreview(String id, String name, String hash_share, Double mine_speed) {
-      if (name.length() > 15) {
-        name = name.substring(0,13).concat("...   ");
-      }
-      String temp = "";
-      int j = 30-name.length();
-      for (int i=0;i<=j;i++) {
-        temp = temp.concat("  ");
-      }
-      previewText.append(id+"            "+name+temp+hash_share+"%\n");
-    }
-
 
   //when a node is removed, the id's of the remaining nodesList must be fixed
   public void refreshNodesList() {
     for (int i=0;i<nodesList.size();i++) {
-      nodesList.get(i).id = i;
+      //for each node, update id and re-make dispPanel with new id
+      Node node = nodesList.get(i);
+      node.id = i;
+      node.makeNodeDispPanel();
+
     }
+    System.out.println("nodes list: "+nodesList);
+
     }
 
   public void refreshHashShareAvailble() {
@@ -396,7 +359,7 @@ public class Main {
       node.setNodesList(nodesListTemp);
     }
 
-    Simulation simulation = new Simulation(Integer.parseInt(nodesDisplayedCBox.getSelectedItem().toString()), nodesList);
+    Simulation simulation = new Simulation(nodesList);
   }
 
 
