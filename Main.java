@@ -1,11 +1,10 @@
 import java.awt.*;
-
 import javax.swing.*;
 import java.awt.GridBagLayout;
-
 import java.awt.event.*;
-
 import java.util.LinkedList;
+import java.io.*;
+
 
 
 public class Main {
@@ -18,6 +17,7 @@ public class Main {
   JButton exitButton;
   JButton addNodeButton;
   JButton removeNodeButton;
+  JButton importButton;
   JLabel nodeIdLabel;
   JTextField nodeNameTextField;
   JTextField hashShareTextField;
@@ -41,6 +41,7 @@ public class Main {
   LinkedList<Node> nodesList = new LinkedList<Node>();
 
   public static void main(String[] args) {
+    System.out.println(Double.toString(0.003));
     new Main();
   }
 
@@ -67,12 +68,14 @@ public class Main {
       headerPanel.add(title);
 
     GridBagConstraints headerPanelCons = new GridBagConstraints();
-    setCons(headerPanelCons, 1,0,4,2,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
+    setCons(headerPanelCons, 1,0,4,2,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
     page.add(headerPanel, headerPanelCons);
 
     //settings
     JPanel settings = new JPanel();
     settings.setLayout(new GridBagLayout());
+    settings.setBorder(BorderFactory.createLineBorder(Color.black));
+
 
       //title
       JLabel settingsTitle = new JLabel("<HTML><U>settings</U></HTML>");
@@ -104,7 +107,7 @@ public class Main {
       });
 
       GridBagConstraints globalHashPSTextFieldCons = new GridBagConstraints();
-      setCons(globalHashPSTextFieldCons,1,1,1,1,GridBagConstraints.NONE,GridBagConstraints.LINE_START,10,0);
+      setCons(globalHashPSTextFieldCons,1,1,1,1,GridBagConstraints.NONE,GridBagConstraints.LINE_START,10,10);
       settings.add(globalHashPSTextField, globalHashPSTextFieldCons);
 
 
@@ -116,13 +119,14 @@ public class Main {
     //add_node
     JPanel addNode = new JPanel();
     addNode.setLayout(new GridBagLayout());
+    addNode.setBorder(BorderFactory.createLineBorder(Color.black));
 
     JLabel addNodeTitle = new JLabel("<HTML><U>Add node</U></HTML>");
       //title
       addNodeTitle.setFont(addNodeTitle.getFont().deriveFont(16.0f));
 
       GridBagConstraints addNodeTitleCons = new GridBagConstraints();
-      setCons(addNodeTitleCons,0,0,2,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,10);
+      setCons(addNodeTitleCons,0,0,2,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
       addNode.add(addNodeTitle, addNodeTitleCons);
 
       //node name
@@ -187,7 +191,7 @@ public class Main {
       setCons(hashShareTextFieldCons,1,3,1,1,GridBagConstraints.NONE,GridBagConstraints.LINE_START,10,10);
       addNode.add(hashShareTextField, hashShareTextFieldCons);
 
-      //addnode buttons
+      //add and remove buttons
       JPanel addNodeButtons = new JPanel();
 
         addNodeButton = new JButton("Add node");
@@ -202,6 +206,15 @@ public class Main {
       setCons(addNodeButtonsCons,0,4,2,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
       addNode.add(addNodeButtons, addNodeButtonsCons);
 
+      //load buttons
+      importButton = new JButton("import");
+      importButton.addActionListener(lForButton);
+
+      GridBagConstraints importButtonCons = new GridBagConstraints();
+      setCons(importButtonCons,0,5,2,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
+      addNode.add(importButton, importButtonCons);
+
+
 
     //add to page
     GridBagConstraints addNodeCons = new GridBagConstraints();
@@ -210,7 +223,8 @@ public class Main {
 
     //preview
     //title
-    JLabel titleLabel = new JLabel("                Name                     id         power      blocks                                                  ");
+    JLabel titleLabel = new JLabel("                Name                       id         power      blocks                                                  ");
+
 
     GridBagConstraints titleLabelCons = new GridBagConstraints();
     setCons(titleLabelCons, 0,8,2,1,GridBagConstraints.NONE,GridBagConstraints.PAGE_END,0,0);
@@ -310,10 +324,26 @@ public class Main {
     refreshHashShareAvailble();
   }
 
+  public void addNode(String name, String hashShare) {
+    System.out.println(hashShare);
+    Double mine_speed = (Double.parseDouble(hashShare)/100)*Double.parseDouble(globalHashPSTextField.getText());
+    //create node
+    Node node = new Node(nodeIdLabel.getText(),name,hashShare,mine_speed);
+    //add to nodesList array
+    nodesList.add(node);
+    //add to preview
+    addNodeToPreview(node);
+    //++1 to label
+    nodeIdLabel.setText(""+nodesList.size());
+    //recalculate available hash share value
+    refreshHashShareAvailble();
+  }
+
+  //preview methods
   private void addNodeToPreview(Node node) {
     // previewPanel.add(node.getNodeDispPanel());
     GridBagConstraints nodeCons = new GridBagConstraints();
-    setCons(nodeCons,0,nodesList.size(),2,1,GridBagConstraints.HORIZONTAL,GridBagConstraints.PAGE_START,10,0);
+    setCons(nodeCons,0,nodesList.size(),2,1,GridBagConstraints.HORIZONTAL,GridBagConstraints.PAGE_START,0,0);
     previewPanel.add(node.getNodeDispPanel(), nodeCons);
   }
 
@@ -359,6 +389,73 @@ public class Main {
     hashShareTextField.setText(Double.toString(hashShareAvailable));
   }
 
+  private void importStats() {
+    //methods reads imported stats from JSON
+    //input is name of pool and number of blocks mined in past however many days
+
+    // The name of the file to open.
+    String fileName = "pool_stats.txt";
+    // This will reference one line at a time
+    String line = null;
+
+    try {
+        // FileReader reads text files in the default encoding, bufferedReader groups into lines
+        FileReader fileReader = new FileReader(fileName);
+        BufferedReader bufferedReader = new BufferedReader(fileReader);
+
+        //arrays as node info
+        LinkedList<String> nodeNamesList = new LinkedList<String>();
+        LinkedList<Double> hashShareList = new LinkedList<Double>();
+
+        while((line = bufferedReader.readLine()) != null) {
+            //dont process start and end of JSON
+            if(line.length() > 1) {
+              //find end of name in line
+              int j = 3;
+              while (line.charAt(j) != '\"') {
+                j++;
+              }
+              //find name
+              String nodeName = line.substring(3,j);
+              //find number of blocks mined in timepspan
+              String numberBlocksMined = line.substring(j+3,line.length());
+              if (numberBlocksMined.charAt(numberBlocksMined.length()-1) == ',') {
+                numberBlocksMined = numberBlocksMined.substring(0,numberBlocksMined.length()-1);
+              }
+
+              nodeNamesList.add(nodeName);
+              hashShareList.add(Double.parseDouble(numberBlocksMined));
+            }
+        }
+        //sum up total blocks mined
+        Double sum = 0.0;
+        for (Double hashShare : hashShareList) {
+          sum += hashShare;
+        }
+        System.out.println("sum ="+sum);
+        //change each value in hashShare to percentage of blocks (therefore hashShare value)
+        for (int i=0;i<hashShareList.size();i++) {
+          Double temp = Math.floor((hashShareList.get(i)/sum) * 1000) / 1000;
+          temp.shortValue();
+          hashShareList.set(i,temp);
+        }
+        //add each node
+        for (int i=0;i<nodeNamesList.size();i++) {
+          addNode(nodeNamesList.get(i),Double.toString(hashShareList.get(i)));
+        }
+
+        //close file
+        bufferedReader.close();
+    }
+    catch(FileNotFoundException ex) {
+        System.out.println("Unable to open file '"+fileName + "'");
+    }
+    catch(IOException ex) {
+        System.out.println("Error reading file '"+ fileName + "'");
+        ex.printStackTrace();
+    }
+  }
+
   private void startSimulation() {
     //send all nodes their nodesList
     //TODO add split chain option
@@ -390,6 +487,8 @@ public class Main {
         hashShareFieldClear = true;
       } else if (e.getSource() == removeNodeButton) {
         removeNodeWindow();
+      } else if (e.getSource() == importButton) {
+        importStats();
       }
     }
 

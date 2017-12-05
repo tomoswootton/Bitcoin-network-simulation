@@ -18,10 +18,8 @@ public class Simulation {
 
   JPanel page;
   JPanel nodesPanel;
-  int currentPage;
   double totalPages;
 
-  JLabel currentPageLabel;
   JButton startPauseButton;
   JButton exitButton;
 
@@ -71,32 +69,62 @@ public class Simulation {
         headerPanel.add(title);
 
       GridBagConstraints headerPanelCons = new GridBagConstraints();
-      setCons(headerPanelCons, 1,0,4,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
+      setCons(headerPanelCons,1,0,4,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
       page.add(headerPanel, headerPanelCons);
 
       //nodes
-      //title
-      JLabel titleLabel = new JLabel("                Name                     id         power      blocks                                                  ");
+      JPanel nodes = new JPanel();
+      nodes.setLayout(new GridBagLayout());
+      nodes.setBorder(BorderFactory.createLineBorder(Color.black));
 
-      GridBagConstraints titleLabelCons = new GridBagConstraints();
-      setCons(titleLabelCons, 0,1,5,1,GridBagConstraints.NONE,GridBagConstraints.PAGE_END,0,0);
-      page.add(titleLabel, titleLabelCons);
 
-      //scroll box
-      nodesPanel = new JPanel();
-      nodesPanel.setLayout(new BoxLayout(nodesPanel, BoxLayout.Y_AXIS));
+        //titles
+        JLabel nodesTitle = new JLabel("<HTML><U>Nodes</U></HTML>");
+        nodesTitle.setFont(nodesTitle.getFont().deriveFont(16.0f));
 
-      JScrollPane scroll = new JScrollPane(nodesPanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-      scroll.setViewportView(nodesPanel);
-      scroll.setPreferredSize(new Dimension(500,100));
+        GridBagConstraints nodesTitleCons = new GridBagConstraints();
+        setCons(nodesTitleCons, 0,0,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
+        nodes.add(nodesTitle, nodesTitleCons);
 
-        constructNodesPanels(currentPage);
 
-      GridBagConstraints nodesPanelCons = new GridBagConstraints();
-      setCons(nodesPanelCons, 1,2,4,2,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
-      page.add(scroll, nodesPanelCons);
+        JLabel titleLabel = new JLabel("                Name                     id         power      blocks                                                  ");
+
+        GridBagConstraints titleLabelCons = new GridBagConstraints();
+        setCons(titleLabelCons, 0,1,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
+        nodes.add(titleLabel, titleLabelCons);
+
+        //scroll box
+        nodesPanel = new JPanel();
+        nodesPanel.setLayout(new BoxLayout(nodesPanel, BoxLayout.Y_AXIS));
+
+        JScrollPane nodesScrollPane = new JScrollPane(nodesPanel,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        nodesScrollPane.setViewportView(nodesPanel);
+        nodesScrollPane.setPreferredSize(new Dimension(500,100));
+
+          constructNodesPanels();
+
+        GridBagConstraints nodesPanelCons = new GridBagConstraints();
+        setCons(nodesPanelCons, 0,2,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
+        nodes.add(nodesScrollPane, nodesPanelCons);
+
+      GridBagConstraints nodesCons = new GridBagConstraints();
+      setCons(nodesCons, 0,1,5,3,GridBagConstraints.NONE,GridBagConstraints.PAGE_END,0,0);
+      page.add(nodes, nodesCons);
 
       //chain
+      JPanel chainPanel = new JPanel();
+      chainPanel.setBorder(BorderFactory.createLineBorder(Color.black));
+      chainPanel.setPreferredSize(new Dimension(700,300));
+
+      chainPanel.add(new JLabel("hello"));
+
+      JScrollPane chainScrollPane = new JScrollPane(chainPanel,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+      chainScrollPane.setViewportView(chainPanel);
+      chainScrollPane.setPreferredSize(new Dimension(500,300));
+
+      GridBagConstraints chainPanelCons = new GridBagConstraints();
+      setCons(chainPanelCons,1,4,4,3,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
+      page.add(chainPanel, chainPanelCons);
 
       //buttons
       JPanel buttonsPanel = new JPanel();
@@ -119,7 +147,7 @@ public class Simulation {
 
 
       GridBagConstraints buttonsPanelCons = new GridBagConstraints();
-      setCons(buttonsPanelCons,1,5,4,2,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
+      setCons(buttonsPanelCons,1,7,4,2,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
       page.add(buttonsPanel, buttonsPanelCons);
 
     simulation.add(page);
@@ -127,7 +155,7 @@ public class Simulation {
   }
 
   //displays nodes in panel, pages start on 1
-  public void constructNodesPanels(int page) {
+  public void constructNodesPanels() {
     nodesPanel.removeAll();
     for (Node node : nodesList) {
       nodesPanel.add(node.getNodeDispPanel());
