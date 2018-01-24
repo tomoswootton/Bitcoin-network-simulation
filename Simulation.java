@@ -23,7 +23,6 @@ public class Simulation {
   JButton startPauseButton;
   JButton exitButton;
 
-
   //linked list used becasue blocks will only be added to the end
    LinkedList<Node> nodesList;
 
@@ -214,6 +213,5 @@ public class Simulation {
        simulation.dispose();
      }
    }
-
  }
  }

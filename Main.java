@@ -5,15 +5,13 @@ import java.awt.event.*;
 import java.util.LinkedList;
 import java.io.*;
 
-
-
 public class Main {
 
   JFrame main = new JFrame();
   JPanel page;
 
   JButton startButton;
-  JTextField globalHashPSTextField;
+  JTextField globalHashShareTextField;
   JButton exitButton;
   JButton addNodeButton;
   JButton removeNodeButton;
@@ -28,27 +26,27 @@ public class Main {
   //variable used to save state of node name text field.
   //if a name has been typed but node not yet added, dont remove text upon clicked
   //true if clear upon click
+  Boolean globalHashShareTextFieldClear = true;
   Boolean nodeNameTextFieldClear = true;
-  Boolean hashShareFieldClear = true;
-  Boolean globalHashPSTextFieldClear = true;
-
+  Boolean hashShareTextFieldClear = true;
 
   //variable holds percentage of hash share available
   Double hashShareAvailable = 100.0;
-
 
   //nodesList list, contains node objects
   LinkedList<Node> nodesList = new LinkedList<Node>();
 
   public static void main(String[] args) {
-    System.out.println(Double.toString(0.003));
     new Main();
   }
 
   public Main() {
+    makePage();
+  }
+
+  private void makePage() {
 
     main.setSize(800, 600);
-
     main.setLocationRelativeTo(null);
     main.setResizable(false);
     main.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -71,50 +69,57 @@ public class Main {
     setCons(headerPanelCons, 1,0,4,2,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
     page.add(headerPanel, headerPanelCons);
 
+
     //settings
     JPanel settings = new JPanel();
     settings.setLayout(new GridBagLayout());
     settings.setBorder(BorderFactory.createLineBorder(Color.black));
 
+    JLabel settingsTitle = new JLabel("<HTML><U>Settings</U></HTML>");
 
-      //title
-      JLabel settingsTitle = new JLabel("<HTML><U>settings</U></HTML>");
-      settingsTitle.setFont(settingsTitle.getFont().deriveFont(16.0f));
+    //title
+    settingsTitle.setFont(settingsTitle.getFont().deriveFont(16.0f));
 
-      GridBagConstraints settingsTitleCons = new GridBagConstraints();
-      setCons(settingsTitleCons,0,0,2,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,10);
-      settings.add(settingsTitle, settingsTitleCons);
+    GridBagConstraints settingsTitleCons = new GridBagConstraints();
+    setCons(settingsTitleCons,0,0,2,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
+    settings.add(settingsTitle, settingsTitleCons);
 
-      //global hashes input
-      JLabel globalHashrateLabel = new JLabel("<html>Global hashes to be <br>performed per second:</html>");
+    //hashshare
 
-      GridBagConstraints globalHashrateLabelCons = new GridBagConstraints();
-      setCons(globalHashrateLabelCons,0,1,1,1,GridBagConstraints.NONE,GridBagConstraints.LINE_END,10,10);
-      settings.add(globalHashrateLabel, globalHashrateLabelCons);
+    JLabel globalHashShareTitle = new JLabel("Global HashShare:");
 
+    GridBagConstraints globalHashShareTitleCons = new GridBagConstraints();
+    setCons(globalHashShareTitleCons,0,1,1,1,GridBagConstraints.NONE,GridBagConstraints.LINE_END,10,10);
+    settings.add(globalHashShareTitle, globalHashShareTitleCons);
 
-      globalHashPSTextField = new JTextField("4");
-      globalHashPSTextField.setColumns(5);
-      globalHashPSTextField.addMouseListener(new MouseAdapter() {
-        @Override
-        public void mouseClicked(MouseEvent e) {
-          if (globalHashPSTextFieldClear) {
-            globalHashPSTextField.setText("");
-            globalHashPSTextFieldClear = false;
-          }
+    globalHashShareTextField = new JTextField("4");
+    globalHashShareTextField.setColumns(10);
+    globalHashShareTextField.addMouseListener(new MouseAdapter() {
+      @Override
+      public void mouseClicked(MouseEvent e) {
+        if (globalHashShareTextFieldClear) {
+          globalHashShareTextField.setText("");
+          globalHashShareTextFieldClear = false;
         }
+      }
+    });
 
-      });
+    GridBagConstraints globalHashShareTextFieldCons = new GridBagConstraints();
+    setCons(globalHashShareTextFieldCons,1,1,1,1,GridBagConstraints.NONE,GridBagConstraints.LINE_START,10,0);
+    settings.add(globalHashShareTextField, globalHashShareTextFieldCons);
 
-      GridBagConstraints globalHashPSTextFieldCons = new GridBagConstraints();
-      setCons(globalHashPSTextFieldCons,1,1,1,1,GridBagConstraints.NONE,GridBagConstraints.LINE_START,10,10);
-      settings.add(globalHashPSTextField, globalHashPSTextFieldCons);
+
+    JPanel settingsfillerPanel = new JPanel();
+    settingsfillerPanel.setPreferredSize(new Dimension(400,10));
+
+    GridBagConstraints settingsfillerPanelCons = new GridBagConstraints();
+    setCons(settingsfillerPanelCons,0,1,4,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
+    settings.add(settingsfillerPanel, settingsfillerPanelCons);
 
 
     GridBagConstraints settingsCons = new GridBagConstraints();
     setCons(settingsCons,1,2,4,2,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
     page.add(settings, settingsCons);
-
 
     //add_node
     JPanel addNode = new JPanel();
@@ -180,41 +185,42 @@ public class Main {
       hashShareTextField.addMouseListener(new MouseAdapter() {
         @Override
         public void mouseClicked(MouseEvent e) {
-          if (hashShareFieldClear) {
+          if (hashShareTextFieldClear) {
             hashShareTextField.setText("");
-            hashShareFieldClear = false;
+            hashShareTextFieldClear = false;
           }
         }
       });
 
       GridBagConstraints hashShareTextFieldCons = new GridBagConstraints();
-      setCons(hashShareTextFieldCons,1,3,1,1,GridBagConstraints.NONE,GridBagConstraints.LINE_START,10,10);
+      setCons(hashShareTextFieldCons,1,3,1,1,GridBagConstraints.NONE,GridBagConstraints.LINE_START,10,0);
       addNode.add(hashShareTextField, hashShareTextFieldCons);
 
-      //add and remove buttons
+      //buttons
       JPanel addNodeButtons = new JPanel();
 
         addNodeButton = new JButton("Add node");
         addNodeButtons.add(addNodeButton);
         removeNodeButton = new JButton("Remove node");
         addNodeButtons.add(removeNodeButton);
+        importButton = new JButton("import");
+        addNodeButtons.add(importButton);
 
         addNodeButton.addActionListener(lForButton);
         removeNodeButton.addActionListener(lForButton);
+        importButton.addActionListener(lForButton);
 
       GridBagConstraints addNodeButtonsCons = new GridBagConstraints();
       setCons(addNodeButtonsCons,0,4,2,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
       addNode.add(addNodeButtons, addNodeButtonsCons);
 
-      //load buttons
-      importButton = new JButton("import");
-      importButton.addActionListener(lForButton);
 
-      GridBagConstraints importButtonCons = new GridBagConstraints();
-      setCons(importButtonCons,0,5,2,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
-      addNode.add(importButton, importButtonCons);
+      JPanel addNodefillerPanel = new JPanel();
+      addNodefillerPanel.setPreferredSize(new Dimension(400,10));
 
-
+      GridBagConstraints addNodefillerPanelCons = new GridBagConstraints();
+      setCons(addNodefillerPanelCons,0,1,4,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
+      addNode.add(addNodefillerPanel, addNodefillerPanelCons);
 
     //add to page
     GridBagConstraints addNodeCons = new GridBagConstraints();
@@ -256,8 +262,6 @@ public class Main {
       startButton.addActionListener(lForButton);
       exitButton.addActionListener(lForButton);
 
-
-
     GridBagConstraints buttonsCons = new GridBagConstraints();
     setCons(buttonsCons,1,11,4,2,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
     page.add(buttons, buttonsCons);
@@ -267,7 +271,6 @@ public class Main {
     //add page to JFrame
     main.add(page);
     main.setVisible(true);
-
   }
 
   //method sets GridBagConstraints variables
@@ -311,13 +314,13 @@ public class Main {
     //get input values
     String name = nodeNameTextField.getText();
     //percentage of share * global hashes per second
-    Double mine_speed = (Double.parseDouble(hashShareTextField.getText())/100)*Double.parseDouble(globalHashPSTextField.getText());
+    Double mine_speed = (Double.parseDouble(hashShareTextField.getText())/100)*Double.parseDouble(globalHashShareTextField.getText());
     //create node
     Node node = new Node(nodeIdLabel.getText(),name,hashShareTextField.getText(),mine_speed);
     //add to nodesList array
     nodesList.add(node);
     //add to preview
-    addNodeToPreview(node);
+    addNodeToPreview(node, nodesList.size());
     //++1 to label
     nodeIdLabel.setText(""+nodesList.size());
     //recalculate available hash share value
@@ -326,13 +329,13 @@ public class Main {
 
   public void addNode(String name, String hashShare) {
     System.out.println(hashShare);
-    Double mine_speed = (Double.parseDouble(hashShare)/100)*Double.parseDouble(globalHashPSTextField.getText());
+    Double mine_speed = (Double.parseDouble(hashShare)/100)*Double.parseDouble(globalHashShareTextField.getText());
     //create node
     Node node = new Node(nodeIdLabel.getText(),name,hashShare,mine_speed);
     //add to nodesList array
     nodesList.add(node);
     //add to preview
-    addNodeToPreview(node);
+    addNodeToPreview(node, nodesList.size());
     //++1 to label
     nodeIdLabel.setText(""+nodesList.size());
     //recalculate available hash share value
@@ -340,10 +343,12 @@ public class Main {
   }
 
   //preview methods
-  private void addNodeToPreview(Node node) {
+
+  private void addNodeToPreview(Node node, int row) {
     // previewPanel.add(node.getNodeDispPanel());
+    System.out.println("adding node to row " +node.id);
     GridBagConstraints nodeCons = new GridBagConstraints();
-    setCons(nodeCons,0,nodesList.size(),2,1,GridBagConstraints.HORIZONTAL,GridBagConstraints.PAGE_START,0,0);
+    setCons(nodeCons,0,row,2,1,GridBagConstraints.HORIZONTAL,GridBagConstraints.PAGE_START,0,0);
     previewPanel.add(node.getNodeDispPanel(), nodeCons);
   }
 
@@ -363,9 +368,10 @@ public class Main {
   public void refreshPreview() {
     previewPanel.removeAll();
     previewPanel.repaint();
-    // previewPanel.repaint();
+    System.out.println("nodes list size: "+nodesList.size());
     for (Node node : nodesList) {
-      addNodeToPreview(node);
+      //add to preview at row node.id
+      addNodeToPreview(node, node.id);
     }
   }
 
@@ -376,9 +382,8 @@ public class Main {
       Node node = nodesList.get(i);
       node.id = i;
       node.makeNodeDispPanel();
-
     }
-    }
+  }
 
   public void refreshHashShareAvailble() {
     Double hsAvailble = 100.0;
@@ -484,7 +489,7 @@ public class Main {
         nodeNameTextField.setText("Node name");
         hashShareTextField.setText(Double.toString(hashShareAvailable));
         nodeNameTextFieldClear = true;
-        hashShareFieldClear = true;
+        globalHashShareTextFieldClear = true;
       } else if (e.getSource() == removeNodeButton) {
         removeNodeWindow();
       } else if (e.getSource() == importButton) {
@@ -501,13 +506,16 @@ public class Main {
       }
       String inputValue = JOptionPane.showInputDialog(main,"Id of node to remove:","Remove Node",1);
 
-      if (inputValue.length() == 0) {
+      if(inputValue == null) {
+        return;
+      }
+      if(inputValue.length() == 0) {
         System.out.println("inputValue = null");
         return;
       }
       int inputValueInt = Integer.parseInt(inputValue);
       //catch value out of range
-      if (inputValueInt<0 || inputValueInt>size-1) {
+      if(inputValueInt<0 || inputValueInt>size-1) {
         JOptionPane.showMessageDialog(null,"Input value out of range.","Remove Node",JOptionPane.WARNING_MESSAGE);
         removeNodeWindow();
         return;
