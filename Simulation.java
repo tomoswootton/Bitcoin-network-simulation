@@ -24,7 +24,7 @@ public class Simulation {
   JButton exitButton;
 
   //linked list used becasue blocks will only be added to the end
-   LinkedList<Node> nodesList;
+  LinkedList<Node> nodesList;
 
    public static void main(String[] args) {
      LinkedList<Node> nodesList= new LinkedList<Node>();
@@ -161,11 +161,11 @@ public class Simulation {
     }
   }
 
-    private void addNode(int node, int xpos, int ypos) {
-      GridBagConstraints panelCons = new GridBagConstraints();
-      setCons(panelCons,xpos*2,ypos,2,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,20,0);
-      nodesPanel.add(nodesList.get(node).getLogPanel());
-    }
+  private void addNode(int node, int xpos, int ypos) {
+    GridBagConstraints panelCons = new GridBagConstraints();
+    setCons(panelCons,xpos*2,ypos,2,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,20,0);
+    nodesPanel.add(nodesList.get(node).getLogPanel());
+  }
 
   public void setCons(GridBagConstraints gridCons, int x, int y, int width, int height, int fill, int anchor, int ipadx, int ipady) {
     gridCons.gridx = x;

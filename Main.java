@@ -251,6 +251,20 @@ public class Main {
     setCons(previewPanelCons, 0,9,6,2,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
     page.add(scroll, previewPanelCons);
 
+
+    JButton refreshPreviewButton = new JButton("refresh");
+    refreshPreviewButton.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        if(e.getSource() == refreshPreviewButton) {
+          refreshPreview();
+        }
+      }
+    });
+
+    GridBagConstraints refreshPreviewButtonCons = new GridBagConstraints();
+    setCons(refreshPreviewButtonCons, 4,9,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
+    page.add(refreshPreviewButton, refreshPreviewButtonCons);
+
     //buttons
     JPanel buttons = new JPanel();
 
@@ -302,6 +316,8 @@ public class Main {
 }
 
   //preview methods
+
+  //add node from UI individual node input
   public void addNode() {
 
     //input error catcher

@@ -53,6 +53,11 @@ public class Node {
   //stores true if node is mining
   public Boolean runningState;
 
+  //log disp window
+  private TextArea logDispTextArea;
+  private JFrame logDispWindow = new JFrame();
+  private Boolean logDispWindowOpen = false;
+
 
   public Node(String id, String name, String hash_share, Double mine_speed) {
     this.id = Integer.parseInt(id);
@@ -116,9 +121,13 @@ public class Node {
   public void setNodesList(LinkedList<Node> nodesList) {
     this.nodesList = nodesList;
   }
+
   //log methods
   private void addToLog(String string) {
     this.log.add(string);
+    if (logDispWindowOpen) {
+      logDispTextArea.append(string);
+    }
   }
 
   private void printLog(TextArea textArea) {
@@ -151,10 +160,10 @@ public class Node {
       public void run() {
         workingBlock.newNonce();
         String hash = workingBlock.genHash();
-        //check for valid hash
+        //add to Log
         addToLog(hash+"\n");
-        //TODO add log of all attempted hashes
 
+        //check for valid hash
         if (checkHash(hash)) {
           //TODO get vaildation from other blocks
           blockFound(hash);
@@ -304,20 +313,25 @@ public class Node {
   //makes window that displays log
   private void dispLogDispWindow() {
     //make window each time
-    JFrame window = new JFrame();
-    window.setSize(250,300);
-    window.setMinimumSize(new Dimension(100,200));
-    window.setLocationRelativeTo(null);
-    window.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-    window.setTitle("Log");
+    logDispWindow.setSize(250,300);
+    logDispWindow.setMinimumSize(new Dimension(100,200));
+    logDispWindow.setLocationRelativeTo(null);
+    logDispWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+    logDispWindow.setTitle("Log");
+    logDispWindowOpen = true;
+    logDispWindow.addWindowListener(new java.awt.event.WindowAdapter() {
+    @Override
+      public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+        logDispWindowOpen = false;
+      }
+    });
 
+    logDispTextArea = new TextArea("",8,38,TextArea.SCROLLBARS_BOTH);
+    logDispTextArea.setEditable(false);
+    logDispWindow.add(logDispTextArea);
+    printLog(logDispTextArea);
 
-    TextArea textArea = new TextArea("",8,38,TextArea.SCROLLBARS_BOTH);
-    textArea.setEditable(false);
-    window.add(textArea);
-    printLog(textArea);
-
-    window.setVisible(true);
+    logDispWindow.setVisible(true);
   }
 
   //method sets GridBagConstraints variables
