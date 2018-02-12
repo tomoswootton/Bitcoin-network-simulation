@@ -54,7 +54,7 @@ public class Node {
   public Boolean runningState;
 
   //log disp window
-  private TextArea logDispTextArea;
+  private TextArea logDispTextArea = new TextArea("",8,38,TextArea.SCROLLBARS_BOTH);
   private JFrame logDispWindow = new JFrame();
   private Boolean logDispWindowOpen = false;
 
@@ -125,6 +125,7 @@ public class Node {
   //log methods
   private void addToLog(String string) {
     this.log.add(string);
+    //if log is open, append to text area aswell as log array
     if (logDispWindowOpen) {
       logDispTextArea.append(string);
     }
@@ -318,6 +319,7 @@ public class Node {
     logDispWindow.setLocationRelativeTo(null);
     logDispWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     logDispWindow.setTitle("Log");
+    logDispWindow.setAlwaysOnTop(true);
     logDispWindowOpen = true;
     logDispWindow.addWindowListener(new java.awt.event.WindowAdapter() {
     @Override
@@ -326,9 +328,11 @@ public class Node {
       }
     });
 
-    logDispTextArea = new TextArea("",8,38,TextArea.SCROLLBARS_BOTH);
+    //clear incase window has already been open
+    logDispTextArea.setText("");
     logDispTextArea.setEditable(false);
     logDispWindow.add(logDispTextArea);
+
     printLog(logDispTextArea);
 
     logDispWindow.setVisible(true);

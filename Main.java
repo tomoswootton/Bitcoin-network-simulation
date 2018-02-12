@@ -92,7 +92,7 @@ public class Main {
     setCons(globalHashShareTitleCons,0,1,1,1,GridBagConstraints.NONE,GridBagConstraints.LINE_END,10,10);
     settings.add(globalHashShareTitle, globalHashShareTitleCons);
 
-    globalHashShareTextField = new JTextField("4");
+    globalHashShareTextField = new JTextField("1");
     globalHashShareTextField.setColumns(10);
     globalHashShareTextField.addMouseListener(new MouseAdapter() {
       @Override
