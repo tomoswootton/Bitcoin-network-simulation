@@ -3,13 +3,12 @@ import java.awt.*;
 import javax.swing.*;
 import java.awt.event.*;
 
-import java.awt.GridBagLayout;
 import java.util.LinkedList;
 
 
 public class Simulation {
 
-  JFrame simulation = new JFrame();
+  JFrame simulationFrame = new JFrame();
 
   ListenForButton lForButton = new ListenForButton();
 
@@ -18,6 +17,7 @@ public class Simulation {
 
   JPanel page;
   JPanel nodesPanel;
+  JPanel chainPanel;
   double totalPages;
 
   JButton startPauseButton;
@@ -34,15 +34,13 @@ public class Simulation {
    }
 
   public Simulation(LinkedList<Node> nodesList) {
-
     this.nodesList = nodesList;
     //init
-    simulation.setSize(1200,900);
-
-    simulation.setLocationRelativeTo(null);
-    simulation.setResizable(false);
-    simulation.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-    simulation.setTitle("Simulation");
+    simulationFrame.setSize(1200,900);
+    simulationFrame.setLocationRelativeTo(null);
+    simulationFrame.setResizable(false);
+    simulationFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+    simulationFrame.setTitle("Simulation");
 
     makePage();
 
@@ -53,8 +51,20 @@ public class Simulation {
     return nodesList.size();
   }
 
+  public void addBlockToChainPanel(String string) {
+
+    System.out.print(string);
+    System.out.print(string);
+    System.out.print(string);
+    System.out.print(string);
+    System.out.print(string);
+    System.out.print(string);
+    System.out.print(string);
+    // chainPanel.add(panel);
+  }
+
   //JFrame stuff
-  public void makePage() {
+  private void makePage() {
 
     //UI
     JPanel page = new JPanel();
@@ -111,15 +121,13 @@ public class Simulation {
       page.add(nodes, nodesCons);
 
       //chain
-      JPanel chainPanel = new JPanel();
+      chainPanel = new JPanel();
       chainPanel.setBorder(BorderFactory.createLineBorder(Color.black));
       chainPanel.setPreferredSize(new Dimension(700,300));
 
-      chainPanel.add(new JLabel("hello"));
-
       JScrollPane chainScrollPane = new JScrollPane(chainPanel,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
       chainScrollPane.setViewportView(chainPanel);
-      chainScrollPane.setPreferredSize(new Dimension(500,300));
+      chainScrollPane.setPreferredSize(new Dimension(500,200));
 
       GridBagConstraints chainPanelCons = new GridBagConstraints();
       setCons(chainPanelCons,1,4,4,3,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
@@ -149,25 +157,11 @@ public class Simulation {
       setCons(buttonsPanelCons,1,7,4,2,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
       page.add(buttonsPanel, buttonsPanelCons);
 
-    simulation.add(page);
-    simulation.setVisible(true);
+    simulationFrame.add(page);
+    simulationFrame.setVisible(true);
   }
 
-  //displays nodes in panel, pages start on 1
-  public void constructNodesPanels() {
-    nodesPanel.removeAll();
-    for (Node node : nodesList) {
-      nodesPanel.add(node.getNodeDispPanel());
-    }
-  }
-
-  private void addNode(int node, int xpos, int ypos) {
-    GridBagConstraints panelCons = new GridBagConstraints();
-    setCons(panelCons,xpos*2,ypos,2,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,20,0);
-    nodesPanel.add(nodesList.get(node).getLogPanel());
-  }
-
-  public void setCons(GridBagConstraints gridCons, int x, int y, int width, int height, int fill, int anchor, int ipadx, int ipady) {
+  private void setCons(GridBagConstraints gridCons, int x, int y, int width, int height, int fill, int anchor, int ipadx, int ipady) {
     gridCons.gridx = x;
     gridCons.gridy = y;
     //number of col/row component takes up
@@ -185,6 +179,21 @@ public class Simulation {
     //keep as 0 for now,meaning cell fits to component
     gridCons.weightx = 0.2;
     gridCons.weighty = 0.2;
+  }
+
+  //displays nodes in panel, pages start on 1
+  private void constructNodesPanels() {
+    nodesPanel.removeAll();
+    for (Node node : nodesList) {
+      nodesPanel.add(node.getNodeDispPanel());
+    }
+  }
+
+  //methods
+  private void addNode(int node, int xpos, int ypos) {
+    GridBagConstraints panelCons = new GridBagConstraints();
+    setCons(panelCons,xpos*2,ypos,2,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,20,0);
+    nodesPanel.add(nodesList.get(node).getLogPanel());
   }
 
   public void run(Boolean state) {
@@ -210,7 +219,7 @@ public class Simulation {
 
 
      } else if (e.getSource() == exitButton) {
-       simulation.dispose();
+       simulationFrame.dispose();
      }
    }
  }

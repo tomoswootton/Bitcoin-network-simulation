@@ -182,6 +182,7 @@ public class Main {
 
       hashShareTextField = new JTextField(Double.toString(hashShareAvailable));
       hashShareTextField.setColumns(10);
+      hashShareTextField.setText("50.0");
       hashShareTextField.addMouseListener(new MouseAdapter() {
         @Override
         public void mouseClicked(MouseEvent e) {
@@ -265,6 +266,19 @@ public class Main {
     setCons(refreshPreviewButtonCons, 4,9,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
     page.add(refreshPreviewButton, refreshPreviewButtonCons);
 
+    JButton clearPreviewButton = new JButton("Remove All");
+    clearPreviewButton.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        if(e.getSource() == clearPreviewButton) {
+          removeAllNodes();
+        }
+      }
+    });
+
+    GridBagConstraints clearPreviewButtonCons = new GridBagConstraints();
+    setCons(clearPreviewButtonCons, 4,10,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
+    page.add(clearPreviewButton, clearPreviewButtonCons);
+
     //buttons
     JPanel buttons = new JPanel();
 
@@ -313,7 +327,7 @@ public class Main {
     setCons(gridCons,x,y,width,height,fill,anchor,ipadx,ipady);
     gridCons.weightx = weightx;
     gridCons.weighty = weighty;
-}
+  }
 
   //preview methods
 
@@ -362,7 +376,6 @@ public class Main {
 
   private void addNodeToPreview(Node node, int row) {
     // previewPanel.add(node.getNodeDispPanel());
-    System.out.println("adding node to row " +node.id);
     GridBagConstraints nodeCons = new GridBagConstraints();
     setCons(nodeCons,0,row,2,1,GridBagConstraints.HORIZONTAL,GridBagConstraints.PAGE_START,0,0);
     previewPanel.add(node.getNodeDispPanel(), nodeCons);
@@ -389,6 +402,14 @@ public class Main {
       //add to preview at row node.id
       addNodeToPreview(node, node.id);
     }
+  }
+
+  private void removeAllNodes() {
+    //clear nodesLsit
+    nodesList.clear();
+    //clear previewPanel
+    previewPanel.removeAll();
+    refreshPreview();
   }
 
   //when a node is removed, the id's of the remaining nodesList must be fixed
@@ -453,7 +474,7 @@ public class Main {
         for (Double hashShare : hashShareList) {
           sum += hashShare;
         }
-        System.out.println("sum ="+sum);
+        System.out.println("sum = "+sum);
         //change each value in hashShare to percentage of blocks (therefore hashShare value)
         for (int i=0;i<hashShareList.size();i++) {
           Double temp = Math.floor((hashShareList.get(i)/sum) * 1000) / 1000;
@@ -481,13 +502,21 @@ public class Main {
     //send all nodes their nodesList
     //TODO add split chain option
 
+
     // temp so entire list can be passed through, while iterating through original list
+    //also pass simulation object so nodes can use simulation methods
     LinkedList<Node> nodesListTemp = this.nodesList;
     for (Node node : nodesList) {
       node.setNodesList(nodesListTemp);
     }
 
+    //make simulation object
     Simulation simulation = new Simulation(nodesList);
+
+    //add simulation object to nodes
+    for (Node node : nodesList) {
+      node.setSimulationObject(simulation);
+    }
   }
 
 

@@ -1,3 +1,7 @@
+import javax.swing.*;
+import java.awt.*;
+
+
 class Block {
 
   public int id;
@@ -77,9 +81,11 @@ class Block {
     return formatted_hash;
   }
 
-  // @Override
-  // public int hashCode() {
-  //   return nonce.hashCode();
-  // }
+  //only called for blocks counted in chain
+  public JPanel MakeDisplayBlock() {
+    JPanel frame = new JPanel();
+    frame.setBorder(BorderFactory.createLineBorder(Color.black));
+    return frame;
+  }
 
 }

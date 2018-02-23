@@ -10,8 +10,6 @@ import java.util.Timer;
 
 import java.awt.event.ActionListener;
 
-
-
 public class Node {
 
   //testing
@@ -26,6 +24,9 @@ public class Node {
     testFrame.add(testPanel);
     testFrame.setVisible(true);
   }
+
+  //simulation object for methods access
+  private Simulation simulation;
 
   // nodes version of chain
   public LinkedList<Block> chain = new LinkedList<Block>();
@@ -66,6 +67,7 @@ public class Node {
     this.mine_speed = mine_speed;
     this.blocks_mined = 0;
     makeNodeDispPanel();
+
     //init chain with genesis block
     Block block = new Block(this.getChainSize(), "1234");
     chain.add(block);
@@ -74,6 +76,12 @@ public class Node {
   }
 
 //getter and setters
+  public void setNodesList(LinkedList<Node> nodesList) {
+    this.nodesList = nodesList;
+  }
+  public void setSimulationObject(Simulation simulation) {
+    this.simulation = simulation;
+  }
   public String getName() {
     return this.name;
   }
@@ -89,37 +97,26 @@ public class Node {
   public double getMineSpeed() {
     return this.mine_speed;
   }
-
   public double setMineSpeed() {
     return this.mine_speed;
   }
-
   public int getChainSize(){
     return chain.size();
   }
-
   public Block getChainLastElement() {
     return chain.getLast();
   }
-
   private void addBlockToChain(Block block) {
     chain.add(block);
   }
-
   private void setNewWorkingBlock() {
     workingBlock = new Block(getChainSize(), getChainLastElement().getHash());
   }
-
   public JPanel getNodeDispPanel() {
     return this.nodeDispPanel;
   }
-
   public JPanel getLogPanel() {
     return this.logDispPanel;
-  }
-
-  public void setNodesList(LinkedList<Node> nodesList) {
-    this.nodesList = nodesList;
   }
 
   //log methods
@@ -204,7 +201,8 @@ public class Node {
     //update nodeDispPanel
     blocks_mined += 1;
     blocksMinedLabel.setText(Integer.toString(blocks_mined));
-
+    //add to simulation window
+    addBlockInfoToChainPanel();
   }
 
   private void propogateBlock(Block block) {
@@ -239,8 +237,14 @@ public class Node {
     this.mine(true);
   }
 
-  public void makeNodeDispPanel() {
+  private void addBlockInfoToChainPanel() {
+    //make panel
 
+    //add panel to thang
+    simulation.addBlockToChainPanel(":D");
+  }
+
+  public void makeNodeDispPanel() {
     nodeDispPanel = new JPanel(new GridBagLayout());
     nodeDispPanel.setBorder(BorderFactory.createLineBorder(Color.black));
 
@@ -318,7 +322,7 @@ public class Node {
     logDispWindow.setMinimumSize(new Dimension(100,200));
     logDispWindow.setLocationRelativeTo(null);
     logDispWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-    logDispWindow.setTitle("Log");
+    logDispWindow.setTitle("Log fro node "+name);
     logDispWindow.setAlwaysOnTop(true);
     logDispWindowOpen = true;
     logDispWindow.addWindowListener(new java.awt.event.WindowAdapter() {
