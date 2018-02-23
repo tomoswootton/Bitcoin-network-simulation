@@ -17,7 +17,7 @@ public class Simulation {
 
   JPanel page;
   JPanel nodesPanel;
-  JPanel chainPanel;
+  JPanel blocksPanel;
   double totalPages;
 
   JButton startPauseButton;
@@ -26,8 +26,11 @@ public class Simulation {
   //linked list used becasue blocks will only be added to the end
   LinkedList<Node> nodesList;
 
+  //list of blocks foundBlocks
+  private LinkedList<Block> blocksFoundList = new LinkedList<Block>();
+
    public static void main(String[] args) {
-     LinkedList<Node> nodesList= new LinkedList<Node>();
+     LinkedList<Node> nodesList = new LinkedList<Node>();
      nodesList.add(new Node("0","test","30",0.5));
      nodesList.add(new Node("1","test2","30",0.8));
     //  new Simulation(nodesList);
@@ -51,16 +54,24 @@ public class Simulation {
     return nodesList.size();
   }
 
-  public void addBlockToChainPanel(String string) {
+  public void addBlockToChainPanel(Block block) {
+    blocksFoundList.add(block);
+    refreshBlocksPanel();
+  }
 
-    System.out.print(string);
-    System.out.print(string);
-    System.out.print(string);
-    System.out.print(string);
-    System.out.print(string);
-    System.out.print(string);
-    System.out.print(string);
-    // chainPanel.add(panel);
+  public void refreshBlocksPanel() {
+    System.out.println("refreshing panel");
+    blocksPanel.removeAll();
+    blocksPanel.repaint();
+    for (Block block : blocksFoundList) {
+      GridBagConstraints panelCons = new GridBagConstraints();
+      setCons(panelCons,block.id,0,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,2,2);
+      blocksPanel.add(block.blockDisp, panelCons);
+    }
+  }
+
+  public void addBlockToFoundList(Block block) {
+    blocksFoundList.add(block);
   }
 
   //JFrame stuff
@@ -121,13 +132,32 @@ public class Simulation {
       page.add(nodes, nodesCons);
 
       //chain
-      chainPanel = new JPanel();
+      JPanel chainPanel = new JPanel();
       chainPanel.setBorder(BorderFactory.createLineBorder(Color.black));
       chainPanel.setPreferredSize(new Dimension(700,300));
 
-      JScrollPane chainScrollPane = new JScrollPane(chainPanel,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-      chainScrollPane.setViewportView(chainPanel);
-      chainScrollPane.setPreferredSize(new Dimension(500,200));
+      //title
+      JLabel chainTitle = new JLabel("<HTML><U>Block Chain</U></HTML>");
+      chainTitle.setFont(chainTitle.getFont().deriveFont(16.0f));
+
+      GridBagConstraints chainTitleCons = new GridBagConstraints();
+      setCons(chainTitleCons, 0,0,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
+      chainPanel.add(chainTitle, chainTitleCons);
+
+        //panel for blocks
+        blocksPanel = new JPanel();
+        blocksPanel.setLayout(new GridBagLayout());
+        blocksPanel.setBorder(BorderFactory.createLineBorder(Color.black));
+        blocksPanel.setPreferredSize(new Dimension(600,200));
+
+        //scrollbox
+        JScrollPane chainScrollPane = new JScrollPane(blocksPanel,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        chainScrollPane.setViewportView(blocksPanel);
+        chainScrollPane.setPreferredSize(new Dimension(500,100));
+
+        GridBagConstraints blocksPanelCons = new GridBagConstraints();
+        setCons(blocksPanelCons,0,1,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
+        chainPanel.add(blocksPanel, blocksPanelCons);
 
       GridBagConstraints chainPanelCons = new GridBagConstraints();
       setCons(chainPanelCons,1,4,4,3,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);

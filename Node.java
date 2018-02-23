@@ -238,10 +238,10 @@ public class Node {
   }
 
   private void addBlockInfoToChainPanel() {
-    //make panel
-
-    //add panel to thang
-    simulation.addBlockToChainPanel(":D");
+    //add panel to chain panel
+    workingBlock.makeDispBlock();
+    simulation.addBlockToChainPanel(workingBlock);
+    simulation.addBlockToFoundList(workingBlock);
   }
 
   public void makeNodeDispPanel() {

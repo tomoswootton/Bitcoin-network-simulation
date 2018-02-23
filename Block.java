@@ -9,6 +9,8 @@ class Block {
   private int nonce;
   private String hash;
 
+  public JPanel blockDisp;
+
   public static void main(String[] args) {
     new Block(1,"3455");
 
@@ -82,10 +84,13 @@ class Block {
   }
 
   //only called for blocks counted in chain
-  public JPanel MakeDisplayBlock() {
-    JPanel frame = new JPanel();
-    frame.setBorder(BorderFactory.createLineBorder(Color.black));
-    return frame;
+  public void makeDispBlock() {
+    blockDisp = new JPanel();
+    blockDisp.setBorder(BorderFactory.createLineBorder(Color.black));
+    blockDisp.setSize(new Dimension(30,30));
+    blockDisp.setBackground(Color.red);
+    JLabel label = new JLabel(":D");
+    blockDisp.add(label);
   }
 
 }
