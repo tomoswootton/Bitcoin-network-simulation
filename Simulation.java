@@ -56,6 +56,13 @@ public class Simulation {
 
   public void addBlockToChainPanel(Block block) {
     blocksFoundList.add(block);
+
+    // GridBagConstraints blockCons = new GridBagConstraints();
+    // setCons(blockCons,block.id,0,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,2,2);
+    // blocksPanel.add(block.blockDisp, blockCons);
+
+
+
     refreshBlocksPanel();
   }
 
@@ -65,7 +72,9 @@ public class Simulation {
     blocksPanel.repaint();
     for (Block block : blocksFoundList) {
       GridBagConstraints panelCons = new GridBagConstraints();
-      setCons(panelCons,block.id,0,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,2,2);
+      setCons(panelCons,0,block.id,2,1,GridBagConstraints.HORIZONTAL,GridBagConstraints.PAGE_START,0,0);
+
+      // setCons(panelCons,block.id,0,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,2,2);
       blocksPanel.add(block.blockDisp, panelCons);
     }
   }

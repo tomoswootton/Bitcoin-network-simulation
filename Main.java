@@ -375,7 +375,6 @@ public class Main {
   //preview methods
 
   private void addNodeToPreview(Node node, int row) {
-    // previewPanel.add(node.getNodeDispPanel());
     GridBagConstraints nodeCons = new GridBagConstraints();
     setCons(nodeCons,0,row,2,1,GridBagConstraints.HORIZONTAL,GridBagConstraints.PAGE_START,0,0);
     previewPanel.add(node.getNodeDispPanel(), nodeCons);
