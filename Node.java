@@ -181,7 +181,6 @@ public class Node {
     }
   }
   public void receiveBlock(Block block) {
-
     //pause mining for execution of new block code
     this.mine(false);
 
@@ -194,11 +193,9 @@ public class Node {
     //add to chain
     addToLog("Block verified, adding to chain..\n");
     addBlockToChain(block);
-
     //continue mine
     addToLog("Find new block. id: "+getChainSize()+"\n\n");
     setNewWorkingBlock();
-
     //restart mining
     this.mine(true);
   }
@@ -213,7 +210,6 @@ public class Node {
         String hash = workingBlock.genHash();
         //add to Log
         addToLog(hash+"\n");
-
         //check for valid hash
         if (checkHash(hash)) {
           //TODO get vaildation from other blocks

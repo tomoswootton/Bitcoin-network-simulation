@@ -46,14 +46,11 @@ public class Main {
 
   //JSwing methods
   private void makePage() {
-
     main.setSize(800, 600);
     main.setLocationRelativeTo(null);
     main.setResizable(false);
     main.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     main.setTitle("Menu");
-
-    ListenForButton lForButton = new ListenForButton();
 
     //create UI
     page = new JPanel();
@@ -70,7 +67,6 @@ public class Main {
     setCons(headerPanelCons, 1,0,4,2,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
     page.add(headerPanel, headerPanelCons);
 
-
     //settings
     JPanel settings = new JPanel();
     settings.setLayout(new GridBagLayout());
@@ -86,7 +82,6 @@ public class Main {
     settings.add(settingsTitle, settingsTitleCons);
 
     //hashshare
-
     JLabel globalHashShareTitle = new JLabel("Global HashShare:");
 
     GridBagConstraints globalHashShareTitleCons = new GridBagConstraints();
@@ -109,14 +104,12 @@ public class Main {
     setCons(globalHashShareTextFieldCons,1,1,1,1,GridBagConstraints.NONE,GridBagConstraints.LINE_START,10,0);
     settings.add(globalHashShareTextField, globalHashShareTextFieldCons);
 
+      JPanel settingsfillerPanel = new JPanel();
+      settingsfillerPanel.setPreferredSize(new Dimension(400,10));
 
-    JPanel settingsfillerPanel = new JPanel();
-    settingsfillerPanel.setPreferredSize(new Dimension(400,10));
-
-    GridBagConstraints settingsfillerPanelCons = new GridBagConstraints();
-    setCons(settingsfillerPanelCons,0,1,4,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
-    settings.add(settingsfillerPanel, settingsfillerPanelCons);
-
+      GridBagConstraints settingsfillerPanelCons = new GridBagConstraints();
+      setCons(settingsfillerPanelCons,0,1,4,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
+      settings.add(settingsfillerPanel, settingsfillerPanelCons);
 
     GridBagConstraints settingsCons = new GridBagConstraints();
     setCons(settingsCons,1,2,4,2,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
@@ -142,7 +135,6 @@ public class Main {
       setCons(nodeNameTitleCons,0,1,1,1,GridBagConstraints.NONE,GridBagConstraints.LINE_END,10,10);
       addNode.add(nodeNameTitle, nodeNameTitleCons);
 
-
       nodeNameTextField = new JTextField("Node name");
       nodeNameTextField.setColumns(10);
       nodeNameTextField.addMouseListener(new MouseAdapter() {
@@ -155,6 +147,7 @@ public class Main {
         }
 
       });
+
       GridBagConstraints nodeNameTextFieldCons = new GridBagConstraints();
       setCons(nodeNameTextFieldCons,1,1,1,1,GridBagConstraints.NONE,GridBagConstraints.LINE_START,10,0);
       addNode.add(nodeNameTextField, nodeNameTextFieldCons);
@@ -165,7 +158,6 @@ public class Main {
       GridBagConstraints nodeIdTitleCons = new GridBagConstraints();
       setCons(nodeIdTitleCons,0,2,1,1,GridBagConstraints.NONE,GridBagConstraints.LINE_END,10,10);
       addNode.add(nodeIdTitle, nodeIdTitleCons);
-
 
       nodeIdLabel = new JLabel(""+nodesList.size());
 
@@ -180,11 +172,10 @@ public class Main {
       setCons(hashShareTitleCons,0,3,1,1,GridBagConstraints.NONE,GridBagConstraints.LINE_END,10,10);
       addNode.add(hashShareTitle, hashShareTitleCons);
 
-
-      hashShareTextField = new JTextField(Double.toString(hashShareAvailable));
-      hashShareTextField.setColumns(10);
-      hashShareTextField.setText("50.0");
-      hashShareTextField.addMouseListener(new MouseAdapter() {
+        hashShareTextField = new JTextField(Double.toString(hashShareAvailable));
+        hashShareTextField.setColumns(10);
+        hashShareTextField.setText("50.0");
+        hashShareTextField.addMouseListener(new MouseAdapter() {
         @Override
         public void mouseClicked(MouseEvent e) {
           if (hashShareTextFieldClear) {
@@ -201,21 +192,43 @@ public class Main {
       //buttons
       JPanel addNodeButtons = new JPanel();
 
-        addNodeButton = new JButton("Add node");
+        addNodeButton = new JButton("Add Node");
+        addNodeButton.addActionListener(new ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+            if(e.getSource() == addNodeButton) {
+              addNode();
+              nodeNameTextField.setText("Node name");
+              hashShareTextField.setText(Double.toString(hashShareAvailable));
+              nodeNameTextFieldClear = true;
+              globalHashShareTextFieldClear = true;
+            }
+          }
+        });
         addNodeButtons.add(addNodeButton);
-        removeNodeButton = new JButton("Remove node");
-        addNodeButtons.add(removeNodeButton);
-        importButton = new JButton("import");
-        addNodeButtons.add(importButton);
 
-        addNodeButton.addActionListener(lForButton);
-        removeNodeButton.addActionListener(lForButton);
-        importButton.addActionListener(lForButton);
+        removeNodeButton = new JButton("Remove Node");
+        removeNodeButton.addActionListener(new ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+            if(e.getSource() == removeNodeButton) {
+              removeNodeWindow();
+            }
+          }
+        });
+        addNodeButtons.add(removeNodeButton);
+
+        importButton = new JButton("Import");
+        importButton.addActionListener(new ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+            if(e.getSource() == importButton) {
+              importStats();
+            }
+          }
+        });
+        addNodeButtons.add(importButton);
 
       GridBagConstraints addNodeButtonsCons = new GridBagConstraints();
       setCons(addNodeButtonsCons,0,4,2,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
       addNode.add(addNodeButtons, addNodeButtonsCons);
-
 
       JPanel addNodefillerPanel = new JPanel();
       addNodefillerPanel.setPreferredSize(new Dimension(400,10));
@@ -233,7 +246,6 @@ public class Main {
     //title
     JLabel titleLabel = new JLabel("                Name                       id         power      blocks                                                  ");
 
-
     GridBagConstraints titleLabelCons = new GridBagConstraints();
     setCons(titleLabelCons, 0,8,2,1,GridBagConstraints.NONE,GridBagConstraints.PAGE_END,0,0);
     page.add(titleLabel, titleLabelCons);
@@ -243,19 +255,16 @@ public class Main {
     // previewPanel.setLayout(new BoxLayout(previewPanel, BoxLayout.Y_AXIS));
     previewPanel.setLayout(new GridBagLayout());
 
-
     JScrollPane scroll = new JScrollPane(previewPanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
     scroll.setViewportView(previewPanel);
     scroll.setPreferredSize(new Dimension(500,100));
-
 
     GridBagConstraints previewPanelCons = new GridBagConstraints();
     setCons(previewPanelCons, 0,9,6,2,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
     page.add(scroll, previewPanelCons);
 
-
-    JButton refreshPreviewButton = new JButton("refresh");
-    refreshPreviewButton.addActionListener(new ActionListener() {
+      JButton refreshPreviewButton = new JButton("refresh");
+      refreshPreviewButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
         if(e.getSource() == refreshPreviewButton) {
           refreshPreview();
@@ -267,8 +276,8 @@ public class Main {
     setCons(refreshPreviewButtonCons, 4,9,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
     page.add(refreshPreviewButton, refreshPreviewButtonCons);
 
-    JButton clearPreviewButton = new JButton("Remove All");
-    clearPreviewButton.addActionListener(new ActionListener() {
+      JButton clearPreviewButton = new JButton("Remove All");
+      clearPreviewButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
         if(e.getSource() == clearPreviewButton) {
           removeAllNodes();
@@ -284,18 +293,28 @@ public class Main {
     JPanel buttons = new JPanel();
 
       startButton = new JButton("Start");
+      startButton.addActionListener(new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+          if(e.getSource() == startButton) {
+            startSimulation();
+          }
+        }
+      });
       buttons.add(startButton);
-      exitButton = new JButton("Exit");
-      buttons.add(exitButton);
 
-      startButton.addActionListener(lForButton);
-      exitButton.addActionListener(lForButton);
+      exitButton = new JButton("Exit");
+      exitButton.addActionListener(new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+          if(e.getSource() == exitButton) {
+            System.exit(0);
+          }
+        }
+      });
+      buttons.add(exitButton);
 
     GridBagConstraints buttonsCons = new GridBagConstraints();
     setCons(buttonsCons,1,11,4,2,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
     page.add(buttons, buttonsCons);
-
-
 
     //add page to JFrame
     main.add(page);
@@ -513,28 +532,8 @@ public class Main {
     }
   }
 
-  //button listeners
-  private class ListenForButton implements ActionListener {
-    public void actionPerformed(ActionEvent e) {
 
-      if(e.getSource() == startButton) {
-        startSimulation();
-      } else if (e.getSource() == exitButton) {
-        System.exit(0);
-      } else if (e.getSource() == addNodeButton) {
-        addNode();
-        nodeNameTextField.setText("Node name");
-        hashShareTextField.setText(Double.toString(hashShareAvailable));
-        nodeNameTextFieldClear = true;
-        globalHashShareTextFieldClear = true;
-      } else if (e.getSource() == removeNodeButton) {
-        removeNodeWindow();
-      } else if (e.getSource() == importButton) {
-        importStats();
-      }
-    }
-
-    public void removeNodeWindow() {
+  public void removeNodeWindow() {
       //catch if nodesList is empty
       int size = nodesList.size();
       if (size==0) {
@@ -559,5 +558,4 @@ public class Main {
       }
       removeNode(inputValueInt);
     }
-  }
 }

@@ -82,7 +82,8 @@ class Block {
   private void makeDispPanel() {
     dispPanel = new JPanel();
     dispPanel.setBorder(BorderFactory.createLineBorder(Color.black));
-    dispPanel.setSize(new Dimension(100,100));
+    dispPanel.setMaximumSize(new Dimension(100,100));
+    dispPanel.setMinimumSize(new Dimension(100,100));
     dispPanel.setBackground(Color.red);
     dispPanel.setLayout(new GridBagLayout());
 

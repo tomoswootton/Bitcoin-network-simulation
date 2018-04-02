@@ -10,8 +10,6 @@ public class Simulation {
 
   JFrame simulationFrame = new JFrame();
 
-  ListenForButton lForButton = new ListenForButton();
-
   // page variables
   Boolean running = false;
 
@@ -81,19 +79,38 @@ public class Simulation {
     buttonsPanel.setLayout(new GridBagLayout());
 
     startPauseButton = new JButton("Start");
+    startPauseButton.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        if(e.getSource() == startPauseButton) {
+          if (running) {
+            startPauseButton.setText("Start");
+            run(false);
+            running = false;
+          } else {
+            startPauseButton.setText("Pause");
+            run(true);
+            running = true;
+          }
+        }
+      }
+    });
 
     GridBagConstraints startPauseButtonCons = new GridBagConstraints();
     setCons(startPauseButtonCons, 0,1,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
     buttonsPanel.add(startPauseButton, startPauseButtonCons);
 
     exitButton = new JButton("Exit");
+    exitButton.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        if(e.getSource() == exitButton) {
+          simulationFrame.dispose();
+        }
+      }
+    });
 
     GridBagConstraints exitButtonCons = new GridBagConstraints();
     setCons(exitButtonCons, 1,1,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
     buttonsPanel.add(exitButton, exitButtonCons);
-
-    startPauseButton.addActionListener(lForButton);
-    exitButton.addActionListener(lForButton);
 
     GridBagConstraints buttonsPanelCons = new GridBagConstraints();
     setCons(buttonsPanelCons,1,7,4,2,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
@@ -180,7 +197,6 @@ public class Simulation {
     chainPanel = new JPanel();
     chainPanel.setLayout(new GridBagLayout());
     chainPanel.setBorder(BorderFactory.createLineBorder(Color.black));
-    // chainPanel.setPreferredSize(new Dimension(700,300));
 
       //titles
       JLabel chainTitle = new JLabel("<HTML><U>Chain</U></HTML>");
@@ -192,17 +208,21 @@ public class Simulation {
 
       //scroll box
       chainScrollPanel = new JPanel();
-      chainScrollPanel.setLayout(new BoxLayout(chainScrollPanel, BoxLayout.Y_AXIS));
+      chainScrollPanel.setLayout(new GridBagLayout());
 
       JScrollPane chainScrollPane = new JScrollPane(chainScrollPanel,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
       chainScrollPane.setViewportView(chainScrollPanel);
-      chainScrollPane.setPreferredSize(new Dimension(700,300));
+      chainScrollPane.setPreferredSize(new Dimension(700,100));
 
         populateChainScrollPanel();
 
       GridBagConstraints chainPanelCons = new GridBagConstraints();
       setCons(chainPanelCons, 0,2,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
       chainPanel.add(chainScrollPane, chainPanelCons);
+
+    //testing buttons
+
+
 
     GridBagConstraints chainCons = new GridBagConstraints();
     setCons(chainCons, 0,3,5,3,GridBagConstraints.NONE,GridBagConstraints.PAGE_END,0,0);
@@ -248,24 +268,4 @@ public class Simulation {
     }
   }
 
-  private class ListenForButton implements ActionListener {
-
-   public void actionPerformed(ActionEvent e) {
-     if(e.getSource() == startPauseButton) {
-       if (running) {
-         startPauseButton.setText("Start");
-         run(false);
-         running = false;
-       } else {
-         startPauseButton.setText("Pause");
-         run(true);
-         running = true;
-       }
-
-
-     } else if (e.getSource() == exitButton) {
-       simulationFrame.dispose();
-     }
-   }
- }
  }
