@@ -170,7 +170,7 @@ public class Node {
     blocks_mined += 1;
     blocksMinedLabel.setText(Integer.toString(blocks_mined));
     //add to simulation window
-    addBlockInfoToChainPanel();
+    simulation.addBlockToGlobalChain(workingBlock);
   }
   private void propogateBlock(Block block) {
     //send block to all nodes in network, apart from self
@@ -201,11 +201,6 @@ public class Node {
 
     //restart mining
     this.mine(true);
-  }
-  private void addBlockInfoToChainPanel() {
-    //add panel to chain panel
-    workingBlock.makeDispBlock();
-    simulation.addBlockToGlobalChain(workingBlock);
   }
 
   //timer methods

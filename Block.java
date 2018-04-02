@@ -24,7 +24,7 @@ class Block {
 
     //testing
     // JFrame testMain = new JFrame();
-    // this.makeDispBlock();
+    // this.makeDispPanel();
     // testMain.setSize(200, 200);
     // testMain.setLocationRelativeTo(null);
     // testMain.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -44,7 +44,9 @@ class Block {
     return this.hash;
   }
   public JPanel getDispPanel() {
-    if (dispPanel)
+    if (dispPanel == null) {
+      makeDispPanel();
+    }
     return this.dispPanel;
   }
 
@@ -77,7 +79,7 @@ class Block {
   }
 
   //TODO set node_name as paraemter
-  private void makeDispBlock() {
+  private void makeDispPanel() {
     dispPanel = new JPanel();
     dispPanel.setBorder(BorderFactory.createLineBorder(Color.black));
     dispPanel.setSize(new Dimension(100,100));

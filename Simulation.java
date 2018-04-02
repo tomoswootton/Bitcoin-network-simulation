@@ -233,7 +233,7 @@ public class Simulation {
 
     GridBagConstraints panelCons = new GridBagConstraints();
     // setCons(panelCons,block.id,0,2,1,GridBagConstraints.HORIZONTAL,GridBagConstraints.PAGE_START,0,0);
-    setCons(panelCons,0,block.id,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,2,2);
+    setCons(panelCons,block.id,0,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,2,2);
     chainScrollPanel.add(block.getDispPanel(), panelCons);
 
     // System.out.println("refreshing panel, block id: "+block.id);
