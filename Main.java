@@ -36,14 +36,15 @@ public class Main {
   //nodesList list, contains node objects
   LinkedList<Node> nodesList = new LinkedList<Node>();
 
+  //constructors
   public static void main(String[] args) {
     new Main();
   }
-
   public Main() {
     makePage();
   }
 
+  //JSwing methods
   private void makePage() {
 
     main.setSize(800, 600);
@@ -92,7 +93,7 @@ public class Main {
     setCons(globalHashShareTitleCons,0,1,1,1,GridBagConstraints.NONE,GridBagConstraints.LINE_END,10,10);
     settings.add(globalHashShareTitle, globalHashShareTitleCons);
 
-    globalHashShareTextField = new JTextField("1");
+    globalHashShareTextField = new JTextField("2");
     globalHashShareTextField.setColumns(10);
     globalHashShareTextField.addMouseListener(new MouseAdapter() {
       @Override
@@ -300,9 +301,9 @@ public class Main {
     main.add(page);
     main.setVisible(true);
   }
-
-  //method sets GridBagConstraints variables
   private void setCons(GridBagConstraints gridCons, int x, int y, int width, int height, int fill, int anchor, int ipadx, int ipady) {
+    //method sets GridBagConstraints variables
+
     gridCons.gridx = x;
     gridCons.gridy = y;
     //number of col/row component takes up
@@ -321,22 +322,20 @@ public class Main {
     gridCons.weightx = 0.2;
     gridCons.weighty = 0.2;
   }
-
-  //extra method for if weight option is wanted
   private void setCons(GridBagConstraints gridCons,int x,int y,int width,int height,int fill,int anchor,int ipadx,int ipady,int weightx,int weighty) {
+    //extra method for if weight option is wanted
+
     setCons(gridCons,x,y,width,height,fill,anchor,ipadx,ipady);
     gridCons.weightx = weightx;
     gridCons.weighty = weighty;
   }
 
-  //preview methods
-
-  //add node from UI individual node input
+  //add nodes
   public void addNode() {
+    //add node from UI individual node input
 
     //input error catcher
     if (hashShareAvailable < Double.parseDouble(hashShareTextField.getText())) {
-      // JOptionPane.showMessageDialog(main, "Unavailable hash share chosen");
       JOptionPane.showMessageDialog(main,hashShareAvailable+"% hash share available","Error",JOptionPane.PLAIN_MESSAGE);
       return;
     }
@@ -356,7 +355,6 @@ public class Main {
     //recalculate available hash share value
     refreshHashShareAvailble();
   }
-
   public void addNode(String name, String hashShare) {
     System.out.println(hashShare);
     Double mine_speed = (Double.parseDouble(hashShare)/100)*Double.parseDouble(globalHashShareTextField.getText());
@@ -372,14 +370,7 @@ public class Main {
     refreshHashShareAvailble();
   }
 
-  //preview methods
-
-  private void addNodeToPreview(Node node, int row) {
-    GridBagConstraints nodeCons = new GridBagConstraints();
-    setCons(nodeCons,0,row,2,1,GridBagConstraints.HORIZONTAL,GridBagConstraints.PAGE_START,0,0);
-    previewPanel.add(node.getNodeDispPanel(), nodeCons);
-  }
-
+  //nodesList methods
   public void removeNode(int id) {
     for (Node node : nodesList) {
       if (node.id == id) {
@@ -392,7 +383,30 @@ public class Main {
       }
     }
   }
+  private void removeAllNodes() {
+    //clear nodesLsit
+    nodesList.clear();
+    //clear previewPanel
+    previewPanel.removeAll();
+    refreshPreview();
+  }
+  public void refreshNodesList() {
+    //purpose: when a node is removed, the id's of the remaining nodesList must be fixed
 
+    for (int i=0;i<nodesList.size();i++) {
+      //for each node, update id and re-make dispPanel with new id
+      Node node = nodesList.get(i);
+      node.id = i;
+      node.makeNodeDispPanel();
+    }
+  }
+
+  //nodes preview methods
+  private void addNodeToPreview(Node node, int row) {
+    GridBagConstraints nodeCons = new GridBagConstraints();
+    setCons(nodeCons,0,row,2,1,GridBagConstraints.HORIZONTAL,GridBagConstraints.PAGE_START,0,0);
+    previewPanel.add(node.getNodeDispPanel(), nodeCons);
+  }
   public void refreshPreview() {
     previewPanel.removeAll();
     previewPanel.repaint();
@@ -403,24 +417,7 @@ public class Main {
     }
   }
 
-  private void removeAllNodes() {
-    //clear nodesLsit
-    nodesList.clear();
-    //clear previewPanel
-    previewPanel.removeAll();
-    refreshPreview();
-  }
-
-  //when a node is removed, the id's of the remaining nodesList must be fixed
-  public void refreshNodesList() {
-    for (int i=0;i<nodesList.size();i++) {
-      //for each node, update id and re-make dispPanel with new id
-      Node node = nodesList.get(i);
-      node.id = i;
-      node.makeNodeDispPanel();
-    }
-  }
-
+  //UI methods
   public void refreshHashShareAvailble() {
     Double hsAvailble = 100.0;
     for (Node node : nodesList) {
@@ -429,7 +426,6 @@ public class Main {
     hashShareAvailable = hsAvailble;
     hashShareTextField.setText(Double.toString(hashShareAvailable));
   }
-
   private void importStats() {
     //methods reads imported stats from JSON
     //input is name of pool and number of blocks mined in past however many days
@@ -496,7 +492,6 @@ public class Main {
         ex.printStackTrace();
     }
   }
-
   private void startSimulation() {
     //send all nodes their nodesList
     //TODO add split chain option
@@ -518,10 +513,8 @@ public class Main {
     }
   }
 
-
-
+  //button listeners
   private class ListenForButton implements ActionListener {
-
     public void actionPerformed(ActionEvent e) {
 
       if(e.getSource() == startButton) {

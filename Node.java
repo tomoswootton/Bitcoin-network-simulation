@@ -12,8 +12,43 @@ import java.awt.event.ActionListener;
 
 public class Node {
 
-  //testing
+  //simulation object for methods access
+  Simulation simulation;
+
+  int id;
+  String name;
+  //percentage of total hash rate
+  String hash_share;
+  //measured in new hash per second
+  double mine_speed;
+  Block workingBlock;
+  ArrayList<String> log = new ArrayList<String>();
+  int blocks_mined;
+
+  //list of nodes in network
+  LinkedList<Node> nodesList;
+
+  // nodes version of chain
+  LinkedList<Block> chain = new LinkedList<Block>();
+
+  JPanel nodeDispPanel;
+  JLabel blocksMinedLabel;
+  JPanel logDispPanel;
+  TextArea logText;
+
+  Timer timer;
+  int timerExecutionTime;
+  //stores true if node is mining
+  Boolean runningState;
+
+  //log disp window
+  TextArea logDispTextArea = new TextArea("",8,38,TextArea.SCROLLBARS_BOTH);
+  JFrame logDispWindow = new JFrame();
+  Boolean logDispWindowOpen = false;
+
+  //constructors
   public static void main(String[] args) {
+    //testing only
     JFrame testFrame = new JFrame();
     testFrame.setSize(500,500);
 
@@ -24,42 +59,6 @@ public class Node {
     testFrame.add(testPanel);
     testFrame.setVisible(true);
   }
-
-  //simulation object for methods access
-  private Simulation simulation;
-
-  // nodes version of chain
-  public LinkedList<Block> chain = new LinkedList<Block>();
-  //id needs to be changed by main class
-  public int id;
-  private String name;
-  //percentage of total hash rate
-  private String hash_share;
-  //measured in new hash per second
-  private double mine_speed;
-  private Block workingBlock;
-  private ArrayList<String> log = new ArrayList<String>();
-  private int blocks_mined;
-
-  //list of nodes in network
-  private LinkedList<Node> nodesList;
-
-  private JPanel nodeDispPanel;
-  private JLabel blocksMinedLabel;
-  private JPanel logDispPanel;
-  private TextArea logText;
-
-  private Timer timer;
-  private int timerExecutionTime;
-  //stores true if node is mining
-  public Boolean runningState;
-
-  //log disp window
-  private TextArea logDispTextArea = new TextArea("",8,38,TextArea.SCROLLBARS_BOTH);
-  private JFrame logDispWindow = new JFrame();
-  private Boolean logDispWindowOpen = false;
-
-
   public Node(String id, String name, String hash_share, Double mine_speed) {
     this.id = Integer.parseInt(id);
     this.setName(name);
@@ -75,7 +74,7 @@ public class Node {
     timerExecutionTime = (int) Math.ceil(1000/this.mine_speed);
   }
 
-//getter and setters
+  //getter and setters
   public void setNodesList(LinkedList<Node> nodesList) {
     this.nodesList = nodesList;
   }
@@ -127,14 +126,13 @@ public class Node {
       logDispTextArea.append(string);
     }
   }
-
   private void printLog(TextArea textArea) {
     for (String string : log) {
       textArea.append(string);
     }
   }
 
-//timer methods
+  //mine methods
   public void mine(Boolean state) {
     //dont start timer if no mine speed, otherwise run() will be run once
     if (mine_speed == 0.0) {
@@ -150,35 +148,6 @@ public class Node {
       pauseTimer();
     }
   }
-
-  private void startTimer() {
-    timer = new Timer();
-    timer.scheduleAtFixedRate(new TimerTask() {
-      @Override
-      public void run() {
-        workingBlock.newNonce();
-        String hash = workingBlock.genHash();
-        //add to Log
-        addToLog(hash+"\n");
-
-        //check for valid hash
-        if (checkHash(hash)) {
-          //TODO get vaildation from other blocks
-          blockFound(hash);
-          setNewWorkingBlock();
-        }
-      }
-    }, 0, timerExecutionTime);
-  }
-
-  private void pauseTimer() {
-    // System.out.println("timer "+this.id+" stopped.");
-    timer.cancel();
-    timer.purge();
-  }
-
-  //methods
-
   private Boolean checkHash(String hash) {
     //nonce must by less than 4 digits
     if (Integer.parseInt(hash) < 1000) {
@@ -186,7 +155,6 @@ public class Node {
     }
     return false;
   }
-
   private void blockFound(String hash) {
     //add to preview
     addToLog("\nValid hash found: "+hash+"\n");
@@ -204,7 +172,6 @@ public class Node {
     //add to simulation window
     addBlockInfoToChainPanel();
   }
-
   private void propogateBlock(Block block) {
     //send block to all nodes in network, apart from self
     for (Node node : nodesList) {
@@ -213,7 +180,6 @@ public class Node {
       }
     }
   }
-
   public void receiveBlock(Block block) {
 
     //pause mining for execution of new block code
@@ -236,14 +202,39 @@ public class Node {
     //restart mining
     this.mine(true);
   }
-
   private void addBlockInfoToChainPanel() {
     //add panel to chain panel
     workingBlock.makeDispBlock();
-    simulation.addBlockToChainPanel(workingBlock);
-    simulation.addBlockToFoundList(workingBlock);
+    simulation.addBlockToGlobalChain(workingBlock);
   }
 
+  //timer methods
+  private void startTimer() {
+    timer = new Timer();
+    timer.scheduleAtFixedRate(new TimerTask() {
+      @Override
+      public void run() {
+        workingBlock.newNonce();
+        String hash = workingBlock.genHash();
+        //add to Log
+        addToLog(hash+"\n");
+
+        //check for valid hash
+        if (checkHash(hash)) {
+          //TODO get vaildation from other blocks
+          blockFound(hash);
+          setNewWorkingBlock();
+        }
+      }
+    }, 0, timerExecutionTime);
+  }
+  private void pauseTimer() {
+    // System.out.println("timer "+this.id+" stopped.");
+    timer.cancel();
+    timer.purge();
+  }
+
+  //node disp
   public void makeNodeDispPanel() {
     nodeDispPanel = new JPanel(new GridBagLayout());
     nodeDispPanel.setBorder(BorderFactory.createLineBorder(Color.black));
@@ -315,14 +306,15 @@ public class Node {
       nodeDispPanel.add(viewLogButtonPanel, viewLogButtonPanelCons);
   }
 
-  //makes window that displays log
+  //log
   private void dispLogDispWindow() {
-    //make window each time
+    //makes window that displays log
+    //window made each time
     logDispWindow.setSize(250,300);
     logDispWindow.setMinimumSize(new Dimension(100,200));
     logDispWindow.setLocationRelativeTo(null);
     logDispWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-    logDispWindow.setTitle("Log fro node "+name);
+    logDispWindow.setTitle(name+" log");
     logDispWindow.setAlwaysOnTop(true);
     logDispWindowOpen = true;
     logDispWindow.addWindowListener(new java.awt.event.WindowAdapter() {
@@ -342,7 +334,7 @@ public class Node {
     logDispWindow.setVisible(true);
   }
 
-  //method sets GridBagConstraints variables
+  //other methods
   private void setCons(GridBagConstraints gridCons, int x, int y, int width, int height, int fill, int anchor, int ipadx, int ipady) {
     gridCons.gridx = x;
     gridCons.gridy = y;
@@ -362,7 +354,5 @@ public class Node {
     gridCons.weightx = 0.2;
     gridCons.weighty = 0.2;
   }
-
-
 
 }

@@ -17,8 +17,12 @@ public class Simulation {
 
   JPanel page;
   JPanel nodesPanel;
-  JPanel blocksPanel;
+  JPanel nodesScrollPanel;
+  JPanel chainPanel;
+  JPanel chainScrollPanel;
+
   double totalPages;
+  JPanel blocksPanel;
 
   JButton startPauseButton;
   JButton exitButton;
@@ -29,13 +33,13 @@ public class Simulation {
   //list of blocks foundBlocks
   private LinkedList<Block> blocksFoundList = new LinkedList<Block>();
 
-   public static void main(String[] args) {
+  //construtors
+  public static void main(String[] args) {
      LinkedList<Node> nodesList = new LinkedList<Node>();
      nodesList.add(new Node("0","test","30",0.5));
      nodesList.add(new Node("1","test2","30",0.8));
     //  new Simulation(nodesList);
    }
-
   public Simulation(LinkedList<Node> nodesList) {
     this.nodesList = nodesList;
     //init
@@ -46,160 +50,58 @@ public class Simulation {
     simulationFrame.setTitle("Simulation");
 
     makePage();
-
   }
 
-//getters and setters
-  public int getNodesListSize(){
-    return nodesList.size();
-  }
-
-  public void addBlockToChainPanel(Block block) {
-    blocksFoundList.add(block);
-
-    // GridBagConstraints blockCons = new GridBagConstraints();
-    // setCons(blockCons,block.id,0,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,2,2);
-    // blocksPanel.add(block.blockDisp, blockCons);
-
-
-
-    refreshBlocksPanel();
-  }
-
-  public void refreshBlocksPanel() {
-    System.out.println("refreshing panel");
-    blocksPanel.removeAll();
-    blocksPanel.repaint();
-    for (Block block : blocksFoundList) {
-      GridBagConstraints panelCons = new GridBagConstraints();
-      setCons(panelCons,0,block.id,2,1,GridBagConstraints.HORIZONTAL,GridBagConstraints.PAGE_START,0,0);
-
-      // setCons(panelCons,block.id,0,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,2,2);
-      blocksPanel.add(block.blockDisp, panelCons);
-    }
-  }
-
-  public void addBlockToFoundList(Block block) {
-    blocksFoundList.add(block);
-  }
-
-  //JFrame stuff
+  //JSwing stuff
   private void makePage() {
 
     //UI
-    JPanel page = new JPanel();
+    page = new JPanel();
     page.setLayout(new GridBagLayout());
 
-      //header
-      JPanel headerPanel = new JPanel();
+    //header
+    JPanel headerPanel = new JPanel();
 
-        JLabel title = new JLabel("Network Simulator");
-        title.setFont(title.getFont().deriveFont(28.0f));
-        headerPanel.add(title);
+    JLabel title = new JLabel("Network Simulator");
+    title.setFont(title.getFont().deriveFont(28.0f));
+    headerPanel.add(title);
 
-      GridBagConstraints headerPanelCons = new GridBagConstraints();
-      setCons(headerPanelCons,1,0,4,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
-      page.add(headerPanel, headerPanelCons);
+    GridBagConstraints headerPanelCons = new GridBagConstraints();
+    setCons(headerPanelCons,1,0,4,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
+    page.add(headerPanel, headerPanelCons);
 
-      //nodes
-      JPanel nodes = new JPanel();
-      nodes.setLayout(new GridBagLayout());
-      nodes.setBorder(BorderFactory.createLineBorder(Color.black));
+    //nodes
+    constructNodesPanel();
 
+    //chain
+    constructChainPanel();
 
-        //titles
-        JLabel nodesTitle = new JLabel("<HTML><U>Nodes</U></HTML>");
-        nodesTitle.setFont(nodesTitle.getFont().deriveFont(16.0f));
+    //buttons
+    JPanel buttonsPanel = new JPanel();
+    buttonsPanel.setLayout(new GridBagLayout());
 
-        GridBagConstraints nodesTitleCons = new GridBagConstraints();
-        setCons(nodesTitleCons, 0,0,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
-        nodes.add(nodesTitle, nodesTitleCons);
+    startPauseButton = new JButton("Start");
 
+    GridBagConstraints startPauseButtonCons = new GridBagConstraints();
+    setCons(startPauseButtonCons, 0,1,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
+    buttonsPanel.add(startPauseButton, startPauseButtonCons);
 
-        JLabel titleLabel = new JLabel("                Name                     id         power      blocks                                                  ");
+    exitButton = new JButton("Exit");
 
-        GridBagConstraints titleLabelCons = new GridBagConstraints();
-        setCons(titleLabelCons, 0,1,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
-        nodes.add(titleLabel, titleLabelCons);
+    GridBagConstraints exitButtonCons = new GridBagConstraints();
+    setCons(exitButtonCons, 1,1,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
+    buttonsPanel.add(exitButton, exitButtonCons);
 
-        //scroll box
-        nodesPanel = new JPanel();
-        nodesPanel.setLayout(new BoxLayout(nodesPanel, BoxLayout.Y_AXIS));
+    startPauseButton.addActionListener(lForButton);
+    exitButton.addActionListener(lForButton);
 
-        JScrollPane nodesScrollPane = new JScrollPane(nodesPanel,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        nodesScrollPane.setViewportView(nodesPanel);
-        nodesScrollPane.setPreferredSize(new Dimension(500,100));
-
-          constructNodesPanels();
-
-        GridBagConstraints nodesPanelCons = new GridBagConstraints();
-        setCons(nodesPanelCons, 0,2,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
-        nodes.add(nodesScrollPane, nodesPanelCons);
-
-      GridBagConstraints nodesCons = new GridBagConstraints();
-      setCons(nodesCons, 0,1,5,3,GridBagConstraints.NONE,GridBagConstraints.PAGE_END,0,0);
-      page.add(nodes, nodesCons);
-
-      //chain
-      JPanel chainPanel = new JPanel();
-      chainPanel.setBorder(BorderFactory.createLineBorder(Color.black));
-      chainPanel.setPreferredSize(new Dimension(700,300));
-
-      //title
-      JLabel chainTitle = new JLabel("<HTML><U>Block Chain</U></HTML>");
-      chainTitle.setFont(chainTitle.getFont().deriveFont(16.0f));
-
-      GridBagConstraints chainTitleCons = new GridBagConstraints();
-      setCons(chainTitleCons, 0,0,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
-      chainPanel.add(chainTitle, chainTitleCons);
-
-        //panel for blocks
-        blocksPanel = new JPanel();
-        blocksPanel.setLayout(new GridBagLayout());
-        blocksPanel.setBorder(BorderFactory.createLineBorder(Color.black));
-        blocksPanel.setPreferredSize(new Dimension(600,200));
-
-        //scrollbox
-        JScrollPane chainScrollPane = new JScrollPane(blocksPanel,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        chainScrollPane.setViewportView(blocksPanel);
-        chainScrollPane.setPreferredSize(new Dimension(500,100));
-
-        GridBagConstraints blocksPanelCons = new GridBagConstraints();
-        setCons(blocksPanelCons,0,1,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
-        chainPanel.add(blocksPanel, blocksPanelCons);
-
-      GridBagConstraints chainPanelCons = new GridBagConstraints();
-      setCons(chainPanelCons,1,4,4,3,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
-      page.add(chainPanel, chainPanelCons);
-
-      //buttons
-      JPanel buttonsPanel = new JPanel();
-      buttonsPanel.setLayout(new GridBagLayout());
-
-        startPauseButton = new JButton("Start");
-
-        GridBagConstraints startPauseButtonCons = new GridBagConstraints();
-        setCons(startPauseButtonCons, 0,1,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
-        buttonsPanel.add(startPauseButton, startPauseButtonCons);
-
-        exitButton = new JButton("Exit");
-
-        GridBagConstraints exitButtonCons = new GridBagConstraints();
-        setCons(exitButtonCons, 1,1,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
-        buttonsPanel.add(exitButton, exitButtonCons);
-
-      startPauseButton.addActionListener(lForButton);
-      exitButton.addActionListener(lForButton);
-
-
-      GridBagConstraints buttonsPanelCons = new GridBagConstraints();
-      setCons(buttonsPanelCons,1,7,4,2,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
-      page.add(buttonsPanel, buttonsPanelCons);
+    GridBagConstraints buttonsPanelCons = new GridBagConstraints();
+    setCons(buttonsPanelCons,1,7,4,2,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
+    page.add(buttonsPanel, buttonsPanelCons);
 
     simulationFrame.add(page);
     simulationFrame.setVisible(true);
   }
-
   private void setCons(GridBagConstraints gridCons, int x, int y, int width, int height, int fill, int anchor, int ipadx, int ipady) {
     gridCons.gridx = x;
     gridCons.gridy = y;
@@ -220,20 +122,124 @@ public class Simulation {
     gridCons.weighty = 0.2;
   }
 
-  //displays nodes in panel, pages start on 1
-  private void constructNodesPanels() {
-    nodesPanel.removeAll();
+  //getters and setters
+  public int getNodesListSize(){
+    return nodesList.size();
+  }
+
+  //nodes panel
+  private void constructNodesPanel() {
+    //swing
+    nodesPanel = new JPanel();
+    nodesPanel.setLayout(new GridBagLayout());
+    nodesPanel.setBorder(BorderFactory.createLineBorder(Color.black));
+
+      //titles
+      JLabel nodesTitle = new JLabel("<HTML><U>Nodes</U></HTML>");
+      nodesTitle.setFont(nodesTitle.getFont().deriveFont(16.0f));
+
+      GridBagConstraints nodesTitleCons = new GridBagConstraints();
+      setCons(nodesTitleCons, 0,0,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
+      nodesPanel.add(nodesTitle, nodesTitleCons);
+
+      JLabel titleLabel = new JLabel("                Name                     id         power      blocks                                                  ");
+
+      GridBagConstraints titleLabelCons = new GridBagConstraints();
+      setCons(titleLabelCons, 0,1,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
+      nodesPanel.add(titleLabel, titleLabelCons);
+
+      //scroll box
+      nodesScrollPanel = new JPanel();
+      nodesScrollPanel.setLayout(new BoxLayout(nodesScrollPanel, BoxLayout.Y_AXIS));
+
+      JScrollPane nodesScrollPane = new JScrollPane(nodesScrollPanel,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+      nodesScrollPane.setViewportView(nodesScrollPanel);
+      nodesScrollPane.setPreferredSize(new Dimension(500,100));
+
+        populateNodesScrollPanel();
+
+      GridBagConstraints nodesPanelCons = new GridBagConstraints();
+      setCons(nodesPanelCons, 0,2,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
+      nodesPanel.add(nodesScrollPane, nodesPanelCons);
+
+    GridBagConstraints nodesCons = new GridBagConstraints();
+    setCons(nodesCons, 0,1,5,2,GridBagConstraints.NONE,GridBagConstraints.PAGE_END,0,0);
+    page.add(nodesPanel, nodesCons);
+  }
+  private void populateNodesScrollPanel() {
+    //displays nodes in panel, pages start on 1
+    nodesScrollPanel.removeAll();
     for (Node node : nodesList) {
-      nodesPanel.add(node.getNodeDispPanel());
+      nodesScrollPanel.add(node.getNodeDispPanel());
     }
   }
 
-  //methods
-  private void addNode(int node, int xpos, int ypos) {
-    GridBagConstraints panelCons = new GridBagConstraints();
-    setCons(panelCons,xpos*2,ypos,2,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,20,0);
-    nodesPanel.add(nodesList.get(node).getLogPanel());
+  //chain panel
+  private void constructChainPanel() {
+    //swing
+    chainPanel = new JPanel();
+    chainPanel.setLayout(new GridBagLayout());
+    chainPanel.setBorder(BorderFactory.createLineBorder(Color.black));
+    // chainPanel.setPreferredSize(new Dimension(700,300));
+
+      //titles
+      JLabel chainTitle = new JLabel("<HTML><U>Chain</U></HTML>");
+      chainTitle.setFont(chainTitle.getFont().deriveFont(16.0f));
+
+      GridBagConstraints chainTitleCons = new GridBagConstraints();
+      setCons(chainTitleCons, 0,0,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
+      chainPanel.add(chainTitle, chainTitleCons);
+
+      //scroll box
+      chainScrollPanel = new JPanel();
+      chainScrollPanel.setLayout(new BoxLayout(chainScrollPanel, BoxLayout.Y_AXIS));
+
+      JScrollPane chainScrollPane = new JScrollPane(chainScrollPanel,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+      chainScrollPane.setViewportView(chainScrollPanel);
+      chainScrollPane.setPreferredSize(new Dimension(700,300));
+
+        populateChainScrollPanel();
+
+      GridBagConstraints chainPanelCons = new GridBagConstraints();
+      setCons(chainPanelCons, 0,2,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
+      chainPanel.add(chainScrollPane, chainPanelCons);
+
+    GridBagConstraints chainCons = new GridBagConstraints();
+    setCons(chainCons, 0,3,5,3,GridBagConstraints.NONE,GridBagConstraints.PAGE_END,0,0);
+    page.add(chainPanel, chainCons);
   }
+  private void populateChainScrollPanel() {
+    //displays already found blocks in panel
+    chainScrollPanel.removeAll();
+    for (Block block : blocksFoundList) {
+      chainScrollPanel.add(block.getDispPanel());
+      // GridBagConstraints panelCons = new GridBagConstraints();
+      // // setCons(panelCons,block.id,0,2,1,GridBagConstraints.HORIZONTAL,GridBagConstraints.PAGE_START,0,0);
+      // setCons(panelCons,block.id,0,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,2,2);
+      // chainScrollPanel.add(block.getDispPanel(), panelCons);
+    }
+
+  }
+  public void addBlockToGlobalChain(Block block) {
+    //TODO add checks for consensus here
+    addBlockToFoundList(block);
+    addBlockToChainPanel(block);
+  }
+  private void addBlockToFoundList(Block block) {
+    blocksFoundList.add(block);
+  }
+  private void addBlockToChainPanel(Block block) {
+    System.out.println("adding block to panel, id: "+block.id);
+
+    GridBagConstraints panelCons = new GridBagConstraints();
+    // setCons(panelCons,block.id,0,2,1,GridBagConstraints.HORIZONTAL,GridBagConstraints.PAGE_START,0,0);
+    setCons(panelCons,0,block.id,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,2,2);
+    chainScrollPanel.add(block.getDispPanel(), panelCons);
+
+    // System.out.println("refreshing panel, block id: "+block.id);
+    // populateChainScrollPanel();
+  }
+
 
   public void run(Boolean state) {
     for (Node node : nodesList) {
