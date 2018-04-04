@@ -22,10 +22,10 @@ class Block {
     newNonce();
     this.genHash();
 
-    //testing
+    // testing
     // JFrame testMain = new JFrame();
     // this.makeDispPanel();
-    // testMain.setSize(200, 200);
+    // testMain.setSize(100, 100);
     // testMain.setLocationRelativeTo(null);
     // testMain.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     // testMain.add(this.dispPanel);
@@ -84,20 +84,46 @@ class Block {
     dispPanel.setBorder(BorderFactory.createLineBorder(Color.black));
     dispPanel.setBackground(Color.red);
     dispPanel.setLayout(new GridBagLayout());
-    dispPanel.setPreferredSize(new Dimension(50,50));
+    dispPanel.setPreferredSize(new Dimension(100,100));
 
-    JLabel block_id_label = new JLabel("Block "+this.id);
+    JLabel block_id_label = new JLabel("Id "+this.id);
 
     GridBagConstraints block_id_label_cons = new GridBagConstraints();
-    setCons(block_id_label_cons,0,0,1,1,GridBagConstraints.HORIZONTAL,GridBagConstraints.CENTER,0,0);
+    setCons(block_id_label_cons,0,0,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
     dispPanel.add(block_id_label, block_id_label_cons);
 
-    JLabel node_name_label = new JLabel("node name");;
+    JLabel node_name_label_1 = new JLabel("Found By:");;
 
-    GridBagConstraints node_name_label_cons = new GridBagConstraints();
-    setCons(node_name_label_cons,0,1,1,1,GridBagConstraints.HORIZONTAL,GridBagConstraints.CENTER,0,0);
-    dispPanel.add(node_name_label, node_name_label_cons);
+    GridBagConstraints node_name_label_1_cons = new GridBagConstraints();
+    setCons(node_name_label_1_cons,0,1,1,1,GridBagConstraints.NONE,GridBagConstraints.SOUTH,0,0);
+    dispPanel.add(node_name_label_1, node_name_label_1_cons);
 
+    JLabel node_name_label_2 = new JLabel("node name");;
+
+    GridBagConstraints node_name_label_2_cons = new GridBagConstraints();
+    setCons(node_name_label_2_cons,0,2,1,1,GridBagConstraints.NONE,GridBagConstraints.NORTH,0,0);
+    dispPanel.add(node_name_label_2, node_name_label_2_cons);
+
+    JLabel hash_label = new JLabel("Hash: "+this.hash);
+
+    GridBagConstraints hash_label_cons = new GridBagConstraints();
+    setCons(hash_label_cons,0,3,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
+    dispPanel.add(hash_label, hash_label_cons);
+
+    // JButton infoButton = new JButton("Info");
+    //
+    // JButton infoButton = new JButton("info");
+    // infoButton.addActionListener(new ActionListener() {
+    //   public void actionPerformed(ActionEvent e) {
+    //     if(e.getSource() == infoButton) {
+    //       infoChainPanel();
+    //     }
+    //   }
+    // });
+
+    // GridBagConstraints infoButtonCons = new GridBagConstraints();
+    // setCons(infoButtonCons, 0,4,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
+    // chainPanel.add(infoButton, infoButtonCons);
   }
 
   private void setCons(GridBagConstraints gridCons, int x, int y, int width, int height, int fill, int anchor, int ipadx, int ipady) {

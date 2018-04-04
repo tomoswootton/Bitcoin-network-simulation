@@ -19,7 +19,7 @@ public class Simulation {
   JPanel nodesScrollPanel;
   JPanel chainPanel;
   JPanel chainScrollPanel;
-  ArrayList<JPanel> initBlockDispHolderList;
+  ArrayList<JPanelWithLine> initBlockDispHolderList;
 
   double totalPages;
   JPanel blocksPanel;
@@ -211,20 +211,17 @@ public class Simulation {
       //scroll box
       chainScrollPanel = new JPanel();
       chainScrollPanel.setLayout(new GridBagLayout());
-      chainScrollPanel.setSize(new Dimension(1000,200));
+      chainScrollPanel.setSize(new Dimension(1100,220));
 
-      JScrollPane chainScrollPane = new JScrollPane(chainScrollPanel,JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+      JScrollPane chainScrollPane = new JScrollPane(chainScrollPanel,JScrollPane.VERTICAL_SCROLLBAR_NEVER,JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
       chainScrollPane.setViewportView(chainScrollPanel);
-      chainScrollPane.setPreferredSize(new Dimension(1000,250));
+      chainScrollPane.setPreferredSize(new Dimension(1100,220));
 
-      initBlockDispHolderList = new ArrayList<JPanel>();
+      initBlockDispHolderList = new ArrayList<JPanelWithLine>();
 
       //populate scroll panel with holder panels to force shape of scroll panel within scroll pane
       for (int i=0;i<=4;i++) {
-        JPanel blockDispHolder = new JPanel();
-        blockDispHolder.setPreferredSize(new Dimension(200,200));
-        blockDispHolder.setBackground(Color.yellow);
-        blockDispHolder.setBorder(BorderFactory.createLineBorder(Color.black));
+        JPanelWithLine blockDispHolder = new JPanelWithLine();
 
         GridBagConstraints panelCons = new GridBagConstraints();
         setCons(panelCons,i,0,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
@@ -235,8 +232,6 @@ public class Simulation {
 
         populateChainScrollPanel();
 
-        // Block fakeBlock = new Block(blocksFoundList.size(), "1234");
-        // addBlockToGlobalChain(fakeBlock);
 
       GridBagConstraints chainPanelCons = new GridBagConstraints();
       setCons(chainPanelCons, 0,2,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
@@ -295,20 +290,16 @@ public class Simulation {
 
     //if one of first 10 blocks, add to initBlockDispHolder
     if (block.id < 5) {
-      initBlockDispHolderList.get(block.id).add(block.getDispPanel());
+      initBlockDispHolderList.get(block.id).addBlockDispPanel(block.getDispPanel());
     } else {
       //create new holder panel
-      JPanel blockDispHolder = new JPanel();
-      blockDispHolder.setPreferredSize(new Dimension(200,200));
-      blockDispHolder.setBackground(Color.yellow);
-      blockDispHolder.setBorder(BorderFactory.createLineBorder(Color.black));
-
+      JPanelWithLine blockDispHolder = new JPanelWithLine();
 
       //add block dispPanel to holder panel
-      blockDispHolder.add(block.getDispPanel());
+      blockDispHolder.addBlockDispPanel(block.getDispPanel());
 
       //adjust size of panel to allow for new block
-      chainScrollPanel.setSize(new Dimension((block.id-9)*200 + 1000,300));
+      chainScrollPanel.setSize(new Dimension((block.id-9)*220 + 1100,220));
 
       GridBagConstraints panelCons = new GridBagConstraints();
       setCons(panelCons,block.id,0,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
@@ -319,20 +310,40 @@ public class Simulation {
 
   }
   private void refreshChainPanel() {
-    //remove components
-    chainPanel.removeAll();
-    //clear initBlockDispHolder list for re-construction
-    initBlockDispHolderList.clear();
     //re-construct
     constructChainPanel();
-
-    System.out.println("blocks found list size: "+blocksFoundList.size());
-    //add blocks from list
-    for (Block block : blocksFoundList) {
-      addBlockToChainPanel(block);
-    }
   }
-
+  // private JPanelWithLine makeDispBlockHolder() {
+    // JPanelWithLine blockDispHolder = new JPanelWithLine();
+    // blockDispHolder.setPreferredSize(new Dimension(200,200));
+    // blockDispHolder.setBorder(BorderFactory.createLineBorder(Color.black));
+    // blockDispHolder.setLayout(new GridBagLayout());
+    // /*layout non split:
+    // *buffer panel
+    // *block
+    // *block
+    // *buffer panel
+    // */
+    // buffer1 = new JPanel();
+    // buffer1.setBackground(Color.green);
+    // GridBagConstraints cons1 = new GridBagConstraints();
+    // setCons(cons1,0,0,4,1,GridBagConstraints.BOTH,GridBagConstraints.CENTER,0,0);
+    // blockDispHolder.add(buffer1, cons1);
+    //
+    // buffer2 = new JPanel();
+    // buffer2.setBackground(Color.red);
+    // GridBagConstraints cons2 = new GridBagConstraints();
+    // setCons(cons2,0,1,4,2,GridBagConstraints.BOTH,GridBagConstraints.CENTER,0,0);
+    // blockDispHolder.add(buffer2, cons2);
+    //
+    // buffer3 = new JPanel();
+    // buffer3.setBackground(Color.yellow);
+    // GridBagConstraints cons3 = new GridBagConstraints();
+    // setCons(cons3,0,4,4,1,GridBagConstraints.BOTH,GridBagConstraints.CENTER,0,0);
+    // blockDispHolder.add(buffer3, cons3);
+    //
+    // return blockDispHolder;
+    // }
   public void run(Boolean state) {
     for (Node node : nodesList) {
       node.runningState = state;
@@ -340,4 +351,77 @@ public class Simulation {
     }
   }
 
- }
+}
+
+class JPanelWithLine extends JPanel{
+  JPanel buffer1;
+  JPanel buffer2; //panel holds block
+  JPanel buffer3;
+
+  public JPanelWithLine() {
+    this.setPreferredSize(new Dimension(220,220));
+    this.setBorder(BorderFactory.createLineBorder(Color.black));
+    this.setLayout(new GridBagLayout());
+    /*layout non split:
+    *buffer panel
+    *block
+    *block
+    *buffer panel
+    */
+    buffer1 = new JPanel();
+    buffer1.setMinimumSize(new Dimension(220, 55));
+    GridBagConstraints cons1 = new GridBagConstraints();
+    setCons(cons1,0,0,4,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
+    this.add(buffer1, cons1);
+
+    buffer2 = new JPanel();
+    buffer2.setLayout(new GridBagLayout());
+    buffer2.setMinimumSize(new Dimension(220, 110));
+    GridBagConstraints cons2 = new GridBagConstraints();
+    setCons(cons2,0,1,4,2,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
+    this.add(buffer2, cons2);
+
+    buffer3 = new JPanel();
+    buffer3.setMinimumSize(new Dimension(220, 55));
+    GridBagConstraints cons3 = new GridBagConstraints();
+    setCons(cons3,0,4,4,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
+    this.add(buffer3, cons3);
+
+  }
+
+  @Override
+  protected void paintComponent(Graphics g) {
+      //draw line through center of panel to
+      super.paintComponent(g);
+      g.setColor(Color.black);
+      g.drawLine(0, getHeight()/2, getWidth(), getHeight()/2);
+  }
+
+  public void addBlockDispPanel(JPanel panel) {
+    System.out.println("adding panel");
+    GridBagConstraints cons = new GridBagConstraints();
+    setCons(cons,0,0,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
+    buffer2.add(panel, cons);
+  }
+
+  private void setCons(GridBagConstraints gridCons, int x, int y, int width, int height, int fill, int anchor, int ipadx, int ipady) {
+    gridCons.gridx = x;
+    gridCons.gridy = y;
+    //number of col/row component takes up
+    gridCons.gridwidth = width;
+    gridCons.gridheight = height;
+    //when components display area is larger than component.
+    // NONE - default, HORIZONTAL - fill horizontal space, VERTICAL, BOTH
+    gridCons.fill = fill;
+    gridCons.ipadx = ipadx;
+    gridCons.ipady = ipady;
+    //used when component is smaller than display area to determine where to palce
+    //CENTER default
+    gridCons.anchor = anchor;
+    //used for determining area between components in display area 0.0-1.0
+    //keep as 0 for now,meaning cell fits to component
+    gridCons.weightx = 0.2;
+    gridCons.weighty = 0.2;
+  }
+
+}
