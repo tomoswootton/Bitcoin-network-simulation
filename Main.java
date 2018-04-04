@@ -10,12 +10,7 @@ public class Main {
   JFrame main = new JFrame();
   JPanel page;
 
-  JButton startButton;
   JTextField globalHashShareTextField;
-  JButton exitButton;
-  JButton addNodeButton;
-  JButton removeNodeButton;
-  JButton importButton;
   JLabel nodeIdLabel;
   JTextField nodeNameTextField;
   JTextField hashShareTextField;
@@ -192,7 +187,7 @@ public class Main {
       //buttons
       JPanel addNodeButtons = new JPanel();
 
-        addNodeButton = new JButton("Add Node");
+        JButton addNodeButton = new JButton("Add Node");
         addNodeButton.addActionListener(new ActionListener() {
           public void actionPerformed(ActionEvent e) {
             if(e.getSource() == addNodeButton) {
@@ -206,7 +201,7 @@ public class Main {
         });
         addNodeButtons.add(addNodeButton);
 
-        removeNodeButton = new JButton("Remove Node");
+        JButton removeNodeButton = new JButton("Remove Node");
         removeNodeButton.addActionListener(new ActionListener() {
           public void actionPerformed(ActionEvent e) {
             if(e.getSource() == removeNodeButton) {
@@ -216,7 +211,7 @@ public class Main {
         });
         addNodeButtons.add(removeNodeButton);
 
-        importButton = new JButton("Import");
+        JButton importButton = new JButton("Import");
         importButton.addActionListener(new ActionListener() {
           public void actionPerformed(ActionEvent e) {
             if(e.getSource() == importButton) {
@@ -244,10 +239,10 @@ public class Main {
 
     //preview
     //title
-    JLabel titleLabel = new JLabel("                Name                       id         power      blocks                                                  ");
+    JLabel titleLabel = new JLabel("                                           Name                         id         power        blocks                                                  ");
 
     GridBagConstraints titleLabelCons = new GridBagConstraints();
-    setCons(titleLabelCons, 0,8,2,1,GridBagConstraints.NONE,GridBagConstraints.PAGE_END,0,0);
+    setCons(titleLabelCons, 2,8,2,1,GridBagConstraints.NONE,GridBagConstraints.PAGE_END,0,0);
     page.add(titleLabel, titleLabelCons);
 
     //scroll box
@@ -292,7 +287,7 @@ public class Main {
     //buttons
     JPanel buttons = new JPanel();
 
-      startButton = new JButton("Start");
+      JButton startButton = new JButton("Start");
       startButton.addActionListener(new ActionListener() {
         public void actionPerformed(ActionEvent e) {
           if(e.getSource() == startButton) {
@@ -302,7 +297,7 @@ public class Main {
       });
       buttons.add(startButton);
 
-      exitButton = new JButton("Exit");
+      JButton exitButton = new JButton("Exit");
       exitButton.addActionListener(new ActionListener() {
         public void actionPerformed(ActionEvent e) {
           if(e.getSource() == exitButton) {

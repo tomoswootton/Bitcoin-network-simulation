@@ -108,9 +108,6 @@ public class Node {
   private void addBlockToChain(Block block) {
     chain.add(block);
   }
-  private void setNewWorkingBlock() {
-    workingBlock = new Block(getChainSize(), getChainLastElement().getHash());
-  }
   public JPanel getNodeDispPanel() {
     return this.nodeDispPanel;
   }
@@ -147,6 +144,9 @@ public class Node {
     } else if (!state) {
       pauseTimer();
     }
+  }
+  private void setNewWorkingBlock() {
+    workingBlock = new Block(getChainSize(), getChainLastElement().getHash());
   }
   private Boolean checkHash(String hash) {
     //nonce must by less than 4 digits

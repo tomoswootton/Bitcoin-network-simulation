@@ -216,13 +216,40 @@ public class Simulation {
 
         populateChainScrollPanel();
 
+        Block fakeBlock = new Block(blocksFoundList.size(), "1234");
+        addBlockToGlobalChain(fakeBlock);
+
       GridBagConstraints chainPanelCons = new GridBagConstraints();
       setCons(chainPanelCons, 0,2,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
       chainPanel.add(chainScrollPane, chainPanelCons);
 
     //testing buttons
+    JButton addFakeBlockButton = new JButton("add fake block");
+    addFakeBlockButton.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        if(e.getSource() == addFakeBlockButton) {
+          Block fakeBlock = new Block(blocksFoundList.size(), "1234");
+          addBlockToGlobalChain(fakeBlock);
+        }
+      }
+    });
 
+    GridBagConstraints addFakeBlockButtonCons = new GridBagConstraints();
+    setCons(addFakeBlockButtonCons, 0,3,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
+    chainPanel.add(addFakeBlockButton, addFakeBlockButtonCons);
 
+    JButton refreshButton = new JButton("refresh");
+    refreshButton.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        if(e.getSource() == refreshButton) {
+          refreshChainPanel();
+        }
+      }
+    });
+
+    GridBagConstraints refreshButtonCons = new GridBagConstraints();
+    setCons(refreshButtonCons, 0,4,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
+    chainPanel.add(refreshButton, refreshButtonCons);
 
     GridBagConstraints chainCons = new GridBagConstraints();
     setCons(chainCons, 0,3,5,3,GridBagConstraints.NONE,GridBagConstraints.PAGE_END,0,0);
@@ -252,14 +279,16 @@ public class Simulation {
     System.out.println("adding block to panel, id: "+block.id);
 
     GridBagConstraints panelCons = new GridBagConstraints();
-    // setCons(panelCons,block.id,0,2,1,GridBagConstraints.HORIZONTAL,GridBagConstraints.PAGE_START,0,0);
-    setCons(panelCons,block.id,0,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,2,2);
+    setCons(panelCons,block.id,0,1,1,GridBagConstraints.HORIZONTAL,GridBagConstraints.PAGE_START,0,0);
     chainScrollPanel.add(block.getDispPanel(), panelCons);
-
-    // System.out.println("refreshing panel, block id: "+block.id);
-    // populateChainScrollPanel();
   }
-
+  private void refreshChainPanel() {
+    chainScrollPanel.removeAll();
+    System.out.println("blocks found list size: "+blocksFoundList.size());
+    for (Block block : blocksFoundList) {
+      addBlockToChainPanel(block);
+    }
+  }
 
   public void run(Boolean state) {
     for (Node node : nodesList) {
