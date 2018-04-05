@@ -52,15 +52,15 @@ public class Node {
     JFrame testFrame = new JFrame();
     testFrame.setSize(500,500);
 
-    Node testNode = new Node("0","node-name","0.1", 10.0);
-    JPanel testPanel = testNode.getNodeDispPanel();
+    Node testNode = new Node(0,"node-name","0.1", 10.0);
+    JPanel testPanel = testNode.getDispPanel();
 
 
     testFrame.add(testPanel);
     testFrame.setVisible(true);
   }
-  public Node(String id, String name, String hash_share, Double mine_speed) {
-    this.id = Integer.parseInt(id);
+  public Node(int id, String name, String hash_share, Double mine_speed) {
+    this.id = id;
     this.setName(name);
     this.hash_share = hash_share;
     this.mine_speed = mine_speed;
@@ -110,7 +110,7 @@ public class Node {
   private void addBlockToChain(Block block) {
     chain.add(block);
   }
-  public JPanel getNodeDispPanel() {
+  public JPanel getDispPanel() {
     return this.nodeDispPanel;
   }
   public JPanel getLogPanel() {
@@ -230,7 +230,8 @@ public class Node {
   //node disp
   public void makeNodeDispPanel() {
     nodeDispPanel = new JPanel(new GridBagLayout());
-    nodeDispPanel.setBorder(BorderFactory.createLineBorder(Color.black));
+    nodeDispPanel.setPreferredSize(new Dimension(495,45));
+    // nodeDispPanel.setBorder(BorderFactory.createLineBorder(Color.black));
 
       //check for name length too long
       String name = this.name;
@@ -240,8 +241,7 @@ public class Node {
 
       JLabel nameLabel = new JLabel(name);
       JPanel namePanel = new JPanel();
-      namePanel.setPreferredSize(new Dimension(30,20));
-      namePanel.setMaximumSize(new Dimension(30,20));
+      namePanel.setPreferredSize(new Dimension(20,20));
 
       namePanel.add(nameLabel);
 
@@ -252,7 +252,6 @@ public class Node {
       JLabel idLabel = new JLabel(Integer.toString(this.id));
       JPanel idPanel = new JPanel();
       idPanel.setPreferredSize(new Dimension(5,20));
-      idPanel.setMaximumSize(new Dimension(50,20));
       idPanel.add(idLabel);
 
       GridBagConstraints idPanelCons = new GridBagConstraints();
@@ -262,7 +261,6 @@ public class Node {
       JLabel hashShareLabel = new JLabel(this.hash_share);
       JPanel hashSharePanel = new JPanel();
       hashSharePanel.setPreferredSize(new Dimension(10,20));
-      hashSharePanel.setMaximumSize(new Dimension(50,20));
       hashSharePanel.add(hashShareLabel);
 
       GridBagConstraints hashSharePanelCons = new GridBagConstraints();
@@ -272,7 +270,6 @@ public class Node {
       blocksMinedLabel = new JLabel("0");
       JPanel blocksMinedPanel = new JPanel();
       blocksMinedPanel.setPreferredSize(new Dimension(10,20));
-      blocksMinedPanel.setMaximumSize(new Dimension(50,20));
 
       blocksMinedPanel.add(blocksMinedLabel);
 
@@ -291,7 +288,6 @@ public class Node {
 
       JPanel viewLogButtonPanel = new JPanel();
       viewLogButtonPanel.setPreferredSize(new Dimension(10,20));
-      viewLogButtonPanel.setMaximumSize(new Dimension(50,20));
       viewLogButtonPanel.add(viewLogButton);
 
       GridBagConstraints viewLogButtonPanelCons = new GridBagConstraints();

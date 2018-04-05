@@ -36,8 +36,8 @@ public class Simulation {
   //construtors
   public static void main(String[] args) {
      LinkedList<Node> nodesList = new LinkedList<Node>();
-     nodesList.add(new Node("0","test","30",0.5));
-     nodesList.add(new Node("1","test2","30",0.8));
+     nodesList.add(new Node(0,"test","30",0.5));
+     nodesList.add(new Node(1,"test2","30",0.8));
     //  new Simulation(nodesList);
    }
   public Simulation(LinkedList<Node> nodesList) {
@@ -189,7 +189,7 @@ public class Simulation {
     //displays nodes in panel, pages start on 1
     nodesScrollPanel.removeAll();
     for (Node node : nodesList) {
-      nodesScrollPanel.add(node.getNodeDispPanel());
+      nodesScrollPanel.add(node.getDispPanel());
     }
   }
 
@@ -288,7 +288,7 @@ public class Simulation {
     blocksFoundList.add(block);
   }
   private void addBlockToChainPanel(Block block) {
-    //if one of first 10 blocks, add to initBlockDispHolder
+    //if one of first 5 blocks, add to initBlockDispHolder
     if (block.id < 5) {
       initBlockDispHolderList.get(block.id).addBlockDispPanel(block.getDispPanel());
     } else {
