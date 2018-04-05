@@ -30,7 +30,6 @@ class Block {
     // testMain.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     // testMain.add(this.dispPanel);
     // testMain.setVisible(true);
-
   }
 
   //getters and setters
@@ -82,7 +81,7 @@ class Block {
   private void makeDispPanel() {
     dispPanel = new JPanel();
     dispPanel.setBorder(BorderFactory.createLineBorder(Color.black));
-    dispPanel.setBackground(Color.red);
+    dispPanel.setBackground(Color.lightGray);
     dispPanel.setLayout(new GridBagLayout());
     dispPanel.setPreferredSize(new Dimension(100,100));
 
@@ -126,7 +125,7 @@ class Block {
     // chainPanel.add(infoButton, infoButtonCons);
   }
 
-  private void setCons(GridBagConstraints gridCons, int x, int y, int width, int height, int fill, int anchor, int ipadx, int ipady) {
+  public void setCons(GridBagConstraints gridCons, int x, int y, int width, int height, int fill, int anchor, int ipadx, int ipady) {
     gridCons.gridx = x;
     gridCons.gridy = y;
     //number of col/row component takes up
@@ -145,11 +144,10 @@ class Block {
     gridCons.weightx = 0.2;
     gridCons.weighty = 0.2;
   }
-  private void setCons(GridBagConstraints gridCons,int x,int y,int width,int height,int fill,int anchor,int ipadx,int ipady,int weightx,int weighty) {
+  public void setCons(GridBagConstraints gridCons,int x,int y,int width,int height,int fill,int anchor,int ipadx,int ipady,int weightx,int weighty) {
     //extra method for if weight option is wanted
     setCons(gridCons,x,y,width,height,fill,anchor,ipadx,ipady);
     gridCons.weightx = weightx;
     gridCons.weighty = weighty;
   }
-
 }

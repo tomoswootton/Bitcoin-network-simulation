@@ -358,6 +358,7 @@ public class Main {
     String name = nodeNameTextField.getText();
     //percentage of share * global hashes per second
     Double mine_speed = (Double.parseDouble(hashShareTextField.getText())/100)*Double.parseDouble(globalHashShareTextField.getText());
+    System.out.println("mine speed: "+mine_speed);
     //create node
     Node node = new Node(nodeIdLabel.getText(),name,hashShareTextField.getText(),mine_speed);
     //add to nodesList array
@@ -372,6 +373,7 @@ public class Main {
   public void addNode(String name, String hashShare) {
     System.out.println(hashShare);
     Double mine_speed = (Double.parseDouble(hashShare)/100)*Double.parseDouble(globalHashShareTextField.getText());
+    System.out.println("mine speed: "+mine_speed);
     //create node
     Node node = new Node(nodeIdLabel.getText(),name,hashShare,mine_speed);
     //add to nodesList array
@@ -486,8 +488,12 @@ public class Main {
         System.out.println("sum = "+sum);
         //change each value in hashShare to percentage of blocks (therefore hashShare value)
         for (int i=0;i<hashShareList.size();i++) {
-          Double temp = Math.floor((hashShareList.get(i)/sum) * 1000) / 1000;
-          temp.shortValue();
+          Double temp = (hashShareList.get(i)/sum)*100;
+          String stringtemp = temp.toString();
+          if (stringtemp.length() > 3) {
+            stringtemp = stringtemp.substring(0,4);
+          }
+          temp = Double.parseDouble(stringtemp);
           hashShareList.set(i,temp);
         }
         //add each node

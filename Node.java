@@ -68,10 +68,12 @@ public class Node {
     makeNodeDispPanel();
 
     //init chain with genesis block
-    Block block = new Block(this.getChainSize(), "1234");
-    chain.add(block);
+    GenBlock genBlock = new GenBlock(0, "1234");
+    chain.add(genBlock);
     timer = new Timer();
-    timerExecutionTime = (int) Math.ceil(1000/this.mine_speed);
+    // timerExecutionTime = (int) Math.ceil(1000/this.mine_speed);
+    timerExecutionTime = (int) Math.floor(1000/this.mine_speed);
+    System.out.println("timerExecTime: "+timerExecutionTime);
   }
 
   //getter and setters

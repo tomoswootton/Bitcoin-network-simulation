@@ -232,6 +232,9 @@ public class Simulation {
 
         populateChainScrollPanel();
 
+        //add genesis block
+        GenBlock genBlock = new GenBlock(0, "1234");
+        addBlockToGlobalChain(genBlock);
 
       GridBagConstraints chainPanelCons = new GridBagConstraints();
       setCons(chainPanelCons, 0,2,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
@@ -271,7 +274,6 @@ public class Simulation {
   }
   private void populateChainScrollPanel() {
     //displays already found blocks in panel
-
     for (Block block : blocksFoundList) {
       addBlockToChainPanel(block);
     }
@@ -286,8 +288,6 @@ public class Simulation {
     blocksFoundList.add(block);
   }
   private void addBlockToChainPanel(Block block) {
-    System.out.println("adding block to panel, id: "+block.id);
-
     //if one of first 10 blocks, add to initBlockDispHolder
     if (block.id < 5) {
       initBlockDispHolderList.get(block.id).addBlockDispPanel(block.getDispPanel());
@@ -398,7 +398,6 @@ class JPanelWithLine extends JPanel{
   }
 
   public void addBlockDispPanel(JPanel panel) {
-    System.out.println("adding panel");
     GridBagConstraints cons = new GridBagConstraints();
     setCons(cons,0,0,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
     buffer2.add(panel, cons);
