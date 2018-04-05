@@ -170,10 +170,11 @@ public class Simulation {
       //scroll box
       nodesScrollPanel = new JPanel();
       nodesScrollPanel.setLayout(new BoxLayout(nodesScrollPanel, BoxLayout.Y_AXIS));
+      nodesScrollPanel.setSize(new Dimension(500, 150));
+      JScrollPane nodesScrollPane = new JScrollPane(nodesScrollPanel,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
-      JScrollPane nodesScrollPane = new JScrollPane(nodesScrollPanel,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
       nodesScrollPane.setViewportView(nodesScrollPanel);
-      nodesScrollPane.setPreferredSize(new Dimension(500,100));
+      nodesScrollPane.setPreferredSize(new Dimension(500,120));
 
         populateNodesScrollPanel();
 

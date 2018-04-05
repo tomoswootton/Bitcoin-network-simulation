@@ -355,8 +355,6 @@ public class Main {
     Double mine_speed = (Double.parseDouble(hashShare)/100)*Double.parseDouble(globalHashShareTextField.getText());
     //create node
     Node node = new Node(nodesList.size(),name,hashShare,mine_speed);
-    //recalculate available hash share form value
-    refreshHashShareAvailble();
 
     return node;
   }
@@ -388,12 +386,17 @@ public class Main {
   }
   public void addNode() {
     //unavailable hashshare error catcher
+    System.out.println("hashshareavailable: "+hashShareAvailable);
     if (hashShareAvailable < Double.parseDouble(hashShareTextField.getText())) {
-      JOptionPane.showMessageDialog(main,hashShareAvailable+"% hash share available","Error",JOptionPane.PLAIN_MESSAGE);
+      JOptionPane.showMessageDialog(main,hashShareAvailable+"% hash share left.","Error",JOptionPane.PLAIN_MESSAGE);
       return;
     }
     Node node = createNode(nodeNameTextField.getText(), hashShareTextField.getText());
     addNodeToNodesList(node);
+
+    //recalculate available hash share form value
+    refreshHashShareAvailble();
+
     addNodeToPreview(node);
   }
 
