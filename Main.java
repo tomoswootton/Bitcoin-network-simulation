@@ -61,63 +61,61 @@ public class Main {
       headerPanel.add(title);
 
     GridBagConstraints headerPanelCons = new GridBagConstraints();
-    setCons(headerPanelCons, 1,0,4,2,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
+    setCons(headerPanelCons,0,0,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
     page.add(headerPanel, headerPanelCons);
 
     //settings
-    JPanel settings = new JPanel();
-    settings.setLayout(new GridBagLayout());
-    settings.setBorder(BorderFactory.createLineBorder(Color.black));
+    JPanel settingsPanel = new JPanel();
+    settingsPanel.setLayout(new GridBagLayout());
 
-    JLabel settingsTitle = new JLabel("<HTML><U>Settings</U></HTML>");
+      JLabel settingsTitle = new JLabel("<HTML><U>Settings</U></HTML>");
 
-    //title
-    settingsTitle.setFont(settingsTitle.getFont().deriveFont(16.0f));
+      //title
+      settingsTitle.setFont(settingsTitle.getFont().deriveFont(16.0f));
 
-    GridBagConstraints settingsTitleCons = new GridBagConstraints();
-    setCons(settingsTitleCons,0,0,2,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
-    settings.add(settingsTitle, settingsTitleCons);
+      GridBagConstraints settingsTitleCons = new GridBagConstraints();
+      setCons(settingsTitleCons,0,0,2,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
+      settingsPanel.add(settingsTitle, settingsTitleCons);
 
-    //hashshare
-    JLabel globalHashShareTitle = new JLabel("Global HashShare:");
+      //hashshare
+      JLabel globalHashShareTitle = new JLabel("Global HashShare:");
 
-    GridBagConstraints globalHashShareTitleCons = new GridBagConstraints();
-    setCons(globalHashShareTitleCons,0,1,1,1,GridBagConstraints.NONE,GridBagConstraints.LINE_END,10,10);
-    settings.add(globalHashShareTitle, globalHashShareTitleCons);
+      GridBagConstraints globalHashShareTitleCons = new GridBagConstraints();
+      setCons(globalHashShareTitleCons,0,1,1,1,GridBagConstraints.NONE,GridBagConstraints.LINE_END,10,10);
+      settingsPanel.add(globalHashShareTitle, globalHashShareTitleCons);
 
-    globalHashShareTextField = new JTextField("2");
-    globalHashShareTextField.setColumns(10);
-    globalHashShareTextField.addMouseListener(new MouseAdapter() {
-      @Override
-      public void mouseClicked(MouseEvent e) {
-        if (globalHashShareTextFieldClear) {
-          globalHashShareTextField.setText("");
-          globalHashShareTextFieldClear = false;
+      globalHashShareTextField = new JTextField("2");
+      globalHashShareTextField.setColumns(10);
+      globalHashShareTextField.addMouseListener(new MouseAdapter() {
+        @Override
+        public void mouseClicked(MouseEvent e) {
+          if (globalHashShareTextFieldClear) {
+            globalHashShareTextField.setText("");
+            globalHashShareTextFieldClear = false;
+          }
         }
-      }
-    });
+      });
 
-    GridBagConstraints globalHashShareTextFieldCons = new GridBagConstraints();
-    setCons(globalHashShareTextFieldCons,1,1,1,1,GridBagConstraints.NONE,GridBagConstraints.LINE_START,10,0);
-    settings.add(globalHashShareTextField, globalHashShareTextFieldCons);
+      GridBagConstraints globalHashShareTextFieldCons = new GridBagConstraints();
+      setCons(globalHashShareTextFieldCons,1,1,1,1,GridBagConstraints.NONE,GridBagConstraints.LINE_START,10,0);
+      settingsPanel.add(globalHashShareTextField, globalHashShareTextFieldCons);
 
-      JPanel settingsfillerPanel = new JPanel();
-      settingsfillerPanel.setPreferredSize(new Dimension(400,10));
+        JPanel settingsfillerPanel = new JPanel();
+        settingsfillerPanel.setPreferredSize(new Dimension(400,10));
 
-      GridBagConstraints settingsfillerPanelCons = new GridBagConstraints();
-      setCons(settingsfillerPanelCons,0,1,4,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
-      settings.add(settingsfillerPanel, settingsfillerPanelCons);
+        GridBagConstraints settingsfillerPanelCons = new GridBagConstraints();
+        setCons(settingsfillerPanelCons,0,1,4,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
+        settingsPanel.add(settingsfillerPanel, settingsfillerPanelCons);
 
     GridBagConstraints settingsCons = new GridBagConstraints();
-    setCons(settingsCons,1,2,4,2,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
-    page.add(settings, settingsCons);
+    setCons(settingsCons,0,2,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
+    page.add(settingsPanel, settingsCons);
 
     //add_node
     JPanel addNode = new JPanel();
     addNode.setLayout(new GridBagLayout());
-    addNode.setBorder(BorderFactory.createLineBorder(Color.black));
 
-    JLabel addNodeTitle = new JLabel("<HTML><U>Add node</U></HTML>");
+      JLabel addNodeTitle = new JLabel("<HTML><U>Add node</U></HTML>");
       //title
       addNodeTitle.setFont(addNodeTitle.getFont().deriveFont(16.0f));
 
@@ -153,7 +151,7 @@ public class Main {
       JLabel hashShareTitle = new JLabel("Hash Share(%):");
 
       GridBagConstraints hashShareTitleCons = new GridBagConstraints();
-      setCons(hashShareTitleCons,0,3,1,1,GridBagConstraints.NONE,GridBagConstraints.LINE_END,10,10);
+      setCons(hashShareTitleCons,0,2,1,1,GridBagConstraints.NONE,GridBagConstraints.LINE_END,10,10);
       addNode.add(hashShareTitle, hashShareTitleCons);
 
         hashShareTextField = new JTextField(Double.toString(hashShareAvailable));
@@ -170,7 +168,7 @@ public class Main {
       });
 
       GridBagConstraints hashShareTextFieldCons = new GridBagConstraints();
-      setCons(hashShareTextFieldCons,1,3,1,1,GridBagConstraints.NONE,GridBagConstraints.LINE_START,10,0);
+      setCons(hashShareTextFieldCons,1,2,1,1,GridBagConstraints.NONE,GridBagConstraints.LINE_START,10,0);
       addNode.add(hashShareTextField, hashShareTextFieldCons);
 
       //buttons
@@ -223,60 +221,54 @@ public class Main {
 
     //add to page
     GridBagConstraints addNodeCons = new GridBagConstraints();
-    setCons(addNodeCons,1,4,4,4,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
+    setCons(addNodeCons,0,3,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
     page.add(addNode, addNodeCons);
 
     //preview
-    //title
-    JLabel titleLabel = new JLabel("                                           Name                         id         power        blocks                                                  ");
+    JPanel previewPanel = new JPanel();
+    previewPanel.setLayout(new GridBagLayout());
 
-    GridBagConstraints titleLabelCons = new GridBagConstraints();
-    setCons(titleLabelCons, 2,8,2,1,GridBagConstraints.NONE,GridBagConstraints.LAST_LINE_END,0,0);
-    page.add(titleLabel, titleLabelCons);
+    JLabel titleLabel = new JLabel("                                       Name                   id            power        blocks                                                                    ");
+      //title
 
-    //scroll box
-    previewScrollPanel = new JPanel();
-    previewScrollPanel.setLayout(new GridBagLayout());
-    previewScrollPanel.setSize(new Dimension(500,150));
+      GridBagConstraints titleLabelCons = new GridBagConstraints();
+      setCons(titleLabelCons, 0,0,1,1,GridBagConstraints.NONE,GridBagConstraints.LINE_START,0,0);
+      previewPanel.add(titleLabel, titleLabelCons);
 
-    JScrollPane scroll = new JScrollPane(previewScrollPanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-    scroll.setViewportView(previewScrollPanel);
-    scroll.setPreferredSize(new Dimension(500,120));
+      //scroll box
+      previewScrollPanel = new JPanel();
+      previewScrollPanel.setLayout(new GridBagLayout());
+      previewScrollPanel.setSize(new Dimension(500,160));
 
-      constructInitNodeDispHolders();
+      JScrollPane scroll = new JScrollPane(previewScrollPanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+      scroll.setViewportView(previewScrollPanel);
+      scroll.setPreferredSize(new Dimension(500,150));
+
+        constructInitNodeDispHolders();
+
+      GridBagConstraints scrollCons = new GridBagConstraints();
+      setCons(scrollCons, 0,1,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
+      previewPanel.add(scroll, scrollCons);
+
+        JButton clearPreviewButton = new JButton("Remove All");
+        clearPreviewButton.addActionListener(new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+          if(e.getSource() == clearPreviewButton) {
+            removeAllNodes();
+          }
+        }
+      });
+
+      GridBagConstraints clearPreviewButtonCons = new GridBagConstraints();
+      setCons(clearPreviewButtonCons,0,3,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
+      previewPanel.add(clearPreviewButton, clearPreviewButtonCons);
 
     GridBagConstraints previewPanelCons = new GridBagConstraints();
-    setCons(previewPanelCons, 0,9,6,2,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
-    page.add(scroll, previewPanelCons);
-
-      JButton refreshPreviewButton = new JButton("refresh");
-      refreshPreviewButton.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        if(e.getSource() == refreshPreviewButton) {
-          refreshPreview();
-        }
-      }
-    });
-
-    GridBagConstraints refreshPreviewButtonCons = new GridBagConstraints();
-    setCons(refreshPreviewButtonCons, 4,9,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
-    page.add(refreshPreviewButton, refreshPreviewButtonCons);
-
-      JButton clearPreviewButton = new JButton("Remove All");
-      clearPreviewButton.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        if(e.getSource() == clearPreviewButton) {
-          removeAllNodes();
-        }
-      }
-    });
-
-    GridBagConstraints clearPreviewButtonCons = new GridBagConstraints();
-    setCons(clearPreviewButtonCons, 4,10,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
-    page.add(clearPreviewButton, clearPreviewButtonCons);
+    setCons(previewPanelCons,0,4,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
+    page.add(previewPanel, previewPanelCons);
 
     //buttons
-    JPanel buttons = new JPanel();
+    JPanel buttonsPanel = new JPanel();
 
       JButton startButton = new JButton("Start");
       startButton.addActionListener(new ActionListener() {
@@ -286,7 +278,7 @@ public class Main {
           }
         }
       });
-      buttons.add(startButton);
+      buttonsPanel.add(startButton);
 
       JButton exitButton = new JButton("Exit");
       exitButton.addActionListener(new ActionListener() {
@@ -296,11 +288,11 @@ public class Main {
           }
         }
       });
-      buttons.add(exitButton);
+      buttonsPanel.add(exitButton);
 
-    GridBagConstraints buttonsCons = new GridBagConstraints();
-    setCons(buttonsCons,1,11,4,2,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
-    page.add(buttons, buttonsCons);
+    GridBagConstraints buttonsPanelCons = new GridBagConstraints();
+    setCons(buttonsPanelCons,0,5,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
+    page.add(buttonsPanel, buttonsPanelCons);
 
     //add page to JFrame
     main.add(page);
@@ -312,7 +304,7 @@ public class Main {
     //populate scroll panel with holder panels to force shape of scroll panel within scroll pane
     for (int i=0;i<=2;i++) {
       JPanel nodeDispHolder = new JPanel();
-      nodeDispHolder.setMinimumSize(new Dimension(500, 50));
+      nodeDispHolder.setMinimumSize(new Dimension(500, 40));
 
       GridBagConstraints panelCons = new GridBagConstraints();
       setCons(panelCons,0,i,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
@@ -371,11 +363,11 @@ public class Main {
     } else {
       //create new holder panel
       JPanel nodeDispHolder = new JPanel();
-      nodeDispHolder.setMinimumSize(new Dimension(500, 50));
+      nodeDispHolder.setMinimumSize(new Dimension(500, 40));
       //add node dispPanel to holder panel
       nodeDispHolder.add(node.getDispPanel());
       //adjust size of panel to allow for new block
-      previewScrollPanel.setSize(new Dimension(500,(node.id-2)*50 + 150));
+      previewScrollPanel.setSize(new Dimension(500,(node.id-2)*40 + 160));
       //add to new holder panel
       GridBagConstraints panelCons = new GridBagConstraints();
       setCons(panelCons,0,node.id,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
@@ -386,17 +378,21 @@ public class Main {
   }
   public void addNode() {
     //unavailable hashshare error catcher
-    System.out.println("hashshareavailable: "+hashShareAvailable);
     if (hashShareAvailable < Double.parseDouble(hashShareTextField.getText())) {
       JOptionPane.showMessageDialog(main,hashShareAvailable+"% hash share left.","Error",JOptionPane.PLAIN_MESSAGE);
       return;
     }
     Node node = createNode(nodeNameTextField.getText(), hashShareTextField.getText());
     addNodeToNodesList(node);
-
     //recalculate available hash share form value
     refreshHashShareAvailble();
-
+    addNodeToPreview(node);
+  }
+  private void addNodeFromImport(String name, String hashShare) {
+    Node node = createNode(name, hashShare);
+    addNodeToNodesList(node);
+    //recalculate available hash share form value
+    refreshHashShareAvailble();
     addNodeToPreview(node);
   }
 
@@ -418,6 +414,7 @@ public class Main {
     //clear previewPanel
     previewScrollPanel.removeAll();
     refreshPreview();
+    refreshHashShareAvailble();
   }
   public void refreshNodesList() {
     //purpose: when a node is removed, the id's of the remaining nodesList must be fixed
@@ -450,6 +447,7 @@ public class Main {
     }
     hashShareAvailable = hsAvailble;
     hashShareTextField.setText(Double.toString(hashShareAvailable));
+    System.out.println("hash share available: "+ hashShareAvailable);
   }
   private void importStats() {
     //methods reads imported stats from JSON
@@ -506,8 +504,10 @@ public class Main {
           hashShareList.set(i,temp);
         }
         //add each node
+        System.out.println("hash share list: "+hashShareList);
+        System.out.println("node names list: "+nodeNamesList);
         for (int i=0;i<nodeNamesList.size();i++) {
-          // addNode(nodeNamesList.get(i),Double.toString(hashShareList.get(i)));
+          addNodeFromImport(nodeNamesList.get(i),Double.toString(hashShareList.get(i)));
         }
 
         //close file

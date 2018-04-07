@@ -19,7 +19,7 @@ public class Node {
   String name;
   //percentage of total hash rate
   String hash_share;
-  //measured in new hash per second
+  //measurement: number of new hashes per second
   double mine_speed;
   Block workingBlock;
   ArrayList<String> log = new ArrayList<String>();
@@ -60,6 +60,7 @@ public class Node {
     testFrame.setVisible(true);
   }
   public Node(int id, String name, String hash_share, Double mine_speed) {
+    System.out.println("new block hash share: "+hash_share+" mine_speed: "+mine_speed);
     this.id = id;
     this.setName(name);
     this.hash_share = hash_share;
@@ -68,12 +69,20 @@ public class Node {
     makeNodeDispPanel();
 
     //init chain with genesis block
-    GenBlock genBlock = new GenBlock(0, "1234");
+    GenBlock genBlock = new GenBlock(0, "1234", null);
     chain.add(genBlock);
     timer = new Timer();
-    // timerExecutionTime = (int) Math.ceil(1000/this.mine_speed);
-    timerExecutionTime = (int) Math.floor(1000/this.mine_speed);
-    System.out.println("timerExecTime: "+timerExecutionTime);
+    //set timerExecTime variable
+    if (mine_speed == 0) {
+      timerExecutionTime = 0;
+    } else if (mine_speed < 1) {
+      //for mine_speeds < 1
+      timerExecutionTime = (int) Math.floor(1000*(1/this.mine_speed));
+    } else {
+      //else simply divide 1 second by mine_speed
+      timerExecutionTime = (int) Math.floor(1000/this.mine_speed);
+    }
+    System.out.println("timesExec: "+timerExecutionTime);
   }
 
   //getter and setters
@@ -148,7 +157,7 @@ public class Node {
     }
   }
   private void setNewWorkingBlock() {
-    workingBlock = new Block(getChainSize(), getChainLastElement().getHash());
+    workingBlock = new Block(getChainSize(), getChainLastElement().getHash(), name);
   }
   private Boolean checkHash(String hash) {
     //nonce must by less than 4 digits
@@ -171,8 +180,6 @@ public class Node {
     //update nodeDispPanel
     blocks_mined += 1;
     blocksMinedLabel.setText(Integer.toString(blocks_mined));
-    //add to simulation window
-    simulation.addBlockToGlobalChain(workingBlock);
   }
   private void propogateBlock(Block block) {
     //send block to all nodes in network, apart from self
@@ -181,6 +188,8 @@ public class Node {
         node.receiveBlock(block);
       }
     }
+    //add to simulation window
+    simulation.addBlockToGlobalChain(workingBlock);
   }
   public void receiveBlock(Block block) {
     //pause mining for execution of new block code
@@ -230,7 +239,7 @@ public class Node {
   //node disp
   public void makeNodeDispPanel() {
     nodeDispPanel = new JPanel(new GridBagLayout());
-    nodeDispPanel.setPreferredSize(new Dimension(495,45));
+    nodeDispPanel.setPreferredSize(new Dimension(495,40));
     // nodeDispPanel.setBorder(BorderFactory.createLineBorder(Color.black));
 
       //check for name length too long
@@ -240,42 +249,28 @@ public class Node {
       }
 
       JLabel nameLabel = new JLabel(name);
-      JPanel namePanel = new JPanel();
-      namePanel.setPreferredSize(new Dimension(20,20));
-
-      namePanel.add(nameLabel);
 
       GridBagConstraints namePanelCons = new GridBagConstraints();
-      setCons(namePanelCons,0,0,1,1,GridBagConstraints.NONE,GridBagConstraints.LINE_START,100,10);
-      nodeDispPanel.add(namePanel, namePanelCons);
+      setCons(namePanelCons,0,0,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
+      nodeDispPanel.add(nameLabel, namePanelCons);
 
       JLabel idLabel = new JLabel(Integer.toString(this.id));
-      JPanel idPanel = new JPanel();
-      idPanel.setPreferredSize(new Dimension(5,20));
-      idPanel.add(idLabel);
 
       GridBagConstraints idPanelCons = new GridBagConstraints();
-      setCons(idPanelCons,1,0,1,1,GridBagConstraints.NONE,GridBagConstraints.LINE_START,30,10);
-      nodeDispPanel.add(idPanel, idPanelCons);
+      setCons(idPanelCons,1,0,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
+      nodeDispPanel.add(idLabel, idPanelCons);
 
       JLabel hashShareLabel = new JLabel(this.hash_share);
-      JPanel hashSharePanel = new JPanel();
-      hashSharePanel.setPreferredSize(new Dimension(10,20));
-      hashSharePanel.add(hashShareLabel);
 
       GridBagConstraints hashSharePanelCons = new GridBagConstraints();
-      setCons(hashSharePanelCons,2,0,1,1,GridBagConstraints.NONE,GridBagConstraints.LINE_START,30,10);
-      nodeDispPanel.add(hashSharePanel, hashSharePanelCons);
+      setCons(hashSharePanelCons,2,0,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
+      nodeDispPanel.add(hashShareLabel, hashSharePanelCons);
 
       blocksMinedLabel = new JLabel("0");
-      JPanel blocksMinedPanel = new JPanel();
-      blocksMinedPanel.setPreferredSize(new Dimension(10,20));
-
-      blocksMinedPanel.add(blocksMinedLabel);
 
       GridBagConstraints blocksMinedPanelCons = new GridBagConstraints();
-      setCons(blocksMinedPanelCons,3,0,1,1,GridBagConstraints.NONE,GridBagConstraints.LINE_START,30,10);
-      nodeDispPanel.add(blocksMinedPanel, blocksMinedPanelCons);
+      setCons(blocksMinedPanelCons,3,0,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
+      nodeDispPanel.add(blocksMinedLabel, blocksMinedPanelCons);
 
       JButton viewLogButton = new JButton("view Log");
       viewLogButton.addActionListener(new ActionListener() {
@@ -286,14 +281,11 @@ public class Node {
         }
       });
 
-      JPanel viewLogButtonPanel = new JPanel();
-      viewLogButtonPanel.setPreferredSize(new Dimension(10,20));
-      viewLogButtonPanel.add(viewLogButton);
-
       GridBagConstraints viewLogButtonPanelCons = new GridBagConstraints();
-      setCons(viewLogButtonPanelCons,4,0,1,1,GridBagConstraints.BOTH,GridBagConstraints.CENTER,100,20);
-      nodeDispPanel.add(viewLogButtonPanel, viewLogButtonPanelCons);
+      setCons(viewLogButtonPanelCons,4,0,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
+      nodeDispPanel.add(viewLogButton, viewLogButtonPanelCons);
   }
+
 
   //log
   private void dispLogDispWindow() {

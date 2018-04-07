@@ -6,6 +6,7 @@ class Block {
 
   public int id;
   private String prevBlockHash;
+  private String foundByNode;
   private int nonce;
   private String hash;
 
@@ -13,12 +14,13 @@ class Block {
 
   //constructors
   public static void main(String[] args) {
-    new Block(1,"3455");
+    new Block(1,"3455", "node name");
   }
-  public Block(int id, String prevBlockHash) {
+  public Block(int id, String prevBlockHash, String foundByNode) {
     this.id = id;
     //prevBlockHash of nodes chain
     this.prevBlockHash = prevBlockHash;
+    this.foundByNode = foundByNode;
     newNonce();
     this.genHash();
 
@@ -97,7 +99,7 @@ class Block {
     setCons(node_name_label_1_cons,0,1,1,1,GridBagConstraints.NONE,GridBagConstraints.SOUTH,0,0);
     dispPanel.add(node_name_label_1, node_name_label_1_cons);
 
-    JLabel node_name_label_2 = new JLabel("node name");;
+    JLabel node_name_label_2 = new JLabel(foundByNode);
 
     GridBagConstraints node_name_label_2_cons = new GridBagConstraints();
     setCons(node_name_label_2_cons,0,2,1,1,GridBagConstraints.NONE,GridBagConstraints.NORTH,0,0);
@@ -115,7 +117,7 @@ class Block {
     // infoButton.addActionListener(new ActionListener() {
     //   public void actionPerformed(ActionEvent e) {
     //     if(e.getSource() == infoButton) {
-    //       infoChainPanel();
+    //       blockInfoDispPanel();
     //     }
     //   }
     // });

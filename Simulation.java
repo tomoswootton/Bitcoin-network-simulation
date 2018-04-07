@@ -151,7 +151,6 @@ public class Simulation {
     //swing
     nodesPanel = new JPanel();
     nodesPanel.setLayout(new GridBagLayout());
-    nodesPanel.setBorder(BorderFactory.createLineBorder(Color.black));
 
       //titles
       JLabel nodesTitle = new JLabel("<HTML><U>Nodes</U></HTML>");
@@ -199,7 +198,6 @@ public class Simulation {
     //swing
     chainPanel = new JPanel();
     chainPanel.setLayout(new GridBagLayout());
-    chainPanel.setBorder(BorderFactory.createLineBorder(Color.black));
 
       //titles
       JLabel chainTitle = new JLabel("<HTML><U>Chain</U></HTML>");
@@ -216,6 +214,7 @@ public class Simulation {
 
       JScrollPane chainScrollPane = new JScrollPane(chainScrollPanel,JScrollPane.VERTICAL_SCROLLBAR_NEVER,JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
       chainScrollPane.setViewportView(chainScrollPanel);
+      chainScrollPane.setBorder(BorderFactory.createEmptyBorder());
       chainScrollPane.setPreferredSize(new Dimension(1100,220));
 
       initBlockDispHolderList = new ArrayList<JPanelWithLine>();
@@ -234,7 +233,7 @@ public class Simulation {
         populateChainScrollPanel();
 
         //add genesis block
-        GenBlock genBlock = new GenBlock(0, "1234");
+        GenBlock genBlock = new GenBlock(0, "1234", null);
         addBlockToGlobalChain(genBlock);
 
       GridBagConstraints chainPanelCons = new GridBagConstraints();
@@ -246,7 +245,7 @@ public class Simulation {
     addFakeBlockButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
         if(e.getSource() == addFakeBlockButton) {
-          Block fakeBlock = new Block(blocksFoundList.size(), "1234");
+          Block fakeBlock = new Block(blocksFoundList.size(), "1234", "None");
           addBlockToGlobalChain(fakeBlock);
         }
       }
@@ -314,37 +313,7 @@ public class Simulation {
     //re-construct
     constructChainPanel();
   }
-  // private JPanelWithLine makeDispBlockHolder() {
-    // JPanelWithLine blockDispHolder = new JPanelWithLine();
-    // blockDispHolder.setPreferredSize(new Dimension(200,200));
-    // blockDispHolder.setBorder(BorderFactory.createLineBorder(Color.black));
-    // blockDispHolder.setLayout(new GridBagLayout());
-    // /*layout non split:
-    // *buffer panel
-    // *block
-    // *block
-    // *buffer panel
-    // */
-    // buffer1 = new JPanel();
-    // buffer1.setBackground(Color.green);
-    // GridBagConstraints cons1 = new GridBagConstraints();
-    // setCons(cons1,0,0,4,1,GridBagConstraints.BOTH,GridBagConstraints.CENTER,0,0);
-    // blockDispHolder.add(buffer1, cons1);
-    //
-    // buffer2 = new JPanel();
-    // buffer2.setBackground(Color.red);
-    // GridBagConstraints cons2 = new GridBagConstraints();
-    // setCons(cons2,0,1,4,2,GridBagConstraints.BOTH,GridBagConstraints.CENTER,0,0);
-    // blockDispHolder.add(buffer2, cons2);
-    //
-    // buffer3 = new JPanel();
-    // buffer3.setBackground(Color.yellow);
-    // GridBagConstraints cons3 = new GridBagConstraints();
-    // setCons(cons3,0,4,4,1,GridBagConstraints.BOTH,GridBagConstraints.CENTER,0,0);
-    // blockDispHolder.add(buffer3, cons3);
-    //
-    // return blockDispHolder;
-    // }
+
   public void run(Boolean state) {
     for (Node node : nodesList) {
       node.runningState = state;
@@ -361,7 +330,6 @@ class JPanelWithLine extends JPanel{
 
   public JPanelWithLine() {
     this.setPreferredSize(new Dimension(220,220));
-    this.setBorder(BorderFactory.createLineBorder(Color.black));
     this.setLayout(new GridBagLayout());
     /*layout non split:
     *buffer panel

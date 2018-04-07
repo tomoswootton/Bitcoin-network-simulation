@@ -6,8 +6,8 @@ class GenBlock extends Block {
 
   private JPanel dispPanel;
 
-  public GenBlock(int id, String prevBlockHash) {
-    super(id, prevBlockHash);
+  public GenBlock(int id, String prevBlockHash, String foundByNode) {
+    super(id, prevBlockHash, foundByNode);
     this.id = 0;
   }
 
@@ -42,5 +42,11 @@ class GenBlock extends Block {
     GridBagConstraints node_name_label_2_cons = new GridBagConstraints();
     setCons(node_name_label_2_cons,0,2,1,1,GridBagConstraints.NONE,GridBagConstraints.NORTH,0,0);
     dispPanel.add(node_name_label_2, node_name_label_2_cons);
+
+    JLabel hash_label = new JLabel(" ");
+
+    GridBagConstraints hash_label_cons = new GridBagConstraints();
+    setCons(hash_label_cons,0,3,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
+    dispPanel.add(hash_label, hash_label_cons);
   }
 }
