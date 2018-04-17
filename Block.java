@@ -85,7 +85,7 @@ class Block {
     dispPanel.setBorder(BorderFactory.createLineBorder(Color.black));
     dispPanel.setBackground(Color.lightGray);
     dispPanel.setLayout(new GridBagLayout());
-    dispPanel.setPreferredSize(new Dimension(100,100));
+    dispPanel.setPreferredSize(new Dimension(90,90));
 
     JLabel block_id_label = new JLabel("Id "+this.id);
 
