@@ -141,6 +141,13 @@ public class Simulation {
     gridCons.weightx = 0.2;
     gridCons.weighty = 0.2;
   }
+  private void setCons(GridBagConstraints gridCons,int x,int y,int width,int height,int fill,int anchor,int ipadx,int ipady,int weightx,int weighty) {
+    //extra method for if weight option is wanted
+
+    setCons(gridCons,x,y,width,height,fill,anchor,ipadx,ipady);
+    gridCons.weightx = weightx;
+    gridCons.weighty = weighty;
+  }
 
   //getters and setters
   public int getNodesListSize(){
@@ -225,7 +232,7 @@ public class Simulation {
         JPanelBlockDisp blockDispHolder = new JPanelBlockDisp();
 
         GridBagConstraints panelCons = new GridBagConstraints();
-        setCons(panelCons,i,0,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
+        setCons(panelCons,i,0,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0,0,0);
         chainScrollPanel.add(blockDispHolder, panelCons);
 
         blockDispHolderList.add(blockDispHolder);
@@ -291,15 +298,17 @@ public class Simulation {
   private void populateChainScrollPanel() {
     //displays already found blocks in panel
     for (Block block : blocksFoundList) {
-      addBlockToChainPanel(block);
+      addBlockToHolderPanel(block);
     }
 
   }
   public void addBlockToGlobalChain(Block block) {
     //TODO add checks for consensus here
     addBlockToFoundList(block);
+    //create holder panel
     addBlockHolderPanel();
-    addBlockToChainPanel(block);
+
+    addBlockToHolderPanel(block);
   }
   private void addBlockToFoundList(Block block) {
     blocksFoundList.add(block);
@@ -320,25 +329,39 @@ public class Simulation {
     horizontal.setValue(horizontal.getMaximum());
 
   }
-  private void addBlockToChainPanel(Block block) {
+  private void addBlockToHolderPanel(Block block) {
 
     //add block dispPanel to holder panel
     blockDispHolderList.get(block.id).addBlockDispPanel(block.getDispPanel());
 
     //adjust size of panel to allow for new block
     chainScrollPanel.setSize(new Dimension((block.id-9)*220 + 1100,220));
-
     chainScrollPanel.revalidate();
     chainScrollPanel.repaint();
 
-    //repaint previous panel for split painting
+  }
+  private void addSplitPanelToGlobalChain(Block block1, Block block2) {
+    //temporerily add block1 to found list
+    blocksFoundList.add(block1);
 
+    //make new holder panel
+    addBlockHolderPanel();
+    //set holder to split layout
+    JPanelBlockDisp holderPanel = blockDispHolderList.get(block1.id);
+    holderPanel.makeSplitLayout();
+
+    //add blocks
+    addBlocksToSplitPanel(block1, block2);
 
   }
-  private void addSplitPanelToGlobalChain(Block fakeBlock1, Block fakeblock2) {
-    addBlockHolderPanel();
-    blockDispHolderList.get(fakeBlock1.id).makeSplitLayout();
-    addBlockToGlobalChain(fakeBlock1);
+  private void addBlocksToSplitPanel(Block block1, Block block2) {
+    //add blocks
+    blockDispHolderList.get(block1.id).addBlockDispPanel(block1.getDispPanel(), block2.getDispPanel());
+
+    //adjust size of panel to allow for new block
+    chainScrollPanel.setSize(new Dimension((block1.id-9)*220 + 1100,220));
+    chainScrollPanel.revalidate();
+    chainScrollPanel.repaint();
   }
   private void refreshChainPanel() {
     //re-construct
@@ -416,6 +439,7 @@ class JPanelBlockDisp extends JPanel{
     *buffer panel
     */
     buffer1 = new JPanel();
+    buffer1.setLayout(new GridBagLayout());
     buffer1.setMinimumSize(new Dimension(220, 110));
     GridBagConstraints cons1 = new GridBagConstraints();
     setCons(cons1,0,0,4,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
@@ -431,76 +455,96 @@ class JPanelBlockDisp extends JPanel{
   }
 
   @Override
-  protected void paintComponent(Graphics g) {
-      int h = getHeight();
-      int w = getWidth();
-      super.paintComponent(g);
-      g.setColor(Color.black);
-
-      //if first panel
-      if (id == 0 ) {
-        //draw line beginning in middle to middle gridheight
-        g.drawLine(h/2,h/2,w,h/2);
-        return;
-      }
-
-      //paint first half
-      Boolean prevBlockSplit = blockDispHolderList.get(id-1).split;
-
-      //individual - individual
-      if (!split) {
-        //draw line through center
-        g.drawLine(0,h/2,w/2,h/2);
-
-        //individual - split
-      } else if (split){
-        //draw lines that split from middle
-        g.drawLine(0,h/2,w/4,3*(h/4));
-        g.drawLine(0,h/2,w/4,h/4);
-        g.drawLine(w/4,3*(h/4),w/2,3*(h/4));
-        g.drawLine(w/4,h/4,w/2,h/4);
-
-        //split - split
-      } else if (prevBlockSplit && split) {
-        System.out.println("called");
-        g.drawLine(0,3*(h/4),w/2,3*(h/4));
-        g.drawLine(0,h/4,w/2,h/4);
-      }
-
-      //paint second half
-      //end method here if panel is last in list
-      if (blockDispHolderList.get(blockDispHolderList.size()-1).id == id) {
-        return;
-      }
-
-      //the remaining code is called on the second to last panel in the list
-      Boolean nextBlockSplit = blockDispHolderList.get(id+1).split;
-      //individual - individual
-      if (!split) {
-        //draw line through center
-        g.drawLine(w/2,h/2,w,h/2);
-
-        //split - individual
-      } else if (!nextBlockSplit){
-        //draw lines that close split
-        g.drawLine(w/2,3*(h/4),3*(w/4),3*(h/4));
-        g.drawLine(w/2,h/4,3*(w/4),h/4);
-        g.drawLine(3*(w/4),3*(h/4),w,h/2);
-        g.drawLine(3*(w/4),h/4,w,h/2);
-
-        //split - split
-      } else if (nextBlockSplit) {
-        g.drawLine(w/2,3*(h/4),w,3*(h/4));
-        g.drawLine(w/2,h/4,w,h/4);
-      }
+  protected void paintComponent(Graphics g2) {
+    //no lines if not occupied
+    if(!occupied) {
+      return;
+    }
 
 
+    int h = getHeight();
+    int w = getWidth();
+    super.paintComponent(g2);
+    Graphics2D g = (Graphics2D) g2;
+    g.setColor(Color.black);
+    g.setStroke(new BasicStroke(2));
+
+
+    //if first panel
+    if (id == 0 ) {
+      //draw line beginning in middle to middle gridheight
+      g.drawLine(h/2,h/2,w,h/2);
+      return;
+    }
+
+    //paint first half
+    Boolean prevBlockSplit = blockDispHolderList.get(id-1).split;
+
+    //individual - individual
+    if (!split) {
+      //draw line through center
+      g.drawLine(0,h/2,w/2,h/2);
+
+      //individual - split
+    } else if (!prevBlockSplit && split) {
+      //draw lines that split from middle
+      g.drawLine(0,h/2,w/4,3*(h/4));
+      g.drawLine(0,h/2,w/4,h/4);
+      g.drawLine(w/4,3*(h/4),w/2,3*(h/4));
+      g.drawLine(w/4,h/4,w/2,h/4);
+
+      //split - split
+    } else if (prevBlockSplit && split) {
+      System.out.println("split-split");
+      g.drawLine(0,h/4,w/2,h/4);
+      g.drawLine(0,3*(h/4),w/2,3*(h/4));
+    }
+
+    //end method here if panel is last in list
+    if (blocksFoundList.get(blocksFoundList.size()-1).id == id) {
+      return;
+    }
+
+    //paint second half
+
+    //the remaining code is called on the second to last panel in the list
+    Boolean nextBlockSplit = blockDispHolderList.get(id+1).split;
+    //individual - individual
+    if (!split) {
+      //draw line through center
+      g.drawLine(w/2,h/2,w+10,h/2);
+
+      //split - individual
+    } else if (!nextBlockSplit){
+      //draw lines that close split
+      g.drawLine(w/2,3*(h/4),3*(w/4),3*(h/4));
+      g.drawLine(w/2,h/4,3*(w/4),h/4);
+      g.drawLine(3*(w/4),3*(h/4),w,h/2);
+      g.drawLine(3*(w/4),h/4,w,h/2);
+
+      //split - split
+    } else if (nextBlockSplit) {
+      g.drawLine(w/2,3*(h/4),w,3*(h/4));
+      g.drawLine(w/2,h/4,w,h/4);
+    }
   }
 
   public void addBlockDispPanel(JPanel panel) {
     GridBagConstraints cons = new GridBagConstraints();
     setCons(cons,0,0,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
     buffer2.add(panel, cons);
+
+    occupied = true;
+  }
+
+  public void addBlockDispPanel(JPanel panel1, JPanel panel2) {
+    GridBagConstraints cons1 = new GridBagConstraints();
+    setCons(cons1,0,0,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
+    buffer1.add(panel1, cons1);
+
+    GridBagConstraints cons2 = new GridBagConstraints();
+    setCons(cons2,0,0,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
+    buffer2.add(panel2, cons2);
 
     occupied = true;
   }
@@ -523,6 +567,14 @@ class JPanelBlockDisp extends JPanel{
     //keep as 0 for now,meaning cell fits to component
     gridCons.weightx = 0.2;
     gridCons.weighty = 0.2;
+  }
+
+  private void setCons(GridBagConstraints gridCons,int x,int y,int width,int height,int fill,int anchor,int ipadx,int ipady,int weightx,int weighty) {
+    //extra method for if weight option is wanted
+
+    setCons(gridCons,x,y,width,height,fill,anchor,ipadx,ipady);
+    gridCons.weightx = weightx;
+    gridCons.weighty = weighty;
   }
 
 }
