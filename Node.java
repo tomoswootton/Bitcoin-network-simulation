@@ -39,7 +39,7 @@ public class Node {
   Timer timer;
   int timerExecutionTime;
   //stores true if node is mining
-  Boolean runningState;
+  Boolean runningState = false;
 
   //log disp window
   TextArea logDispTextArea = new TextArea("",8,38,TextArea.SCROLLBARS_BOTH);
@@ -145,6 +145,7 @@ public class Node {
 
   //mine methods
   public void mine(Boolean state) {
+
     //dont start timer if no mine speed, otherwise run() will be run once
     if (mine_speed == 0.0) {
       return;
@@ -216,6 +217,7 @@ public class Node {
 
   //timer methods
   private void startTimer() {
+    addToLog("\nMining started\n");
     timer = new Timer();
     timer.scheduleAtFixedRate(new TimerTask() {
       @Override
@@ -234,7 +236,7 @@ public class Node {
     }, 0, timerExecutionTime);
   }
   private void pauseTimer() {
-    // System.out.println("timer "+this.id+" stopped.");
+    addToLog("\nMining stopped\n");
     timer.cancel();
     timer.purge();
   }

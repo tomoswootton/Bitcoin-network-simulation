@@ -3,8 +3,9 @@ import java.awt.*;
 import javax.swing.*;
 import java.awt.event.*;
 
-import java.util.LinkedList;
-import java.util.ArrayList;
+import java.util.*;
+import java.util.Timer;
+
 
 
 public class Simulation {
@@ -369,10 +370,38 @@ public class Simulation {
   }
 
   public void run(Boolean state) {
+    Timer timer = new Timer();
+    if (state) {
+      System.out.println("Simulation started");
+
+    //start miners at even spacing
+    timer.scheduleAtFixedRate(new TimerTask() {
+      @Override
+      public void run() {
+        //if final node is not running
+        for (Node node : nodesList) {
+          if (!node.runningState) {
+            System.out.println("starting node "+node.getName());
+            node.runningState = state;
+            node.mine(state);
+            return;
+          }
+        }
+        System.out.println("All nodes running");
+        timer.cancel();
+        timer.purge();
+      }
+    }, 0, 2000);
+  } else {
+    System.out.println("Simulation stopped");
+    timer.cancel();
+    timer.purge();
     for (Node node : nodesList) {
+      System.out.println("stopping node");
       node.runningState = state;
       node.mine(state);
     }
+  }
   }
 
 
