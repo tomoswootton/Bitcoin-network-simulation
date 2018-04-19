@@ -6,11 +6,10 @@ import java.awt.event.*;
 import java.util.*;
 import java.util.Timer;
 
-
-
 public class Simulation {
 
   JFrame simulationFrame = new JFrame();
+  GlobalInfo globalInfo;
 
   // page variables
   Boolean running = false;
@@ -29,21 +28,19 @@ public class Simulation {
   JButton startPauseButton;
   JButton exitButton;
 
-  //linked list used becasue blocks will only be added to the end
-  LinkedList<Node> nodesList;
 
   //list of blocks foundBlocks
   private LinkedList<Block> blocksFoundList = new LinkedList<Block>();
 
   //construtors
   public static void main(String[] args) {
-     LinkedList<Node> nodesList = new LinkedList<Node>();
-     nodesList.add(new Node(0,"test","30",0.5));
-     nodesList.add(new Node(1,"test2","30",0.8));
+     // LinkedList<Node> nodesList = new LinkedList<Node>();
+     // // nodesList.add(new Node(0,"test","30",0.5,10000));
+     // nodesList.add(new Node(1,"test2","30",0.8,10000));
     //  new Simulation(nodesList);
    }
-  public Simulation(LinkedList<Node> nodesList) {
-    this.nodesList = nodesList;
+  public Simulation(GlobalInfo globalInfo) {
+    this.globalInfo = globalInfo;
     //init
     simulationFrame.setSize(1200,900);
     simulationFrame.setLocationRelativeTo(null);
@@ -150,10 +147,6 @@ public class Simulation {
     gridCons.weighty = weighty;
   }
 
-  //getters and setters
-  public int getNodesListSize(){
-    return nodesList.size();
-  }
 
   //nodes panel
   private void constructNodesPanel() {
@@ -197,7 +190,7 @@ public class Simulation {
   private void populateNodesScrollPanel() {
     //displays nodes in panel, pages start on 1
     nodesScrollPanel.removeAll();
-    for (Node node : nodesList) {
+    for (Node node : globalInfo.getNodesList()) {
       nodesScrollPanel.add(node.getDispPanel());
     }
   }
@@ -242,7 +235,7 @@ public class Simulation {
         populateChainScrollPanel();
 
         //add genesis block
-        GenBlock genBlock = new GenBlock(0, "1234", null);
+        GenBlock genBlock = new GenBlock(globalInfo,0,"1234", null);
         addBlockToGlobalChain(genBlock);
 
       GridBagConstraints chainPanelCons = new GridBagConstraints();
@@ -254,7 +247,7 @@ public class Simulation {
     addFakeBlockButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
         if(e.getSource() == addFakeBlockButton) {
-          Block fakeBlock = new Block(blocksFoundList.size(), "1234", "None");
+          Block fakeBlock = new Block(globalInfo, blocksFoundList.size(), "1234", "None");
           addBlockToGlobalChain(fakeBlock);
         }
       }
@@ -268,8 +261,8 @@ public class Simulation {
     addFakeSplitButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
         if(e.getSource() == addFakeSplitButton) {
-          Block fakeBlock1 = new Block(blocksFoundList.size(), "4782", "name two");
-          Block fakeBlock2 = new Block(blocksFoundList.size(), "1234", "name one");
+          Block fakeBlock1 = new Block(globalInfo, blocksFoundList.size(),"4782", "name two");
+          Block fakeBlock2 = new Block(globalInfo, blocksFoundList.size(),"1234", "name one");
           addSplitPanelToGlobalChain(fakeBlock1, fakeBlock2);
         }
       }
@@ -379,7 +372,7 @@ public class Simulation {
       @Override
       public void run() {
         //if final node is not running
-        for (Node node : nodesList) {
+        for (Node node : globalInfo.getNodesList()) {
           if (!node.runningState) {
             System.out.println("starting node "+node.getName());
             node.runningState = state;
@@ -396,7 +389,7 @@ public class Simulation {
     System.out.println("Simulation stopped");
     timer.cancel();
     timer.purge();
-    for (Node node : nodesList) {
+    for (Node node : globalInfo.getNodesList()) {
       System.out.println("stopping node");
       node.runningState = state;
       node.mine(state);

@@ -3,6 +3,7 @@ import java.awt.*;
 import java.awt.GridBagLayout;
 
 class Block {
+   GlobalInfo globalInfo;
 
   public int id;
   private String prevBlockHash;
@@ -14,9 +15,10 @@ class Block {
 
   //constructors
   public static void main(String[] args) {
-    new Block(1,"3455", "node name");
+    // new Block(1,"3455", "node name");
   }
-  public Block(int id, String prevBlockHash, String foundByNode) {
+  public Block(GlobalInfo globalInfo, int id, String prevBlockHash, String foundByNode) {
+    this.globalInfo = globalInfo;
     this.id = id;
     //prevBlockHash of nodes chain
     this.prevBlockHash = prevBlockHash;
@@ -53,7 +55,7 @@ class Block {
 
   //methods
   public void newNonce() {
-    this.nonce = (int) (Math.random() * 10000);
+    this.nonce = (int) (Math.random() * globalInfo.hashSize);
   }
   public String genHash() {
     //hash is simply nonce

@@ -14,6 +14,7 @@ public class Node {
 
   //simulation object for methods access
   Simulation simulation;
+  GlobalInfo globalInfo;
 
   int id;
   String name;
@@ -24,6 +25,7 @@ public class Node {
   Block workingBlock;
   ArrayList<String> log = new ArrayList<String>();
   int blocks_mined;
+  int hashSize;
 
   //list of nodes in network
   LinkedList<Node> nodesList;
@@ -53,26 +55,28 @@ public class Node {
     testFrame.setSize(500,500);
     testFrame.setLayout(new FlowLayout());
 
-    Node testNode = new Node(0,"node-name","0.1", 10.0);
-    JPanel testPanel = testNode.getDispPanel();
-    Node testNode2 = new Node(1,"node","0.1", 10.0);
-    JPanel testPanel2 = testNode2.getDispPanel();
-
-    testFrame.add(testPanel);
-    testFrame.add(testPanel2);
+    // Node testNode = new Node(0,"node-name","0.1", 10.0, 10000);
+    // JPanel testPanel = testNode.getDispPanel();
+    // Node testNode2 = new Node(1,"node","0.1", 10.0, 10000);
+    // JPanel testPanel2 = testNode2.getDispPanel();
+    //
+    // testFrame.add(testPanel);
+    // testFrame.add(testPanel2);
     testFrame.setVisible(true);
   }
-  public Node(int id, String name, String hash_share, Double mine_speed) {
+  public Node(GlobalInfo globalInfo, String name, String hash_share, Double mine_speed) {
     System.out.println("new block hash share: "+hash_share+" mine_speed: "+mine_speed);
-    this.id = id;
+    this.globalInfo = globalInfo;
+    this.id = globalInfo.nodesListSize();
     this.setName(name);
     this.hash_share = hash_share;
     this.mine_speed = mine_speed;
     this.blocks_mined = 0;
+    this.hashSize = hashSize;
     makeNodeDispPanel();
 
     //init chain with genesis block
-    GenBlock genBlock = new GenBlock(0, "1234", null);
+    GenBlock genBlock = new GenBlock(globalInfo, 0,"1234", null);
     chain.add(genBlock);
     timer = new Timer();
     //set timerExecTime variable
@@ -161,11 +165,11 @@ public class Node {
     }
   }
   private void setNewWorkingBlock() {
-    workingBlock = new Block(getChainSize(), getChainLastElement().getHash(), name);
+    workingBlock = new Block(globalInfo, getChainSize(), getChainLastElement().getHash(), name);
   }
   private Boolean checkHash(String hash) {
     //nonce must by less than 4 digits
-    if (Integer.parseInt(hash) < 1000) {
+    if (Integer.parseInt(hash) < globalInfo.getTarget()) {
       return true;
     }
     return false;
@@ -187,7 +191,7 @@ public class Node {
   }
   private void propogateBlock(Block block) {
     //send block to all nodes in network, apart from self
-    for (Node node : nodesList) {
+    for (Node node : globalInfo.getNodesList()) {
       if (node.id != this.id) {
         node.receiveBlock(block);
       }
@@ -209,7 +213,7 @@ public class Node {
     addToLog("Block verified, adding to chain..\n");
     addBlockToChain(block);
     //continue mine
-    addToLog("Find new block. id: "+getChainSize()+"\n\n");
+    addToLog("Find new block. id: "+getChainSize()+"\n");
     setNewWorkingBlock();
     //restart mining
     this.mine(true);
@@ -217,7 +221,7 @@ public class Node {
 
   //timer methods
   private void startTimer() {
-    addToLog("\nMining started\n");
+    addToLog("\nMining started\n\n");
     timer = new Timer();
     timer.scheduleAtFixedRate(new TimerTask() {
       @Override
@@ -228,7 +232,6 @@ public class Node {
         addToLog(hash+"\n");
         //check for valid hash
         if (checkHash(hash)) {
-          //TODO get vaildation from other blocks
           blockFound(hash);
           setNewWorkingBlock();
         }

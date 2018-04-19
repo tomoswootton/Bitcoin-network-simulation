@@ -6,8 +6,8 @@ class GenBlock extends Block {
 
   private JPanel dispPanel;
 
-  public GenBlock(int id, String prevBlockHash, String foundByNode) {
-    super(id, prevBlockHash, foundByNode);
+  public GenBlock(GlobalInfo globalInfo, int id, String prevBlockHash, String foundByNode) {
+    super(globalInfo, id, prevBlockHash, foundByNode);
     this.id = 0;
   }
 

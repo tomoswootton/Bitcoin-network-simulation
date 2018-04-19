@@ -1,5 +1,6 @@
 import java.awt.*;
 import javax.swing.*;
+import javax.swing.event.*;
 import java.awt.GridBagLayout;
 import java.awt.event.*;
 import java.util.LinkedList;
@@ -10,11 +11,13 @@ public class Main {
 
   JFrame main = new JFrame();
   JPanel page;
+  GlobalInfo globalInfo;
 
-  JTextField globalHashShareTextField;
+  JTextFieldWithID MaxHashValueTextField;
+  JTextFieldWithID targetTextField;
+  JTextFieldWithID globalHashShareTextField;
+  ArrayList<JTextFieldWithID> userInputTextFields = new ArrayList<JTextFieldWithID>();
   JLabel nodeIdLabel;
-  JTextField nodeNameTextField;
-  JTextField hashShareTextField;
   JComboBox<String> nodesDisplayedCBox;
 
   JPanel previewScrollPanel;
@@ -30,15 +33,14 @@ public class Main {
   //variable holds percentage of hash share available
   Double hashShareAvailable = 100.0;
 
-  //nodesList list, contains node objects
-  LinkedList<Node> nodesList = new LinkedList<Node>();
-
   //constructors
   public static void main(String[] args) {
     new Main();
   }
   public Main() {
     makePage();
+    globalInfo = new GlobalInfo(Integer.parseInt(getTextField("hashSize").getText()),Integer.parseInt(getTextField("target").getText()));
+    makeTextFieldListeners();
   }
 
   //JSwing methods
@@ -77,34 +79,16 @@ public class Main {
       setCons(settingsTitleCons,0,0,2,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
       settingsPanel.add(settingsTitle, settingsTitleCons);
 
-      //hashshare
-      JLabel globalHashShareTitle = new JLabel("Global HashShare:");
-
-      GridBagConstraints globalHashShareTitleCons = new GridBagConstraints();
-      setCons(globalHashShareTitleCons,0,1,1,1,GridBagConstraints.NONE,GridBagConstraints.LINE_END,10,10);
-      settingsPanel.add(globalHashShareTitle, globalHashShareTitleCons);
-
-      globalHashShareTextField = new JTextField("2");
-      globalHashShareTextField.setColumns(10);
-      globalHashShareTextField.addMouseListener(new MouseAdapter() {
-        @Override
-        public void mouseClicked(MouseEvent e) {
-          if (globalHashShareTextFieldClear) {
-            globalHashShareTextField.setText("");
-            globalHashShareTextFieldClear = false;
-          }
-        }
-      });
-
-      GridBagConstraints globalHashShareTextFieldCons = new GridBagConstraints();
-      setCons(globalHashShareTextFieldCons,1,1,1,1,GridBagConstraints.NONE,GridBagConstraints.LINE_START,10,0);
-      settingsPanel.add(globalHashShareTextField, globalHashShareTextFieldCons);
+      //add input boxes
+      makeUserInputPanel("hashSize","Maximum hash value: ", "10000", settingsPanel,0,1);
+      makeUserInputPanel("target","Target: ", "800", settingsPanel, 0,2);
+      makeUserInputPanel("hashPerSec","Global Hashes per second: ", "1", settingsPanel, 0,3);
 
         JPanel settingsfillerPanel = new JPanel();
         settingsfillerPanel.setPreferredSize(new Dimension(400,10));
 
         GridBagConstraints settingsfillerPanelCons = new GridBagConstraints();
-        setCons(settingsfillerPanelCons,0,1,4,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
+        setCons(settingsfillerPanelCons,0,4,4,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
         settingsPanel.add(settingsfillerPanel, settingsfillerPanelCons);
 
     GridBagConstraints settingsCons = new GridBagConstraints();
@@ -112,8 +96,8 @@ public class Main {
     page.add(settingsPanel, settingsCons);
 
     //add_node
-    JPanel addNode = new JPanel();
-    addNode.setLayout(new GridBagLayout());
+    JPanel addNodePanel = new JPanel();
+    addNodePanel.setLayout(new GridBagLayout());
 
       JLabel addNodeTitle = new JLabel("<HTML><U>Add node</U></HTML>");
       //title
@@ -121,55 +105,19 @@ public class Main {
 
       GridBagConstraints addNodeTitleCons = new GridBagConstraints();
       setCons(addNodeTitleCons,0,0,2,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
-      addNode.add(addNodeTitle, addNodeTitleCons);
+      addNodePanel.add(addNodeTitle, addNodeTitleCons);
 
       //node name
-      JLabel nodeNameTitle = new JLabel("Name:");
+      makeUserInputPanel("nodeName","Name: ", "Node name", addNodePanel, 0,1);
+      makeUserInputPanel("hashShare","Hash Share(%):", "50.0", addNodePanel, 0,3);
 
-      GridBagConstraints nodeNameTitleCons = new GridBagConstraints();
-      setCons(nodeNameTitleCons,0,1,1,1,GridBagConstraints.NONE,GridBagConstraints.LINE_END,10,10);
-      addNode.add(nodeNameTitle, nodeNameTitleCons);
 
-      nodeNameTextField = new JTextField("Node name");
-      nodeNameTextField.setColumns(10);
-      nodeNameTextField.addMouseListener(new MouseAdapter() {
-        @Override
-        public void mouseClicked(MouseEvent e) {
-          if (nodeNameTextFieldClear) {
-            nodeNameTextField.setText("");
-            nodeNameTextFieldClear = false;
-          }
-        }
+        JPanel addNodeFillerPanel = new JPanel();
+        addNodeFillerPanel.setPreferredSize(new Dimension(200,10));
 
-      });
-
-      GridBagConstraints nodeNameTextFieldCons = new GridBagConstraints();
-      setCons(nodeNameTextFieldCons,1,1,1,1,GridBagConstraints.NONE,GridBagConstraints.LINE_START,10,0);
-      addNode.add(nodeNameTextField, nodeNameTextFieldCons);
-
-      //hash share
-      JLabel hashShareTitle = new JLabel("Hash Share(%):");
-
-      GridBagConstraints hashShareTitleCons = new GridBagConstraints();
-      setCons(hashShareTitleCons,0,2,1,1,GridBagConstraints.NONE,GridBagConstraints.LINE_END,10,10);
-      addNode.add(hashShareTitle, hashShareTitleCons);
-
-        hashShareTextField = new JTextField(Double.toString(hashShareAvailable));
-        hashShareTextField.setColumns(10);
-        hashShareTextField.setText("50.0");
-        hashShareTextField.addMouseListener(new MouseAdapter() {
-        @Override
-        public void mouseClicked(MouseEvent e) {
-          if (hashShareTextFieldClear) {
-            hashShareTextField.setText("");
-            hashShareTextFieldClear = false;
-          }
-        }
-      });
-
-      GridBagConstraints hashShareTextFieldCons = new GridBagConstraints();
-      setCons(hashShareTextFieldCons,1,2,1,1,GridBagConstraints.NONE,GridBagConstraints.LINE_START,10,0);
-      addNode.add(hashShareTextField, hashShareTextFieldCons);
+        GridBagConstraints addNodeFillerPanelCons = new GridBagConstraints();
+        setCons(addNodeFillerPanelCons,0,4,4,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
+        addNodePanel.add(addNodeFillerPanel, addNodeFillerPanelCons);
 
       //buttons
       JPanel addNodeButtons = new JPanel();
@@ -179,8 +127,8 @@ public class Main {
           public void actionPerformed(ActionEvent e) {
             if(e.getSource() == addNodeButton) {
               addNode();
-              nodeNameTextField.setText("Node name");
-              hashShareTextField.setText(Double.toString(hashShareAvailable));
+              getTextField("nodeName").setText("Node name");
+              getTextField("hashShare").setText(Double.toString(hashShareAvailable));
               nodeNameTextFieldClear = true;
               globalHashShareTextFieldClear = true;
             }
@@ -209,20 +157,20 @@ public class Main {
         addNodeButtons.add(importButton);
 
       GridBagConstraints addNodeButtonsCons = new GridBagConstraints();
-      setCons(addNodeButtonsCons,0,4,2,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
-      addNode.add(addNodeButtons, addNodeButtonsCons);
+      setCons(addNodeButtonsCons,0,5,2,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
+      addNodePanel.add(addNodeButtons, addNodeButtonsCons);
 
-      JPanel addNodefillerPanel = new JPanel();
-      addNodefillerPanel.setPreferredSize(new Dimension(400,10));
+        JPanel addNodefillerPanel = new JPanel();
+        addNodefillerPanel.setPreferredSize(new Dimension(400,10));
 
-      GridBagConstraints addNodefillerPanelCons = new GridBagConstraints();
-      setCons(addNodefillerPanelCons,0,1,4,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
-      addNode.add(addNodefillerPanel, addNodefillerPanelCons);
+        GridBagConstraints addNodefillerPanelCons = new GridBagConstraints();
+        setCons(addNodefillerPanelCons,0,1,4,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
+        addNodePanel.add(addNodefillerPanel, addNodefillerPanelCons);
 
     //add to page
     GridBagConstraints addNodeCons = new GridBagConstraints();
     setCons(addNodeCons,0,3,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
-    page.add(addNode, addNodeCons);
+    page.add(addNodePanel, addNodeCons);
 
     //preview
     JPanel previewPanel = new JPanel();
@@ -298,6 +246,52 @@ public class Main {
     main.add(page);
     main.setVisible(true);
   }
+  private void makeUserInputPanel(String id, String labelText, String textFieldText, JPanel panelToAddTo, int x, int y) {
+    JPanel panel = new JPanel(new GridBagLayout());
+
+    JPanel labelPanel = new JPanel(new GridBagLayout());
+    labelPanel.setMinimumSize(new Dimension(200,20));
+    labelPanel.setPreferredSize(new Dimension(200,20));
+
+    GridBagConstraints labelPlacCons = new GridBagConstraints();
+    setCons(labelPlacCons,0,0,1,1,GridBagConstraints.NONE,GridBagConstraints.LINE_END,0,0);
+    JLabel label = new JLabel(labelText);
+    labelPanel.add(label, labelPlacCons);
+
+    GridBagConstraints labelCons = new GridBagConstraints();
+    setCons(labelCons,0,0,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
+    panel.add(labelPanel, labelCons);
+
+    JPanel textFieldPanel = new JPanel(new GridBagLayout());
+    textFieldPanel.setMinimumSize(new Dimension(200,20));
+    textFieldPanel.setPreferredSize(new Dimension(200,20));
+
+    GridBagConstraints textFieldPlacCons = new GridBagConstraints();
+    setCons(textFieldPlacCons,0,0,1,1,GridBagConstraints.NONE,GridBagConstraints.LINE_START,0,0);
+    JTextFieldWithID textField = new JTextFieldWithID(textFieldText, id);
+    textField.setColumns(8);
+    textFieldPanel.add(textField, textFieldPlacCons);
+    //add to array of input text fields
+    userInputTextFields.add(textField);
+
+    GridBagConstraints textFieldCons = new GridBagConstraints();
+    setCons(textFieldCons,1,0,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
+    panel.add(textFieldPanel, textFieldCons);
+
+    GridBagConstraints cons = new GridBagConstraints();
+    setCons(cons,x,y,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
+    panelToAddTo.add(panel, cons);
+
+  }
+  private JTextFieldWithID getTextField(String id) {
+    for (JTextFieldWithID textField : userInputTextFields) {
+      if (textField.id == id) {
+        return textField;
+      }
+    }
+    System.out.println("Invalid textField id given to getTextField()");
+    return null;
+  }
   private void constructInitNodeDispHolders() {
     initNodeDispHolderList = new ArrayList<JPanel>();
 
@@ -312,6 +306,78 @@ public class Main {
 
       initNodeDispHolderList.add(nodeDispHolder);
     }
+  }
+  private void makeTextFieldListeners() {
+    //update globalInfo when values change
+    getTextField("hashSize").getDocument().addDocumentListener(new DocumentListener() {
+        public void changedUpdate(DocumentEvent e) {
+          try {
+          changeHashSize();
+        } catch(NumberFormatException ex) {}
+        }
+        public void removeUpdate(DocumentEvent e) {
+          try {
+          changeHashSize();
+        } catch(NumberFormatException ex) {}
+        }
+        public void insertUpdate(DocumentEvent e) {
+          try {
+          changeHashSize();
+        } catch(NumberFormatException ex) {}
+        }
+        private void changeHashSize() {
+          globalInfo.setHashSize(Integer.parseInt(getTextField("hashSize").getText()));
+        }
+    });
+    getTextField("target").getDocument().addDocumentListener(new DocumentListener() {
+      public void changedUpdate(DocumentEvent e) {
+        try {
+        changeTarget();
+        } catch(NumberFormatException ex) {}
+      }
+      public void removeUpdate(DocumentEvent e) {
+        try {
+        changeTarget();
+        } catch(NumberFormatException ex) {}
+      }
+      public void insertUpdate(DocumentEvent e) {
+        try {
+        changeTarget();
+        return;
+        } catch(NumberFormatException ex) {}
+      }
+      private void changeTarget() {
+        globalInfo.setTarget(Integer.parseInt(getTextField("target").getText()));
+      }
+    });
+    getTextField("hashPerSec").addMouseListener(new MouseAdapter() {
+      @Override
+      public void mouseClicked(MouseEvent e) {
+        if (globalHashShareTextFieldClear) {
+          getTextField("hashPerSec").setText("");
+          globalHashShareTextFieldClear = false;
+        }
+      }
+    });
+    getTextField("nodeName").addMouseListener(new MouseAdapter() {
+      @Override
+      public void mouseClicked(MouseEvent e) {
+        if (nodeNameTextFieldClear) {
+          getTextField("nodeName").setText("");
+          nodeNameTextFieldClear = false;
+        }
+      }
+
+    });
+      getTextField("hashShare").addMouseListener(new MouseAdapter() {
+      @Override
+      public void mouseClicked(MouseEvent e) {
+        if (hashShareTextFieldClear) {
+          getTextField("hashShare").setText("");
+          hashShareTextFieldClear = false;
+        }
+      }
+    });
   }
   private void setCons(GridBagConstraints gridCons, int x, int y, int width, int height, int fill, int anchor, int ipadx, int ipady) {
     //method sets GridBagConstraints variables
@@ -344,15 +410,11 @@ public class Main {
 
   //add nodes
   public Node createNode(String name, String hashShare) {
-    Double mine_speed = (Double.parseDouble(hashShare)/100)*Double.parseDouble(globalHashShareTextField.getText());
+    Double mine_speed = (Double.parseDouble(hashShare)/100)*Double.parseDouble(getTextField("hashPerSec").getText());
     //create node
-    Node node = new Node(nodesList.size(),name,hashShare,mine_speed);
+    Node node = new Node(globalInfo,name,hashShare,mine_speed);
 
     return node;
-  }
-  private void addNodeToNodesList(Node node) {
-    //add to nodesList array
-    nodesList.add(node);
   }
   private void addNodeToPreview(Node node) {
     //if one of first 5 blocks, add to initNodeDispHolder panel with corresponding id
@@ -378,19 +440,19 @@ public class Main {
   }
   public void addNode() {
     //unavailable hashshare error catcher
-    if (hashShareAvailable < Double.parseDouble(hashShareTextField.getText())) {
+    if (hashShareAvailable < Double.parseDouble(getTextField("hashPerSec").getText())) {
       JOptionPane.showMessageDialog(main,hashShareAvailable+"% hash share left.","Error",JOptionPane.PLAIN_MESSAGE);
       return;
     }
-    Node node = createNode(nodeNameTextField.getText(), hashShareTextField.getText());
-    addNodeToNodesList(node);
+    Node node = createNode(getTextField("nodeName").getText(), getTextField("hashShare").getText());
+    globalInfo.addToNodesList(node);
     //recalculate available hash share form value
     refreshHashShareAvailble();
     addNodeToPreview(node);
   }
   private void addNodeFromImport(String name, String hashShare) {
     Node node = createNode(name, hashShare);
-    addNodeToNodesList(node);
+    globalInfo.addToNodesList(node);
     //recalculate available hash share form value
     refreshHashShareAvailble();
     addNodeToPreview(node);
@@ -398,9 +460,9 @@ public class Main {
 
   //nodesList methods
   public void removeNode(int id) {
-    for (Node node : nodesList) {
+    for (Node node : globalInfo.getNodesList()) {
       if (node.id == id) {
-        nodesList.remove(node);
+        globalInfo.removeFromNodesList(node);
         refreshNodesList();
         refreshPreview();
         refreshHashShareAvailble();
@@ -410,7 +472,7 @@ public class Main {
   }
   private void removeAllNodes() {
     //clear nodesLsit
-    nodesList.clear();
+    globalInfo.clearNodeList();
     //clear previewPanel
     previewScrollPanel.removeAll();
     refreshPreview();
@@ -418,9 +480,9 @@ public class Main {
   }
   public void refreshNodesList() {
     //purpose: when a node is removed, the id's of the remaining nodesList must be fixed
-    for (int i=0;i<nodesList.size();i++) {
+    for (int i=0;i<globalInfo.nodesListSize();i++) {
       //for each node, update id and re-make dispPanel with new id
-      Node node = nodesList.get(i);
+      Node node = globalInfo.getNodeFromNodesList(i);
       node.id = i;
       node.makeNodeDispPanel();
     }
@@ -430,8 +492,8 @@ public class Main {
   public void refreshPreview() {
     previewScrollPanel.removeAll();
     constructInitNodeDispHolders();
-    System.out.println("nodes list size: "+nodesList.size());
-    for (Node node : nodesList) {
+    System.out.println("nodes list size: "+globalInfo.nodesListSize());
+    for (Node node : globalInfo.getNodesList()) {
       //add to preview at row node.id
       addNodeToPreview(node);
     }
@@ -442,11 +504,11 @@ public class Main {
   //UI methods
   public void refreshHashShareAvailble() {
     Double hsAvailble = 100.0;
-    for (Node node : nodesList) {
+    for (Node node : globalInfo.getNodesList()) {
       hsAvailble = hsAvailble - Double.parseDouble(node.getHashShare());
     }
     hashShareAvailable = hsAvailble;
-    hashShareTextField.setText(Double.toString(hashShareAvailable));
+    getTextField("hashShare").setText(Double.toString(hashShareAvailable));
     System.out.println("hash share available: "+ hashShareAvailable);
   }
   private void importStats() {
@@ -530,27 +592,54 @@ public class Main {
     //send all nodes their nodesList
     //TODO add split chain option
 
-
-    // temp so entire list can be passed through, while iterating through original list
-    //also pass simulation object so nodes can use simulation methods
-    LinkedList<Node> nodesListTemp = this.nodesList;
-    for (Node node : nodesList) {
-      node.setNodesList(nodesListTemp);
+    //check for input errors
+    try {
+      int hashSize = Integer.parseInt(getTextField("hashSize").getText());
+      if (hashSize < 0) {
+        errorMsg("Hash size");
+        return;
+      }
+    } catch(NumberFormatException ex) {
+      errorMsg("Hash size");
+      return;
     }
-
+    try {
+      int hashSize = Integer.parseInt(getTextField("target").getText());
+      if (hashSize < 0) {
+        errorMsg("Target");
+        return;
+      }
+    } catch(NumberFormatException ex) {
+      errorMsg("Target");
+      return;
+    }
+    try {
+      int hashSize = Integer.parseInt(getTextField("hashPerSec").getText());
+      if (hashSize < 0) {
+        errorMsg("Global hashes per second");
+        return;
+      }
+    } catch(NumberFormatException ex) {
+      errorMsg("Global hashes per second");
+      return;
+    }
     //make simulation object
-    Simulation simulation = new Simulation(nodesList);
+    Simulation simulation = new Simulation(globalInfo);
 
     //add simulation object to nodes
-    for (Node node : nodesList) {
+    for (Node node : globalInfo.getNodesList()) {
       node.setSimulationObject(simulation);
     }
   }
-
+  private void errorMsg(String var) {
+    JOptionPane.showMessageDialog(null,
+      "Error: "+var+" must be an integer bigger than 0", "Error Message",
+      JOptionPane.ERROR_MESSAGE);
+  }
 
   public void removeNodeWindow() {
       //catch if nodesList is empty
-      int size = nodesList.size();
+      int size = globalInfo.nodesListSize();
       if (size==0) {
         JOptionPane.showMessageDialog(null,"No nodes to remove.","Remove Node",JOptionPane.WARNING_MESSAGE);
         return;
@@ -573,4 +662,12 @@ public class Main {
       }
       removeNode(inputValueInt);
     }
+
+  class JTextFieldWithID extends JTextField {
+    String id;
+    public JTextFieldWithID(String text, String id) {
+      super(text);
+      this.id = id;
+    }
+  }
 }
