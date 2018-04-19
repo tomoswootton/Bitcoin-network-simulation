@@ -51,12 +51,15 @@ public class Node {
     //testing only
     JFrame testFrame = new JFrame();
     testFrame.setSize(500,500);
+    testFrame.setLayout(new FlowLayout());
 
     Node testNode = new Node(0,"node-name","0.1", 10.0);
     JPanel testPanel = testNode.getDispPanel();
-
+    Node testNode2 = new Node(1,"node","0.1", 10.0);
+    JPanel testPanel2 = testNode2.getDispPanel();
 
     testFrame.add(testPanel);
+    testFrame.add(testPanel2);
     testFrame.setVisible(true);
   }
   public Node(int id, String name, String hash_share, Double mine_speed) {
@@ -249,10 +252,13 @@ public class Node {
       }
 
       JLabel nameLabel = new JLabel(name);
+      JPanel nameLabelPanel = new JPanel();
+      nameLabelPanel.add(nameLabel);
+      nameLabelPanel.setPreferredSize(new Dimension(100,40));
 
       GridBagConstraints namePanelCons = new GridBagConstraints();
       setCons(namePanelCons,0,0,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
-      nodeDispPanel.add(nameLabel, namePanelCons);
+      nodeDispPanel.add(nameLabelPanel, namePanelCons);
 
       JLabel idLabel = new JLabel(Integer.toString(this.id));
 

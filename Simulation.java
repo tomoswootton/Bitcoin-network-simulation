@@ -430,6 +430,7 @@ class JPanelBlockDisp extends JPanel{
   public void makeSplitLayout() {
     this.split = true;
 
+    this.removeAll();
     this.setPreferredSize(new Dimension(220,220));
     this.setLayout(new GridBagLayout());
     /*layout non split:
@@ -495,9 +496,9 @@ class JPanelBlockDisp extends JPanel{
 
       //split - split
     } else if (prevBlockSplit && split) {
-      System.out.println("split-split");
       g.drawLine(0,h/4,w/2,h/4);
       g.drawLine(0,3*(h/4),w/2,3*(h/4));
+
     }
 
     //end method here if panel is last in list

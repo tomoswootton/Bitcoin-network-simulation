@@ -467,9 +467,16 @@ public class Main {
         LinkedList<String> nodeNamesList = new LinkedList<String>();
         LinkedList<Double> hashShareList = new LinkedList<Double>();
 
+        //var stops after 10 entries
+        int lineNum = 0;
+        
         while((line = bufferedReader.readLine()) != null) {
             //dont process start and end of JSON
-            if(line.length() > 1) {
+            if(line.length() > 1 && lineNum < 11) {
+              System.out.println("lineNum: "+lineNum);
+              lineNum = lineNum + 1;
+              System.out.println("lineNum: "+lineNum);
+
               //find end of name in line
               int j = 3;
               while (line.charAt(j) != '\"') {
