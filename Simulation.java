@@ -297,7 +297,14 @@ public class Simulation {
 
   }
   public void addBlockToGlobalChain(Block block) {
-    //TODO add checks for consensus here
+    //if time between blocks too small, activate split code
+    //split(block1, block2)
+    //assign blocks randomly to nodes
+
+    //force split button can call split on two newly generated blocks
+
+
+
     addBlockToFoundList(block);
     //create holder panel
     addBlockHolderPanel();
