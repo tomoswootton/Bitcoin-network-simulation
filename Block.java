@@ -1,5 +1,7 @@
 import javax.swing.*;
+import javax.swing.event.*;
 import java.awt.*;
+import java.awt.event.*;
 import java.awt.GridBagLayout;
 
 class Block {
@@ -10,6 +12,8 @@ class Block {
   private String foundByNode;
   private int nonce;
   private String hash;
+  private long timeFound;
+  private double timeElapsed;
 
   private JPanel dispPanel;
 
@@ -52,6 +56,15 @@ class Block {
     }
     return this.dispPanel;
   }
+  public void setTimeElapsed(double time) {
+    this.timeElapsed = Double.parseDouble(Double.toString(time).substring(0,3));
+  }
+  public long getTimeFound() {
+    return this.timeFound;
+  }
+  public void setTimeFound(long time) {
+    this.timeFound = time;
+  }
 
   //methods
   public void newNonce() {
@@ -81,7 +94,49 @@ class Block {
     return formatted_hash;
   }
 
-  //TODO set node_name as paraemter
+  private void blockInfoDispPanel() {
+    JFrame blockInfoWindow = new JFrame();
+    blockInfoWindow.setPreferredSize(new Dimension(300,300));
+    blockInfoWindow.setMinimumSize(new Dimension(300,300));
+    blockInfoWindow.setLocationRelativeTo(null);
+    blockInfoWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+    blockInfoWindow.setTitle("Block "+this.id+" information");
+    blockInfoWindow.setAlwaysOnTop(true);
+    blockInfoWindow.setVisible(true);
+
+    JPanel mainPanel = new JPanel(new GridBagLayout());
+
+    JLabel heightLabel = new JLabel("Height: "+this.id);
+    GridBagConstraints heightLabelCons = new GridBagConstraints();
+    setCons(heightLabelCons,0,0,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
+    mainPanel.add(heightLabel, heightLabelCons);
+
+    JLabel hashLabel = new JLabel("Hash: "+this.hash);
+    GridBagConstraints hashLabelCons = new GridBagConstraints();
+    setCons(hashLabelCons,0,1,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
+    mainPanel.add(hashLabel, hashLabelCons);
+
+    JLabel nonceLabel = new JLabel("Nonce: "+this.nonce);
+    GridBagConstraints nonceLabelCons = new GridBagConstraints();
+    setCons(nonceLabelCons,0,2,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
+    mainPanel.add(nonceLabel, nonceLabelCons);
+    blockInfoWindow.add(mainPanel);
+
+    JLabel prevBlockHashLabel = new JLabel("Previous block hash: "+this.prevBlockHash);
+    GridBagConstraints prevBlockHashLabelCons = new GridBagConstraints();
+    setCons(prevBlockHashLabelCons,0,3,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
+    mainPanel.add(prevBlockHashLabel, prevBlockHashLabelCons);
+
+    JLabel foundByLabel = new JLabel("Found by: "+this.foundByNode);
+    GridBagConstraints foundByLabelCons = new GridBagConstraints();
+    setCons(foundByLabelCons,0,4,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
+    mainPanel.add(foundByLabel, foundByLabelCons);
+
+    JLabel timeElapsedLabel = new JLabel("Time elapsed: "+this.timeElapsed+"s");
+    GridBagConstraints timeElapsedLabelCons = new GridBagConstraints();
+    setCons(timeElapsedLabelCons,0,5,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
+    mainPanel.add(timeElapsedLabel, timeElapsedLabelCons);
+  }
   private void makeDispPanel() {
     dispPanel = new JPanel();
     dispPanel.setBorder(BorderFactory.createLineBorder(Color.black));
@@ -89,44 +144,37 @@ class Block {
     dispPanel.setLayout(new GridBagLayout());
     dispPanel.setPreferredSize(new Dimension(90,90));
 
-    JLabel block_id_label = new JLabel("Id "+this.id);
+    JLabel block_id_label = new JLabel(this.id);
 
     GridBagConstraints block_id_label_cons = new GridBagConstraints();
     setCons(block_id_label_cons,0,0,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
     dispPanel.add(block_id_label, block_id_label_cons);
 
-    JLabel node_name_label_1 = new JLabel("Found By:");;
+    JLabel elapsed_label = new JLabel("Elapsed: ");
 
-    GridBagConstraints node_name_label_1_cons = new GridBagConstraints();
-    setCons(node_name_label_1_cons,0,1,1,1,GridBagConstraints.NONE,GridBagConstraints.SOUTH,0,0);
-    dispPanel.add(node_name_label_1, node_name_label_1_cons);
+    GridBagConstraints elapsed_label_cons = new GridBagConstraints();
+    setCons(elapsed_label_cons,0,3,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
+    dispPanel.add(elapsed_label, elapsed_label_cons);
 
-    JLabel node_name_label_2 = new JLabel(foundByNode);
+    JLabel elapsed2_label = new JLabel(this.timeElapsed+"s");
 
-    GridBagConstraints node_name_label_2_cons = new GridBagConstraints();
-    setCons(node_name_label_2_cons,0,2,1,1,GridBagConstraints.NONE,GridBagConstraints.NORTH,0,0);
-    dispPanel.add(node_name_label_2, node_name_label_2_cons);
+    GridBagConstraints elapsed2_label_cons = new GridBagConstraints();
+    setCons(elapsed2_label_cons,0,4,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
+    dispPanel.add(elapsed2_label, elapsed2_label_cons);
 
-    JLabel hash_label = new JLabel("Hash: "+this.hash);
 
-    GridBagConstraints hash_label_cons = new GridBagConstraints();
-    setCons(hash_label_cons,0,3,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
-    dispPanel.add(hash_label, hash_label_cons);
+    JButton infoButton = new JButton("info");
+    infoButton.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        if(e.getSource() == infoButton) {
+          blockInfoDispPanel();
+        }
+      }
+    });
 
-    // JButton infoButton = new JButton("Info");
-    //
-    // JButton infoButton = new JButton("info");
-    // infoButton.addActionListener(new ActionListener() {
-    //   public void actionPerformed(ActionEvent e) {
-    //     if(e.getSource() == infoButton) {
-    //       blockInfoDispPanel();
-    //     }
-    //   }
-    // });
-
-    // GridBagConstraints infoButtonCons = new GridBagConstraints();
-    // setCons(infoButtonCons, 0,4,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
-    // chainPanel.add(infoButton, infoButtonCons);
+    GridBagConstraints infoButtonCons = new GridBagConstraints();
+    setCons(infoButtonCons, 0,5,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
+    dispPanel.add(infoButton, infoButtonCons);
   }
 
   public void setCons(GridBagConstraints gridCons, int x, int y, int width, int height, int fill, int anchor, int ipadx, int ipady) {

@@ -81,7 +81,7 @@ public class Main {
 
       //add input boxes
       makeUserInputPanel("hashSize","Maximum hash value: ", "10000", settingsPanel,0,1);
-      makeUserInputPanel("target","Target: ", "800", settingsPanel, 0,2);
+      makeUserInputPanel("target","Target: ", "1000", settingsPanel, 0,2);
       makeUserInputPanel("hashPerSec","Global Hashes per second: ", "1", settingsPanel, 0,3);
 
         JPanel settingsfillerPanel = new JPanel();

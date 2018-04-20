@@ -1,9 +1,12 @@
 import java.util.LinkedList;
+import java.util.Date;
 
 class GlobalInfo {
   //class holds data that all others may require
   int hashSize;
   int target;
+  Date date = new Date();;
+
   private LinkedList<Node> nodesList = new LinkedList<Node>();
 
   public GlobalInfo(int hashSize, int target) {
@@ -39,5 +42,8 @@ class GlobalInfo {
   }
   public void setTarget(int target) {
     this.target = target;
+  }
+  public long getTime() {
+    return this.date.getTime();
   }
 }

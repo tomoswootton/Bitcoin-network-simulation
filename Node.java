@@ -175,6 +175,8 @@ public class Node {
     return false;
   }
   private void blockFound(String hash) {
+    //set time found
+    workingBlock.setTimeFound(globalInfo.getTime());
     //add to preview
     addToLog("\nValid hash found: "+hash+"\n");
     //add block to chain

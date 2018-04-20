@@ -297,13 +297,16 @@ public class Simulation {
 
   }
   public void addBlockToGlobalChain(Block block) {
+    //set blocks timeElasped var
+    if (block.id > 0) {
+      block.setTimeElapsed(((double) globalInfo.getTime() - (double)  blocksFoundList.get(block.id-1).getTimeFound())/1000);
+    }
+
     //if time between blocks too small, activate split code
     //split(block1, block2)
     //assign blocks randomly to nodes
 
     //force split button can call split on two newly generated blocks
-
-
 
     addBlockToFoundList(block);
     //create holder panel

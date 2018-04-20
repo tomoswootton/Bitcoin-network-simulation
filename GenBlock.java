@@ -9,6 +9,7 @@ class GenBlock extends Block {
   public GenBlock(GlobalInfo globalInfo, int id, String prevBlockHash, String foundByNode) {
     super(globalInfo, id, prevBlockHash, foundByNode);
     this.id = 0;
+    this.setTimeFound(globalInfo.getTime());
   }
 
   public JPanel getDispPanel() {
