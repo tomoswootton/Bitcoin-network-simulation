@@ -44,6 +44,7 @@ class GlobalInfo {
     this.target = target;
   }
   public long getTime() {
+    date = new Date();
     return this.date.getTime();
   }
 }

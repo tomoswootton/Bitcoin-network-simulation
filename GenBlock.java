@@ -9,7 +9,8 @@ class GenBlock extends Block {
   public GenBlock(GlobalInfo globalInfo, int id, String prevBlockHash, String foundByNode) {
     super(globalInfo, id, prevBlockHash, foundByNode);
     this.id = 0;
-    this.setTimeFound(globalInfo.getTime());
+    //set at 0 so no split happens with genesis
+    this.setTimeFound(0);
   }
 
   public JPanel getDispPanel() {

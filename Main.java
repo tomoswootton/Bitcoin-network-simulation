@@ -509,7 +509,6 @@ public class Main {
     }
     hashShareAvailable = hsAvailble;
     getTextField("hashShare").setText(Double.toString(hashShareAvailable));
-    System.out.println("hash share available: "+ hashShareAvailable);
   }
   private void importStats() {
     //methods reads imported stats from JSON

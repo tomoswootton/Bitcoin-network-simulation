@@ -9,7 +9,7 @@ class Block {
 
   public int id;
   private String prevBlockHash;
-  private String foundByNode;
+  private String foundBy;
   private int nonce;
   private String hash;
   private long timeFound;
@@ -21,12 +21,12 @@ class Block {
   public static void main(String[] args) {
     // new Block(1,"3455", "node name");
   }
-  public Block(GlobalInfo globalInfo, int id, String prevBlockHash, String foundByNode) {
+  public Block(GlobalInfo globalInfo, int id, String prevBlockHash, String foundBy) {
     this.globalInfo = globalInfo;
     this.id = id;
     //prevBlockHash of nodes chain
     this.prevBlockHash = prevBlockHash;
-    this.foundByNode = foundByNode;
+    this.foundBy = foundBy;
     newNonce();
     this.genHash();
 
@@ -43,6 +43,9 @@ class Block {
   //getters and setters
   public String getPrevBlockHash() {
     return this.prevBlockHash;
+  }
+  public void setPrevBlockHash(String prevBlockHash) {
+    this.prevBlockHash = prevBlockHash;
   }
   public int getNonce() {
     return this.nonce;
@@ -64,6 +67,12 @@ class Block {
   }
   public void setTimeFound(long time) {
     this.timeFound = time;
+  }
+  public String getFoundBy() {
+    return this.foundBy;
+  }
+  public void reduceID() {
+    this.id = this.id - 1;
   }
 
   //methods
@@ -127,7 +136,7 @@ class Block {
     setCons(prevBlockHashLabelCons,0,3,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
     mainPanel.add(prevBlockHashLabel, prevBlockHashLabelCons);
 
-    JLabel foundByLabel = new JLabel("Found by: "+this.foundByNode);
+    JLabel foundByLabel = new JLabel("Found by: "+this.foundBy);
     GridBagConstraints foundByLabelCons = new GridBagConstraints();
     setCons(foundByLabelCons,0,4,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
     mainPanel.add(foundByLabel, foundByLabelCons);
@@ -144,7 +153,7 @@ class Block {
     dispPanel.setLayout(new GridBagLayout());
     dispPanel.setPreferredSize(new Dimension(90,90));
 
-    JLabel block_id_label = new JLabel(this.id);
+    JLabel block_id_label = new JLabel(""+this.id);
 
     GridBagConstraints block_id_label_cons = new GridBagConstraints();
     setCons(block_id_label_cons,0,0,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);

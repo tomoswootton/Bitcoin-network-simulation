@@ -167,6 +167,11 @@ public class Node {
   private void setNewWorkingBlock() {
     workingBlock = new Block(globalInfo, getChainSize(), getChainLastElement().getHash(), name);
   }
+  public void setWorkingBlock(Block block) {
+    //method replaces block node is working on with parameter node
+    this.workingBlock = block;
+    System.out.println("working block changed to block "+block.id);
+  }
   private Boolean checkHash(String hash) {
     //nonce must by less than 4 digits
     if (Integer.parseInt(hash) < globalInfo.getTarget()) {
@@ -184,22 +189,12 @@ public class Node {
     addBlockToChain(workingBlock);
     //propogate
     addToLog("Propogating across network..\n");
-    propogateBlock(workingBlock);
+    simulation.addBlockToGlobalChain(workingBlock);
     //start on new block
     addToLog("Find new block. id: "+getChainSize()+"\n\n");
     //update nodeDispPanel
     blocks_mined += 1;
     blocksMinedLabel.setText(Integer.toString(blocks_mined));
-  }
-  private void propogateBlock(Block block) {
-    //send block to all nodes in network, apart from self
-    for (Node node : globalInfo.getNodesList()) {
-      if (node.id != this.id) {
-        node.receiveBlock(block);
-      }
-    }
-    //add to simulation window
-    simulation.addBlockToGlobalChain(workingBlock);
   }
   public void receiveBlock(Block block) {
     //pause mining for execution of new block code
