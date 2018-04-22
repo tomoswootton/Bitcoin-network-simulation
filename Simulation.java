@@ -13,6 +13,8 @@ public class Simulation {
 
   // page variables
   Boolean running = false;
+  Boolean inLatency = false;
+  Boolean timerBool = false;
 
   JPanel page;
   JPanel nodesPanel;
@@ -237,6 +239,7 @@ public class Simulation {
         //add genesis block
         GenBlock genBlock = new GenBlock(globalInfo,0,"1234", null);
         addBlockToGlobalChain(genBlock);
+        addBlockToFoundList(genBlock);
 
       GridBagConstraints chainPanelCons = new GridBagConstraints();
       setCons(chainPanelCons, 0,2,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
@@ -247,7 +250,15 @@ public class Simulation {
     addFakeBlockButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
         if(e.getSource() == addFakeBlockButton) {
-          Block fakeBlock = new Block(globalInfo, blocksFoundList.size(), getCurrentBlockPanel().block.getHash(), "None");
+          Block prevBlock;
+          JPanelBlockDisp prevPanel = blockDispHolderList.get(getCurrentBlockPanel().id);
+          String prevBlockHash;
+          if (prevPanel.split) {
+            prevBlockHash = prevPanel.block1.getHash();
+          } else {
+            prevBlockHash = prevPanel.block.getHash();
+          }
+          Block fakeBlock = new Block(globalInfo, blocksFoundList.size(), prevBlockHash, "None");
           addBlockToGlobalChain(fakeBlock);
         }
       }
@@ -298,21 +309,20 @@ public class Simulation {
   }
   private void splitChain(Block block) {
     System.out.println("Chain Split. block "+block.id);
-    //lower id to correct value
-    block.reduceID();
-    block.getDispPanel().repaint();
-    block.getDispPanel().revalidate();
+    //var lets other blocks build on split chain
+    inLatency = false;
 
     //make currenct panel split, removing previous block
     JPanelBlockDisp current = getCurrentBlockPanel();
-    current.makeSplitLayout(block, blocksFoundList.get(block.id));
+    current.makeSplitLayout();
 
     //add previous block and newly found block to split panel
-    addBlocksToSplitPanel(blocksFoundList.get(block.id),block);
+    addBlocksToSplitPanel(getCurrentBlockPanel().block,block);
 
     current.revalidate();
     current.repaint();
 
+    //send blocks across network
     shuffleSplitBlocksBetweenNodes();
 
     pushScrollBarToRight(chainScrollPane, chainScrollPanel);
@@ -364,7 +374,7 @@ public class Simulation {
       double timeElapsedSec = (double) timeElapsedMiliSec/1000;
       block.setTimeElapsed(timeElapsedSec);
       block.setTimeFound(globalInfo.getTime());
-      if (timeElapsedSec < 2) {
+      if (inLatency) {
         splitChain(block);
         return;
       }
@@ -372,19 +382,42 @@ public class Simulation {
       if (blockDispHolderList.get(getCurrentBlockPanel().id).split) {
         blockDispHolderList.get(getCurrentBlockPanel().id).setWinnerBlock(block.getPrevBlockHash());
       }
-    }
 
     System.out.println("Adding block "+block.id+" to found list and contstructing panel");
-    //add to global chain
-    addBlockToFoundList(block);
-    //update other nodes
-    propogateBlock(block);
     //create holder panel
     addBlockHolderPanel();
     addBlockToHolderPanel(block);
-
-
     pushScrollBarToRight(chainScrollPane, chainScrollPanel);
+
+    //wait for splitDelay seconds before propogating
+    inLatency = true;
+    timerBool = true;
+    // System.out.println("in latency");
+    Timer timer = new Timer();
+    timer.scheduleAtFixedRate(new TimerTask() {
+      @Override
+      public void run() {
+        //run through once, wait 2 seconds
+        if (timerBool) {
+          timerBool = false;
+          return;
+        }
+        inLatency = false;
+        // System.out.println("out of latency");
+        propogateBlock(block);
+        timer.cancel();
+        timer.purge();
+        }
+      }, 0, 2000);
+      //if gen block
+    } else {
+      System.out.println("Adding block "+block.id+" to found list and contstructing panel");
+      //create holder panel
+      addBlockHolderPanel();
+      addBlockToHolderPanel(block);
+      pushScrollBarToRight(chainScrollPane, chainScrollPanel);
+    }
+
   }
   private void addBlockToFoundList(Block block) {
     blocksFoundList.add(block);
@@ -405,6 +438,8 @@ public class Simulation {
     }
   }
   private void propogateBlock(Block block) {
+    //add to global chain
+    addBlockToFoundList(block);
     //send block to all nodes in network, apart from self
     for (Node node : globalInfo.getNodesList()) {
       if (node.getName() != block.getFoundBy()) {
@@ -506,11 +541,8 @@ class JPanelBlockDisp extends JPanel{
     this.add(buffer3, cons3);
   }
 
-  public void makeSplitLayout(Block block1, Block block2) {
+  public void makeSplitLayout() {
     this.split = true;
-
-    this.block1 = block1;
-    this.block2 = block2;
 
     this.removeAll();
     this.setPreferredSize(new Dimension(220,220));
@@ -623,6 +655,9 @@ class JPanelBlockDisp extends JPanel{
     occupied = true;
   }
   public void addBlockDispPanel(Block block1, Block block2) {
+    this.block1 = block1;
+    this.block2 = block2;
+
     GridBagConstraints cons1 = new GridBagConstraints();
     setCons(cons1,0,0,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
     buffer1.add(block1.getDispPanel(), cons1);

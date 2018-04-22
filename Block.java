@@ -53,6 +53,9 @@ class Block {
   public String getHash() {
     return this.hash;
   }
+  public void setHash(String hash) {
+    this.hash = hash;
+  }
   public JPanel getDispPanel() {
     if (dispPanel == null) {
       makeDispPanel();
@@ -70,9 +73,6 @@ class Block {
   }
   public String getFoundBy() {
     return this.foundBy;
-  }
-  public void reduceID() {
-    this.id = this.id - 1;
   }
 
   //methods
