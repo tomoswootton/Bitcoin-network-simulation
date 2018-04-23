@@ -53,6 +53,10 @@ public class Simulation {
     makePage();
   }
 
+  public LinkedList<Block> getBlocksFoundList() {
+    return this.blocksFoundList;
+  }
+
   //JSwing stuff
   private void makePage() {
 
@@ -88,11 +92,9 @@ public class Simulation {
           if (running) {
             startPauseButton.setText("Start");
             run(false);
-            running = false;
           } else {
             startPauseButton.setText("Pause");
             run(true);
-            running = true;
           }
         }
       }
@@ -250,13 +252,13 @@ public class Simulation {
     addFakeBlockButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
         if(e.getSource() == addFakeBlockButton) {
-          Block prevBlock;
-          JPanelBlockDisp prevPanel = blockDispHolderList.get(getCurrentBlockPanel().id);
           String prevBlockHash;
-          if (prevPanel.split) {
-            prevBlockHash = prevPanel.block1.getHash();
+          //if in split
+          if (inLatency) {
+            //use prev panel block
+            prevBlockHash = blockDispHolderList.get(getCurrentBlockPanel().id-1).block.getHash();
           } else {
-            prevBlockHash = prevPanel.block.getHash();
+            prevBlockHash = blockDispHolderList.get(getCurrentBlockPanel().id).block.getHash();
           }
           Block fakeBlock = new Block(globalInfo, blocksFoundList.size(), prevBlockHash, "None");
           addBlockToGlobalChain(fakeBlock);
@@ -368,6 +370,7 @@ public class Simulation {
     return panel;
   }
   public void addBlockToGlobalChain(Block block) {
+    
     //set blocks timeElasped var and check for split
     if (block.id > 0) {
       long timeElapsedMiliSec = ((globalInfo.getTime() - blocksFoundList.get(block.id-1).getTimeFound()));
@@ -382,31 +385,29 @@ public class Simulation {
       if (blockDispHolderList.get(getCurrentBlockPanel().id).split) {
         blockDispHolderList.get(getCurrentBlockPanel().id).setWinnerBlock(block.getPrevBlockHash());
       }
-
-    System.out.println("Adding block "+block.id+" to found list and contstructing panel");
-    //create holder panel
-    addBlockHolderPanel();
-    addBlockToHolderPanel(block);
-    pushScrollBarToRight(chainScrollPane, chainScrollPanel);
-
-    //wait for splitDelay seconds before propogating
-    inLatency = true;
-    timerBool = true;
-    // System.out.println("in latency");
-    Timer timer = new Timer();
-    timer.scheduleAtFixedRate(new TimerTask() {
-      @Override
-      public void run() {
-        //run through once, wait 2 seconds
-        if (timerBool) {
-          timerBool = false;
-          return;
-        }
-        inLatency = false;
-        // System.out.println("out of latency");
-        propogateBlock(block);
-        timer.cancel();
-        timer.purge();
+      
+      //create holder panel
+      addBlockHolderPanel();
+      addBlockToHolderPanel(block);
+      pushScrollBarToRight(chainScrollPane, chainScrollPanel);
+      
+      //wait for splitDelay seconds before propogating
+      inLatency = true;
+      timerBool = true;
+      // System.out.println("in latency");
+      Timer timer = new Timer();
+      timer.scheduleAtFixedRate(new TimerTask() {
+        @Override
+        public void run() {
+          //run through once, wait 2 seconds
+          if (timerBool) {
+            timerBool = false;
+            return;
+          }
+          inLatency = false;
+          timer.cancel();
+          timer.purge();
+          propogateAndAddBlock(block);
         }
       }, 0, 2000);
       //if gen block
@@ -418,6 +419,21 @@ public class Simulation {
       pushScrollBarToRight(chainScrollPane, chainScrollPanel);
     }
 
+  }
+  private void propogateAndAddBlock(Block block) {
+    //pause mining so block can be processed and propogated
+    globalRun(false);
+    //add block to network
+    propogateBlock(block);
+    System.out.println("Adding block " + block.id + " to found list and contstructing panel");
+ 
+    System.out.println("all ndoes should be at even height here.");
+    for (Node node : globalInfo.getNodesList()) {
+      System.out.println(node.getChainSize());
+    }
+    System.out.println();
+    //restart mining
+    globalRun(true);
   }
   private void addBlockToFoundList(Block block) {
     blocksFoundList.add(block);
@@ -440,14 +456,14 @@ public class Simulation {
   private void propogateBlock(Block block) {
     //add to global chain
     addBlockToFoundList(block);
-    //send block to all nodes in network, apart from self
+    //send block to all nodes in network
     for (Node node : globalInfo.getNodesList()) {
-      if (node.getName() != block.getFoundBy()) {
-        node.receiveBlock(block);
-      }
+      node.receiveBlock(block);
     }
   }
+
   public void run(Boolean state) {
+    running = state;
     Timer timer = new Timer();
     if (state) {
       System.out.println("Simulation started");
@@ -458,9 +474,8 @@ public class Simulation {
       public void run() {
         //if final node is not running
         for (Node node : globalInfo.getNodesList()) {
-          if (!node.runningState) {
+          if (!node.getRunningState()) {
             System.out.println("starting node "+node.getName());
-            node.runningState = state;
             node.mine(state);
             return;
           }
@@ -476,14 +491,19 @@ public class Simulation {
     timer.purge();
     for (Node node : globalInfo.getNodesList()) {
       System.out.println("stopping node");
-      node.runningState = state;
       node.mine(state);
     }
     }
   }
 
+  private void globalRun(boolean state) {
+    for (Node node : globalInfo.getNodesList()) {
+      node.setRunningState(state);
+    }
+  }
 
 class JPanelBlockDisp extends JPanel{
+  private static final long serialVersionUID = 1L;
   JPanel buffer1;
   JPanel buffer2; //panel holds block
   JPanel buffer3;
@@ -585,67 +605,119 @@ class JPanelBlockDisp extends JPanel{
     g.setStroke(new BasicStroke(2));
 
 
-    //if first panel
-    if (id == 0 ) {
-      //draw line beginning in middle to middle gridheight
-      g.drawLine(h/2,h/2,w,h/2);
+    //catch first panel
+    if (id == 0) {
+      if (getCurrentBlockPanel().id > 0) {  
+      g.drawLine(w / 2, h / 2, w + 10, h / 2);            
+      }
       return;
     }
-
+    
     //paint first half
-    Boolean prevBlockSplit = blockDispHolderList.get(id-1).split;
-
+    JPanelBlockDisp prevBlockPanel = blockDispHolderList.get(id-1);
+    
     //individual - individual
     if (!split) {
       //draw line through center
       g.drawLine(0,h/2,w/2,h/2);
-
+      
       //individual - split
-    } else if (!prevBlockSplit && split) {
+    } else if (!prevBlockPanel.split && split) {
       //draw lines that split from middle
       g.drawLine(0,h/2,w/4,3*(h/4));
       g.drawLine(0,h/2,w/4,h/4);
       g.drawLine(w/4,3*(h/4),w/2,3*(h/4));
       g.drawLine(w/4,h/4,w/2,h/4);
-
+      
       //split - split
-    } else if (prevBlockSplit && split) {
-      g.drawLine(0,h/4,w/2,h/4);
-      g.drawLine(0,3*(h/4),w/2,3*(h/4));
-
+    } else if (prevBlockPanel.split && split) {
+      String prevBlock1Hash = prevBlockPanel.block1.getHash();
+      String prevBlock2Hash = prevBlockPanel.block2.getHash();
+      //check each circumstance
+      //if follow from block1
+      if (this.block1.getPrevBlockHash() == prevBlock1Hash) {
+        System.out.println("block1 to block1");
+        g.drawLine(0,h/4,w/2,h/4);
+      }
+      if (this.block1.getPrevBlockHash() == prevBlock2Hash) {
+        System.out.println("block1 to block2");
+        g.drawLine(0,h/2,w/4,h/4);
+        g.drawLine(w/4,h/4,w/2,h/4);
+      }
+      //if follow from block2
+      if (this.block2.getPrevBlockHash() == prevBlock1Hash) {
+        System.out.println("block2 to block1");
+        g.drawLine(0,h/2,w/4,3*(h/4));
+        g.drawLine(w/4,3*(h/4),w/2,3*(h/4));
+      }
+      if (this.block2.getPrevBlockHash() == prevBlock2Hash) {
+        System.out.println("block2 to block2");
+        g.drawLine(0,h/4,w/2,h/4);
+      }
     }
-
+    
     //end method here if panel is last in list
-    if (blocksFoundList.get(blocksFoundList.size()-1).id == id) {
+    try {
+      if (!blockDispHolderList.get(this.id+1).isOccupied()) {
+        return;
+      }
+    } catch (IndexOutOfBoundsException ex) {
       return;
     }
-
+    
     //paint second half
-
+    
     //the remaining code is called on the second to last panel in the list
-    Boolean nextBlockSplit = blockDispHolderList.get(id+1).split;
+    JPanelBlockDisp nextBlockPanel = blockDispHolderList.get(id+1);
     //individual - individual
     if (!split) {
       //draw line through center
-      g.drawLine(w/2,h/2,w+10,h/2);
-
+      g.drawLine(w/2,h/2,w,h/2);
+      
       //split - individual
-    } else if (!nextBlockSplit){
-      if (this.block == this.block1){
+    } else if (!nextBlockPanel.split){
+      //decide where to draw lines
+      if (this.block1.getHash() == nextBlockPanel.block.getPrevBlockHash()){
         //draw lines that close split
+        g.drawLine(w/2,h/4,3*(w/4),h/4);
+        g.drawLine(3*(w/4),h/4,w,h/2);
+      } else {
         g.drawLine(w/2,3*(h/4),3*(w/4),3*(h/4));
         g.drawLine(3*(w/4),3*(h/4),w,h/2);
-      } else {
+      }
+      //split - split
+    } else if (nextBlockPanel.split) {
+      String nextBlock1PrevHash = nextBlockPanel.block1.getPrevBlockHash();
+      String nextBlock2PrevHash = nextBlockPanel.block2.getPrevBlockHash();
+      //flip blocks in nextBlockPanel if necessary
+      if ((this.block1.getHash() == nextBlock2PrevHash) && (this.block2.getHash() == nextBlock1PrevHash)){
+        //flip blocks
+        addBlockDispPanel(this.block2, this.block1);
+        //reload variables
+        nextBlockPanel = blockDispHolderList.get(id + 1);
+        nextBlock1PrevHash = nextBlockPanel.block1.getPrevBlockHash();
+        nextBlock2PrevHash = nextBlockPanel.block2.getPrevBlockHash();
+      } 
+      //check each circumstance
+      //if follow from block1
+      if (this.block1.getHash() == nextBlock1PrevHash) {
+        g.drawLine(w/2,h/4,w,h/4);
+      }
+      if (this.block1.getHash() == nextBlock2PrevHash) {
         g.drawLine(w/2,h/4,3*(w/4),h/4);
         g.drawLine(3*(w/4),h/4,w,h/2);
       }
-      //split - split
-    } else if (nextBlockSplit) {
-      g.drawLine(w/2,3*(h/4),w,3*(h/4));
-      g.drawLine(w/2,h/4,w,h/4);
+      //if follow from block2
+      if (this.block2.getHash() == nextBlock1PrevHash) {
+        g.drawLine(w/2,3*(h/4),3*(w/4),3*(h/4));
+        g.drawLine(3*(w/4),3*(h/4),w,h/2);
+      }
+      if (this.block2.getHash() == nextBlock2PrevHash) {
+        g.drawLine(w/2,3*(h/4),w,3*(h/4));
+      }
     }
   }
-
+  
   public void addBlockDispPanel(Block block) {
     this.block = block;
     GridBagConstraints cons = new GridBagConstraints();
@@ -695,14 +767,5 @@ class JPanelBlockDisp extends JPanel{
     gridCons.weightx = 0.2;
     gridCons.weighty = 0.2;
   }
-
-  private void setCons(GridBagConstraints gridCons,int x,int y,int width,int height,int fill,int anchor,int ipadx,int ipady,int weightx,int weighty) {
-    //extra method for if weight option is wanted
-
-    setCons(gridCons,x,y,width,height,fill,anchor,ipadx,ipady);
-    gridCons.weightx = weightx;
-    gridCons.weighty = weighty;
-  }
-
 }
 }

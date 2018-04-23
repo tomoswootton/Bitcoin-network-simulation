@@ -589,7 +589,6 @@ public class Main {
   }
   private void startSimulation() {
     //send all nodes their nodesList
-    //TODO add split chain option
 
     //check for input errors
     try {
@@ -662,8 +661,10 @@ public class Main {
       removeNode(inputValueInt);
     }
 
+
   class JTextFieldWithID extends JTextField {
-    String id;
+    private static final long serialVersionUID = 1L;
+	  String id;
     public JTextFieldWithID(String text, String id) {
       super(text);
       this.id = id;

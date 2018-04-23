@@ -27,9 +27,6 @@ public class Node {
   int blocks_mined;
   int hashSize;
 
-  //list of nodes in network
-  LinkedList<Node> nodesList;
-
   // nodes version of chain
   LinkedList<Block> chain = new LinkedList<Block>();
 
@@ -41,7 +38,7 @@ public class Node {
   Timer timer;
   int timerExecutionTime;
   //stores true if node is mining
-  Boolean runningState = false;
+  private Boolean runningState = false;
 
   //log disp window
   TextArea logDispTextArea = new TextArea("",8,38,TextArea.SCROLLBARS_BOTH);
@@ -72,7 +69,6 @@ public class Node {
     this.hash_share = hash_share;
     this.mine_speed = mine_speed;
     this.blocks_mined = 0;
-    this.hashSize = hashSize;
     makeNodeDispPanel();
 
     //init chain with genesis block
@@ -93,9 +89,6 @@ public class Node {
   }
 
   //getter and setters
-  public void setNodesList(LinkedList<Node> nodesList) {
-    this.nodesList = nodesList;
-  }
   public void setSimulationObject(Simulation simulation) {
     this.simulation = simulation;
   }
@@ -125,6 +118,10 @@ public class Node {
   }
   private void addBlockToChain(Block block) {
     chain.add(block);
+    //if chain behind, get global chain from simulation
+    if (chain.size() == block.id) {
+      chain = simulation.getBlocksFoundList();
+    }
   }
   public JPanel getDispPanel() {
     return this.nodeDispPanel;
@@ -132,6 +129,21 @@ public class Node {
   public JPanel getLogPanel() {
     return this.logDispPanel;
   }
+  public LinkedList<Block> getChain() {
+    return this.chain;
+  }
+  public void setChain(LinkedList<Block> chain) {
+    this.chain = chain;
+  }
+  public void setRunningState(boolean state) {
+    if (runningState != state) {
+      runningState = state;
+    }
+  }
+  public boolean getRunningState() {
+    return this.runningState;
+  }
+
 
   //log methods
   private void addToLog(String string) {
@@ -149,7 +161,7 @@ public class Node {
 
   //mine methods
   public void mine(Boolean state) {
-
+    setRunningState(state);
     //dont start timer if no mine speed, otherwise run() will be run once
     if (mine_speed == 0.0) {
       return;
@@ -179,28 +191,22 @@ public class Node {
     }
     return false;
   }
-  private void blockFound(String hash) {
+  private void blockFound() {
     //set time found
     workingBlock.setTimeFound(globalInfo.getTime());
     //add to preview
-    addToLog("\nValid hash found: "+hash+"\n");
-    //add block to chain
-    addToLog("Adding block to chain..\n");
-    addBlockToChain(workingBlock);
+    addToLog("\nValid hash found: "+workingBlock.getHash()+"\n");
     //propogate
     addToLog("Propogating across network..\n");
     simulation.addBlockToGlobalChain(workingBlock);
-    //start on new block
-    addToLog("Find new block. id: "+getChainSize()+"\n\n");
     //update nodeDispPanel
     blocks_mined += 1;
     blocksMinedLabel.setText(Integer.toString(blocks_mined));
   }
   public void receiveBlock(Block block) {
-    //pause mining for execution of new block code
-    this.mine(false);
-
-    addToLog("\nBlock received. Hash: "+block.getHash()+".\n");
+    if (block.getFoundBy() != this.name) {
+      addToLog("\nBlock found by: "+block.getFoundBy()+".\n");
+    }
     //check block hash is valid
     if (!checkHash(block.getHash())) {
       addToLog("Invalid block, return to mine block id: "+getChainSize()+"\n");
@@ -212,8 +218,6 @@ public class Node {
     //continue mine
     addToLog("Find new block. id: "+getChainSize()+"\n");
     setNewWorkingBlock();
-    //restart mining
-    this.mine(true);
   }
 
   //timer methods
@@ -223,14 +227,16 @@ public class Node {
     timer.scheduleAtFixedRate(new TimerTask() {
       @Override
       public void run() {
-        workingBlock.newNonce();
-        String hash = workingBlock.genHash();
-        //add to Log
-        addToLog(hash+"\n");
-        //check for valid hash
-        if (checkHash(hash)) {
-          blockFound(hash);
-          setNewWorkingBlock();
+        if (runningState) {
+          workingBlock.newNonce();
+          String hash = workingBlock.genHash();
+          //add to Log
+          addToLog(hash+"\n");
+          //check for valid hash
+          if (checkHash(hash)) {
+            blockFound();
+            setNewWorkingBlock();
+          }
         }
       }
     }, 0, timerExecutionTime);
