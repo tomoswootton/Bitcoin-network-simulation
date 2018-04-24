@@ -9,6 +9,7 @@ import java.util.Timer;
 public class Simulation {
 
   JFrame simulationFrame = new JFrame();
+  JFrame simulationControlFrame = new JFrame();
   GlobalInfo globalInfo;
 
   // page variables
@@ -24,8 +25,9 @@ public class Simulation {
   JScrollPane chainScrollPane;
   ArrayList<JPanelBlockDisp> blockDispHolderList;
 
-  double totalPages;
-  JPanel blocksPanel;
+  //display on control panel
+  JLabel averageFindLabel;
+  double averageFindTime;
 
   JButton startPauseButton;
   JButton exitButton;
@@ -35,12 +37,6 @@ public class Simulation {
   private LinkedList<Block> blocksFoundList = new LinkedList<Block>();
 
   //construtors
-  public static void main(String[] args) {
-     // LinkedList<Node> nodesList = new LinkedList<Node>();
-     // // nodesList.add(new Node(0,"test","30",0.5,10000));
-     // nodesList.add(new Node(1,"test2","30",0.8,10000));
-    //  new Simulation(nodesList);
-   }
   public Simulation(GlobalInfo globalInfo) {
     this.globalInfo = globalInfo;
     //init
@@ -51,6 +47,7 @@ public class Simulation {
     simulationFrame.setTitle("Simulation");
 
     makePage();
+
   }
 
   public LinkedList<Block> getBlocksFoundList() {
@@ -78,6 +75,10 @@ public class Simulation {
     //nodes
     constructNodesPanel();
 
+   //control
+   constructControlPanel();
+
+
     //chain
     constructChainPanel();
 
@@ -85,45 +86,95 @@ public class Simulation {
     JPanel buttonsPanel = new JPanel();
     buttonsPanel.setLayout(new GridBagLayout());
 
-    startPauseButton = new JButton("Start");
-    startPauseButton.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        if(e.getSource() == startPauseButton) {
-          if (running) {
-            startPauseButton.setText("Start");
-            run(false);
-          } else {
-            startPauseButton.setText("Pause");
-            run(true);
+      startPauseButton = new JButton("Start");
+      startPauseButton.addActionListener(new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+          if(e.getSource() == startPauseButton) {
+            if (running) {
+              startPauseButton.setText("Start");
+              run(false);
+            } else {
+              startPauseButton.setText("Pause");
+              run(true);
+            }
           }
         }
-      }
-    });
+      });
 
-    GridBagConstraints startPauseButtonCons = new GridBagConstraints();
-    setCons(startPauseButtonCons, 0,1,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
-    buttonsPanel.add(startPauseButton, startPauseButtonCons);
+      GridBagConstraints startPauseButtonCons = new GridBagConstraints();
+      setCons(startPauseButtonCons, 0,1,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
+      buttonsPanel.add(startPauseButton, startPauseButtonCons);
 
-    exitButton = new JButton("Exit");
-    exitButton.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        if(e.getSource() == exitButton) {
-          simulationFrame.dispose();
+      exitButton = new JButton("Exit");
+      exitButton.addActionListener(new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+          if(e.getSource() == exitButton) {
+            simulationFrame.dispose();
+          }
         }
-      }
-    });
+      });
 
-    GridBagConstraints exitButtonCons = new GridBagConstraints();
-    setCons(exitButtonCons, 1,1,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
-    buttonsPanel.add(exitButton, exitButtonCons);
+      GridBagConstraints exitButtonCons = new GridBagConstraints();
+      setCons(exitButtonCons, 1,1,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
+      buttonsPanel.add(exitButton, exitButtonCons);
 
     GridBagConstraints buttonsPanelCons = new GridBagConstraints();
-    setCons(buttonsPanelCons,1,7,4,2,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
+    setCons(buttonsPanelCons,1,8,4,2,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
     page.add(buttonsPanel, buttonsPanelCons);
 
     simulationFrame.add(page);
     simulationFrame.setVisible(true);
   }
+  private void constructControlPanel() {
+    JPanel controlPanel = new JPanel(new GridBagLayout());
+    controlPanel.setMinimumSize(new Dimension(200, 100));
+    controlPanel.setPreferredSize(new Dimension(200, 100));
+
+    JButton addFakeBlockButton = new JButton(" Force Block");
+    addFakeBlockButton.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == addFakeBlockButton) {
+          String prevBlockHash;
+          //if in split
+          if (inLatency) {
+            //use prev panel block
+            prevBlockHash = blockDispHolderList.get(getCurrentBlockPanel().id - 1).block.getHash();
+          } else {
+            prevBlockHash = blockDispHolderList.get(getCurrentBlockPanel().id).block.getHash();
+          }
+          Block fakeBlock = new Block(globalInfo, blocksFoundList.size(), prevBlockHash, "None");
+          addBlockToGlobalChain(fakeBlock);
+        }
+      }
+    });
+
+    GridBagConstraints addFakeBlockButtonCons = new GridBagConstraints();
+    setCons(addFakeBlockButtonCons, 0, 0, 1, 1, GridBagConstraints.NONE, GridBagConstraints.CENTER, 0, 0);
+    controlPanel.add(addFakeBlockButton, addFakeBlockButtonCons);
+
+    JButton refreshButton = new JButton("Refresh Chain");
+    refreshButton.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == refreshButton) {
+          refreshChainPanel();
+        }
+      }
+    });
+
+    GridBagConstraints refreshButtonCons = new GridBagConstraints();
+    setCons(refreshButtonCons, 0, 1, 1, 1, GridBagConstraints.NONE, GridBagConstraints.CENTER, 0, 0);
+    controlPanel.add(refreshButton, refreshButtonCons);
+
+    averageFindLabel = new JLabel("Average block find time: " + this.averageFindTime + "s");
+    GridBagConstraints averageFindLabelCons = new GridBagConstraints();
+    setCons(averageFindLabelCons, 0, 2, 1, 1, GridBagConstraints.NONE, GridBagConstraints.CENTER, 0, 0);
+    controlPanel.add(averageFindLabel, averageFindLabelCons);
+
+    GridBagConstraints controlPanelCons = new GridBagConstraints();
+    setCons(controlPanelCons, 0, 3, 5, 2, GridBagConstraints.NONE, GridBagConstraints.CENTER, 0, 0);
+    page.add(controlPanel, controlPanelCons);
+  }
+  
   private void setCons(GridBagConstraints gridCons, int x, int y, int width, int height, int fill, int anchor, int ipadx, int ipady) {
     gridCons.gridx = x;
     gridCons.gridy = y;
@@ -247,44 +298,8 @@ public class Simulation {
       setCons(chainPanelCons, 0,2,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
       chainPanel.add(chainScrollPane, chainPanelCons);
 
-    //testing buttons
-    JButton addFakeBlockButton = new JButton("add block");
-    addFakeBlockButton.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        if(e.getSource() == addFakeBlockButton) {
-          String prevBlockHash;
-          //if in split
-          if (inLatency) {
-            //use prev panel block
-            prevBlockHash = blockDispHolderList.get(getCurrentBlockPanel().id-1).block.getHash();
-          } else {
-            prevBlockHash = blockDispHolderList.get(getCurrentBlockPanel().id).block.getHash();
-          }
-          Block fakeBlock = new Block(globalInfo, blocksFoundList.size(), prevBlockHash, "None");
-          addBlockToGlobalChain(fakeBlock);
-        }
-      }
-    });
-
-    GridBagConstraints addFakeBlockButtonCons = new GridBagConstraints();
-    setCons(addFakeBlockButtonCons, 0,3,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
-    chainPanel.add(addFakeBlockButton, addFakeBlockButtonCons);
-
-    JButton refreshButton = new JButton("refresh");
-    refreshButton.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        if(e.getSource() == refreshButton) {
-          refreshChainPanel();
-        }
-      }
-    });
-
-    GridBagConstraints refreshButtonCons = new GridBagConstraints();
-    setCons(refreshButtonCons, 0,5,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
-    chainPanel.add(refreshButton, refreshButtonCons);
-
     GridBagConstraints chainCons = new GridBagConstraints();
-    setCons(chainCons, 0,3,5,3,GridBagConstraints.NONE,GridBagConstraints.PAGE_END,0,0);
+    setCons(chainCons, 0,5,5,3,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
     page.add(chainPanel, chainCons);
   }
   private void addBlockHolderPanel() {
@@ -427,10 +442,13 @@ public class Simulation {
     propogateBlock(block);
     System.out.println("Adding block " + block.id + " to found list and contstructing panel");
  
-    System.out.println("all ndoes should be at even height here.");
+    System.out.println("all nodes should be at even height here.");
     for (Node node : globalInfo.getNodesList()) {
       System.out.println(node.getChainSize());
     }
+    //add to global chain
+    addBlockToFoundList(block);
+    updateAverageFindTime(block.getTimeElapsed());
     //restart mining 
     globalRun(true);
   }
@@ -453,14 +471,13 @@ public class Simulation {
     }
   }
   private void propogateBlock(Block block) {
-    //add to global chain
-    addBlockToFoundList(block);
     //send block to all nodes in network
     for (Node node : globalInfo.getNodesList()) {
       node.receiveBlock(block);
     }
   }
 
+  //running
   public void run(Boolean state) {
     running = state;
     Timer timer = new Timer();
@@ -501,6 +518,12 @@ public class Simulation {
       node.mine(state, true);
     }
   }
+
+  //general
+  private void updateAverageFindTime(double newTime) {
+    this.averageFindTime = Math.floor(((this.averageFindTime + newTime) / blocksFoundList.size())*100)/100;  
+    averageFindLabel.setText("Average block find time: " + this.averageFindTime + "s");
+  } 
 
 class JPanelBlockDisp extends JPanel{
   private static final long serialVersionUID = 1L;

@@ -82,11 +82,8 @@ public class Node {
     this.mine_speed = mine_speed;
     this.blocks_mined = 0;
     makeNodeDispPanel();
-
+    reset();
     
-    //init chain with genesis block
-    GenBlock genBlock = new GenBlock(globalInfo, 0,"1234", null);
-    chain.add(genBlock);
     //set timerExecTime variable
     if (mine_speed == 0) {
       timerExecutionTime = 0;
@@ -157,7 +154,10 @@ public class Node {
 
   public void reset(){
     this.chain = new LinkedList<Block>();
-    this.log =  = new ArrayList<String>();
+    //init chain with genesis block
+    GenBlock genBlock = new GenBlock(globalInfo, 0, "1234", null);
+    chain.add(genBlock);
+    this.log =  new ArrayList<String>();
   }
 
 

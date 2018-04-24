@@ -65,6 +65,9 @@ class Block {
   public void setTimeElapsed(double time) {
     this.timeElapsed = Double.parseDouble(Double.toString(time).substring(0,3));
   }
+  public double getTimeElapsed() {
+    return this.timeElapsed;
+  }
   public long getTimeFound() {
     return this.timeFound;
   }
