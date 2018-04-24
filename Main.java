@@ -624,9 +624,10 @@ public class Main {
     //make simulation object
     Simulation simulation = new Simulation(globalInfo);
 
-    //add simulation object to nodes
+    //add simulation object to nodes and reset nodes
     for (Node node : globalInfo.getNodesList()) {
       node.setSimulationObject(simulation);
+      node.reset();
     }
   }
   private void errorMsg(String var) {

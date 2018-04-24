@@ -421,7 +421,7 @@ public class Simulation {
 
   }
   private void propogateAndAddBlock(Block block) {
-    //pause mining so block can be processed and propogated
+    //pause mining threads so block can be processed and propogated
     globalRun(false);
     //add block to network
     propogateBlock(block);
@@ -431,8 +431,7 @@ public class Simulation {
     for (Node node : globalInfo.getNodesList()) {
       System.out.println(node.getChainSize());
     }
-    System.out.println();
-    //restart mining
+    //restart mining 
     globalRun(true);
   }
   private void addBlockToFoundList(Block block) {
@@ -476,7 +475,7 @@ public class Simulation {
         for (Node node : globalInfo.getNodesList()) {
           if (!node.getRunningState()) {
             System.out.println("starting node "+node.getName());
-            node.mine(state);
+            node.mine(state,true );
             return;
           }
         }
@@ -490,15 +489,16 @@ public class Simulation {
     timer.cancel();
     timer.purge();
     for (Node node : globalInfo.getNodesList()) {
-      System.out.println("stopping node");
-      node.mine(state);
+      System.out.println("stopping node"+node.getName());
+      node.mine(state, true);
     }
     }
   }
 
   private void globalRun(boolean state) {
+    //pause or unpause mining threads immmediatelty globally
     for (Node node : globalInfo.getNodesList()) {
-      node.setRunningState(state);
+      node.mine(state, true);
     }
   }
 
@@ -636,17 +636,14 @@ class JPanelBlockDisp extends JPanel{
       //check each circumstance
       //if follow from block1
       if (this.block1.getPrevBlockHash() == prevBlock1Hash) {
-        System.out.println("block1 to block1");
         g.drawLine(0,h/4,w/2,h/4);
       }
       if (this.block1.getPrevBlockHash() == prevBlock2Hash) {
-        System.out.println("block1 to block2");
         g.drawLine(0,h/2,w/4,h/4);
         g.drawLine(w/4,h/4,w/2,h/4);
       }
       //if follow from block2
       if (this.block2.getPrevBlockHash() == prevBlock1Hash) {
-        System.out.println("block2 to block1");
         g.drawLine(0,h/2,w/4,3*(h/4));
         g.drawLine(w/4,3*(h/4),w/2,3*(h/4));
       }

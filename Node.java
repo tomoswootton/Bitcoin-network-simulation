@@ -15,6 +15,11 @@ public class Node {
   //simulation object for methods access
   Simulation simulation;
   GlobalInfo globalInfo;
+  
+  //thread
+  Thread thread;
+  //stores true if node is mining
+  volatile boolean isRunning;
 
   int id;
   String name;
@@ -23,12 +28,12 @@ public class Node {
   //measurement: number of new hashes per second
   double mine_speed;
   Block workingBlock;
-  ArrayList<String> log = new ArrayList<String>();
+  ArrayList<String> log;
   int blocks_mined;
   int hashSize;
 
   // nodes version of chain
-  LinkedList<Block> chain = new LinkedList<Block>();
+  LinkedList<Block> chain;
 
   JPanel nodeDispPanel;
   JLabel blocksMinedLabel;
@@ -37,8 +42,6 @@ public class Node {
 
   Timer timer;
   int timerExecutionTime;
-  //stores true if node is mining
-  private Boolean runningState = false;
 
   //log disp window
   TextArea logDispTextArea = new TextArea("",8,38,TextArea.SCROLLBARS_BOTH);
@@ -51,15 +54,24 @@ public class Node {
     JFrame testFrame = new JFrame();
     testFrame.setSize(500,500);
     testFrame.setLayout(new FlowLayout());
-
-    // Node testNode = new Node(0,"node-name","0.1", 10.0, 10000);
-    // JPanel testPanel = testNode.getDispPanel();
-    // Node testNode2 = new Node(1,"node","0.1", 10.0, 10000);
-    // JPanel testPanel2 = testNode2.getDispPanel();
-    //
-    // testFrame.add(testPanel);
-    // testFrame.add(testPanel2);
     testFrame.setVisible(true);
+    testFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+    new Node(testFrame);
+  }
+  public Node(JFrame testFrame) {
+    this.timerExecutionTime = 2000;
+    JButton button = new JButton("mine");
+    button.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == button) {
+          System.out.println("got here");
+          thread = new Thread(new Mine());
+          thread.start();
+        }
+      }
+    });
+    testFrame.add(button);
+    
   }
   public Node(GlobalInfo globalInfo, String name, String hash_share, Double mine_speed) {
     System.out.println("new block hash share: "+hash_share+" mine_speed: "+mine_speed);
@@ -71,10 +83,10 @@ public class Node {
     this.blocks_mined = 0;
     makeNodeDispPanel();
 
+    
     //init chain with genesis block
     GenBlock genBlock = new GenBlock(globalInfo, 0,"1234", null);
     chain.add(genBlock);
-    timer = new Timer();
     //set timerExecTime variable
     if (mine_speed == 0) {
       timerExecutionTime = 0;
@@ -85,7 +97,6 @@ public class Node {
       //else simply divide 1 second by mine_speed
       timerExecutionTime = (int) Math.floor(1000/this.mine_speed);
     }
-    System.out.println("timesExec: "+timerExecutionTime);
   }
 
   //getter and setters
@@ -118,8 +129,8 @@ public class Node {
   }
   private void addBlockToChain(Block block) {
     chain.add(block);
-    //if chain behind, get global chain from simulation
-    if (chain.size() == block.id) {
+    //check if chain behind, if so get global chain from simulation
+    if (chain.size() < block.id) {
       chain = simulation.getBlocksFoundList();
     }
   }
@@ -136,12 +147,17 @@ public class Node {
     this.chain = chain;
   }
   public void setRunningState(boolean state) {
-    if (runningState != state) {
-      runningState = state;
+    if (isRunning != state) {
+      isRunning = state;
     }
   }
   public boolean getRunningState() {
-    return this.runningState;
+    return this.isRunning;
+  }
+
+  public void reset(){
+    this.chain = new LinkedList<Block>();
+    this.log =  = new ArrayList<String>();
   }
 
 
@@ -158,23 +174,33 @@ public class Node {
       textArea.append(string);
     }
   }
-
+  
   //mine methods
-  public void mine(Boolean state) {
-    setRunningState(state);
-    //dont start timer if no mine speed, otherwise run() will be run once
-    if (mine_speed == 0.0) {
-      return;
-    }
-    //runningState prevents code from receivedBlock() restarting mining when global mining
-    //has been paused
-    if (state && runningState) {
+  public void mine(Boolean state, Boolean giveOutput) {
+    if (state) {
+      
+      //dont start timer if no mine speed, otherwise run() will be run once
+      if (mine_speed == 0.0) {
+        return;
+      }
+
       //init block
       setNewWorkingBlock();
-      startTimer();
-    } else if (!state) {
-      pauseTimer();
+      
+      if (giveOutput) {
+      addToLog("\nMining started\n\n");
+      }
+      
+      // make thread and start
+      thread = new Thread(new Mine());
+      thread.start();
+    } else {
+      if(giveOutput) {
+        addToLog("\nMining paused\n");        
+      }
+      thread.interrupt();
     }
+    this.setRunningState(state);
   }
   private void setNewWorkingBlock() {
     workingBlock = new Block(globalInfo, getChainSize(), getChainLastElement().getHash(), name);
@@ -194,17 +220,19 @@ public class Node {
   private void blockFound() {
     //set time found
     workingBlock.setTimeFound(globalInfo.getTime());
-    //add to preview
-    addToLog("\nValid hash found: "+workingBlock.getHash()+"\n");
     //propogate
-    addToLog("Propogating across network..\n");
     simulation.addBlockToGlobalChain(workingBlock);
-    //update nodeDispPanel
-    blocks_mined += 1;
-    blocksMinedLabel.setText(Integer.toString(blocks_mined));
   }
   public void receiveBlock(Block block) {
-    if (block.getFoundBy() != this.name) {
+    //if found by this
+    if (block.getFoundBy() == this.name) {
+      //add to preview
+      addToLog("\nValid hash found: "+workingBlock.getHash()+"\n");
+      addToLog("Propogating across network..\n");
+      //update nodeDispPanel
+      blocks_mined += 1;
+      blocksMinedLabel.setText(Integer.toString(blocks_mined));
+    } else {
       addToLog("\nBlock found by: "+block.getFoundBy()+".\n");
     }
     //check block hash is valid
@@ -218,33 +246,6 @@ public class Node {
     //continue mine
     addToLog("Find new block. id: "+getChainSize()+"\n");
     setNewWorkingBlock();
-  }
-
-  //timer methods
-  private void startTimer() {
-    addToLog("\nMining started\n\n");
-    timer = new Timer();
-    timer.scheduleAtFixedRate(new TimerTask() {
-      @Override
-      public void run() {
-        if (runningState) {
-          workingBlock.newNonce();
-          String hash = workingBlock.genHash();
-          //add to Log
-          addToLog(hash+"\n");
-          //check for valid hash
-          if (checkHash(hash)) {
-            blockFound();
-            setNewWorkingBlock();
-          }
-        }
-      }
-    }, 0, timerExecutionTime);
-  }
-  private void pauseTimer() {
-    addToLog("\nMining stopped\n");
-    timer.cancel();
-    timer.purge();
   }
 
   //node disp
@@ -350,4 +351,29 @@ public class Node {
     gridCons.weighty = 0.2;
   }
 
+  class Mine implements Runnable {
+
+    public void run() {
+      isRunning = true;
+      while (isRunning) {
+        try {
+          workingBlock.newNonce();
+          String hash = workingBlock.genHash();
+          //add to Log
+          addToLog(hash + "\n");
+          //check for valid hash
+          if (checkHash(hash)) {
+              blockFound();
+              setNewWorkingBlock();
+          }
+          Thread.sleep(timerExecutionTime);
+        } catch (InterruptedException ex) {
+          isRunning = false;
+        }
+      }
+    }
+
+  }
+  
 }
+
