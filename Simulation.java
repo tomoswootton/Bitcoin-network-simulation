@@ -28,7 +28,8 @@ public class Simulation {
   //display on control panel
   JLabel averageFindLabel;
   double averageFindTime;
-
+  Queue<Double> averageFindTimeArray = new LinkedList<Double>();
+  
   JButton startPauseButton;
   JButton exitButton;
 
@@ -47,7 +48,6 @@ public class Simulation {
     simulationFrame.setTitle("Simulation");
 
     makePage();
-
   }
 
   public LinkedList<Block> getBlocksFoundList() {
@@ -109,6 +109,8 @@ public class Simulation {
       exitButton.addActionListener(new ActionListener() {
         public void actionPerformed(ActionEvent e) {
           if(e.getSource() == exitButton) {
+            //stop mining
+            run(false);
             simulationFrame.dispose();
           }
         }
@@ -127,8 +129,8 @@ public class Simulation {
   }
   private void constructControlPanel() {
     JPanel controlPanel = new JPanel(new GridBagLayout());
-    controlPanel.setMinimumSize(new Dimension(200, 100));
-    controlPanel.setPreferredSize(new Dimension(200, 100));
+    controlPanel.setMinimumSize(new Dimension(300, 100));
+    controlPanel.setPreferredSize(new Dimension(300, 100));
 
     JButton addFakeBlockButton = new JButton(" Force Block");
     addFakeBlockButton.addActionListener(new ActionListener() {
@@ -152,22 +154,82 @@ public class Simulation {
     setCons(addFakeBlockButtonCons, 0, 0, 1, 1, GridBagConstraints.NONE, GridBagConstraints.CENTER, 0, 0);
     controlPanel.add(addFakeBlockButton, addFakeBlockButtonCons);
 
-    JButton refreshButton = new JButton("Refresh Chain");
-    refreshButton.addActionListener(new ActionListener() {
+    JButton disableNodeButton = new JButton("Stop node");
+    disableNodeButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == refreshButton) {
-          refreshChainPanel();
+        if (e.getSource() == disableNodeButton) {
+          //catch if nodesList is empty
+          int size = globalInfo.nodesListSize();
+          if (size == 0) {
+            JOptionPane.showMessageDialog(null, "No nodes to stop.", "Remove Node", JOptionPane.WARNING_MESSAGE);
+            return;
+          }
+          String inputValue = JOptionPane.showInputDialog(simulationFrame, "Id of node to stop:", "Remove Node", 1);
+
+          if (inputValue == null) {
+            return;
+          }
+          if (inputValue.length() == 0) {
+            System.out.println("inputValue = null");
+            return;
+          }
+          int inputValueInt = Integer.parseInt(inputValue);
+          //catch value out of range
+          if (inputValueInt < 0 || inputValueInt > size - 1) {
+            JOptionPane.showMessageDialog(null, "Input value out of range.", "Remove Node",
+                JOptionPane.WARNING_MESSAGE);
+            return;
+          }
+          System.out.println("Node "+inputValueInt+" stopped.");
+          stopNode(inputValueInt);
         }
       }
     });
 
-    GridBagConstraints refreshButtonCons = new GridBagConstraints();
-    setCons(refreshButtonCons, 0, 1, 1, 1, GridBagConstraints.NONE, GridBagConstraints.CENTER, 0, 0);
-    controlPanel.add(refreshButton, refreshButtonCons);
+    GridBagConstraints disableNodeButtonCons = new GridBagConstraints();
+    setCons(disableNodeButtonCons, 0, 1, 1, 1, GridBagConstraints.NONE, GridBagConstraints.CENTER, 0, 0);
+    controlPanel.add(disableNodeButton, disableNodeButtonCons);
 
-    averageFindLabel = new JLabel("Average block find time: " + this.averageFindTime + "s");
+    JButton enableNodeButton = new JButton("Start node");
+    enableNodeButton.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        //open input window
+        if (e.getSource() == enableNodeButton) {
+          //catch if nodesList is empty
+          int size = globalInfo.nodesListSize();
+          if (size == 0) {
+            JOptionPane.showMessageDialog(null, "No nodes to stop.", "Remove Node", JOptionPane.WARNING_MESSAGE);
+            return;
+          }
+          String inputValue = JOptionPane.showInputDialog(simulationFrame, "Id of node to stop:", "Remove Node", 1);
+
+          if (inputValue == null) {
+            return;
+          }
+          if (inputValue.length() == 0) {
+            System.out.println("inputValue = null");
+            return;
+          }
+          int inputValueInt = Integer.parseInt(inputValue);
+          //catch value out of range
+          if (inputValueInt < 0 || inputValueInt > size - 1) {
+            JOptionPane.showMessageDialog(null, "Input value out of range.", "Remove Node",
+                JOptionPane.WARNING_MESSAGE);
+          return;
+          }
+          System.out.println("Node " + inputValueInt + " started.");          
+          startNode(inputValueInt);
+        }
+      }
+    });
+
+    GridBagConstraints enableNodeButtonCons = new GridBagConstraints();
+    setCons(enableNodeButtonCons, 0, 2, 1, 1, GridBagConstraints.NONE, GridBagConstraints.CENTER, 0, 0);
+    controlPanel.add(enableNodeButton, enableNodeButtonCons);
+
+    averageFindLabel = new JLabel("Average 10 block find time: " + this.averageFindTime + "s");
     GridBagConstraints averageFindLabelCons = new GridBagConstraints();
-    setCons(averageFindLabelCons, 0, 2, 1, 1, GridBagConstraints.NONE, GridBagConstraints.CENTER, 0, 0);
+    setCons(averageFindLabelCons, 0, 3, 1, 1, GridBagConstraints.NONE, GridBagConstraints.CENTER, 0, 0);
     controlPanel.add(averageFindLabel, averageFindLabelCons);
 
     GridBagConstraints controlPanelCons = new GridBagConstraints();
@@ -448,7 +510,7 @@ public class Simulation {
     }
     //add to global chain
     addBlockToFoundList(block);
-    updateAverageFindTime(block.getTimeElapsed());
+    updateAverageFindTimeLast10Blocks(block.getTimeElapsed());
     //restart mining 
     globalRun(true);
   }
@@ -511,7 +573,20 @@ public class Simulation {
     }
     }
   }
-
+  private void startNode(int id) {
+    for (Node node : globalInfo.getNodesList()) {
+      if (node.id == id) {
+        node.userAllowRunning = true;
+      }
+    }
+  }
+  private void stopNode(int id) {
+    for (Node node : globalInfo.getNodesList()) {
+      if (node.id == id) {
+        node.userAllowRunning = false;
+      }
+    }
+  }
   private void globalRun(boolean state) {
     //pause or unpause mining threads immmediatelty globally
     for (Node node : globalInfo.getNodesList()) {
@@ -520,8 +595,25 @@ public class Simulation {
   }
 
   //general
-  private void updateAverageFindTime(double newTime) {
-    this.averageFindTime = Math.floor(((this.averageFindTime + newTime) / blocksFoundList.size())*100)/100;  
+  private void updateAverageFindTimeLast10Blocks(double newTime) {
+    // The remove and poll methods both remove and return the head of the queue. 
+    // Exactly which element gets removed is a function of the queue's ordering policy.
+    // The remove and poll methods differ in their behavior only when the queue is empty.
+    // Under these circumstances, remove throws NoSuchElementException, while poll returns null.
+    
+    int averageFindTimeSize = averageFindTimeArray.size();
+    //if full remove last element
+    if (averageFindTimeSize == 10) {
+      averageFindTimeArray.remove();
+    }
+    //add new time to queue
+    averageFindTimeArray.add(newTime);
+    //calc average
+    double sum = 0.0;
+    for (Double time : averageFindTimeArray) {
+      sum = sum + time;
+    }
+    this.averageFindTime = Math.floor(((sum) / averageFindTimeSize)*100)/100;  
     averageFindLabel.setText("Average block find time: " + this.averageFindTime + "s");
   } 
 
@@ -687,7 +779,7 @@ class JPanelBlockDisp extends JPanel{
     
     //paint second half
     
-    //the remaining code is called on the second to last panel in the list
+    //the resimulationFrameing code is called on the second to last panel in the list
     JPanelBlockDisp nextBlockPanel = blockDispHolderList.get(id+1);
     //individual - individual
     if (!split) {

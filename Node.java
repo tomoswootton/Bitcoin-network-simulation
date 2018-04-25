@@ -20,6 +20,7 @@ public class Node {
   Thread thread;
   //stores true if node is mining
   volatile boolean isRunning;
+  boolean userAllowRunning = true;
 
   int id;
   String name;
@@ -177,6 +178,12 @@ public class Node {
   
   //mine methods
   public void mine(Boolean state, Boolean giveOutput) {
+    System.out.println("putting node "+this.id+" in state "+state);
+    //if running stopped manually in simulation window
+    if (!userAllowRunning) {
+      this.setRunningState(state);
+      return;
+    }
     if (state) {
       
       //dont start timer if no mine speed, otherwise run() will be run once
@@ -201,6 +208,7 @@ public class Node {
       thread.interrupt();
     }
     this.setRunningState(state);
+    System.out.println("node "+this.id+" states: isrunning "+this.isRunning+" userAllowRunning "+this.userAllowRunning);
   }
   private void setNewWorkingBlock() {
     workingBlock = new Block(globalInfo, getChainSize(), getChainLastElement().getHash(), name);
@@ -355,7 +363,7 @@ public class Node {
 
     public void run() {
       isRunning = true;
-      while (isRunning) {
+      while (isRunning && userAllowRunning) {
         try {
           workingBlock.newNonce();
           String hash = workingBlock.genHash();
