@@ -176,7 +176,7 @@ public class Main {
     JPanel previewPanel = new JPanel();
     previewPanel.setLayout(new GridBagLayout());
 
-    JLabel titleLabel = new JLabel("                                       Name                   id            power        blocks                                                                    ");
+    JLabel titleLabel = new JLabel("                                              Name                   id          power      blocks                                                                    ");
       //title
 
       GridBagConstraints titleLabelCons = new GridBagConstraints();
@@ -281,7 +281,6 @@ public class Main {
     GridBagConstraints cons = new GridBagConstraints();
     setCons(cons,x,y,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
     panelToAddTo.add(panel, cons);
-
   }
   private JTextFieldWithID getTextField(String id) {
     for (JTextFieldWithID textField : userInputTextFields) {
@@ -482,7 +481,7 @@ public class Main {
     //purpose: when a node is removed, the id's of the remaining nodesList must be fixed
     for (int i=0;i<globalInfo.nodesListSize();i++) {
       //for each node, update id and re-make dispPanel with new id
-      Node node = globalInfo.getNodeFromNodesList(i);
+      Node node = globalInfo.getNode(i);
       node.id = i;
       node.makeNodeDispPanel();
     }
@@ -661,14 +660,4 @@ public class Main {
       }
       removeNode(inputValueInt);
     }
-
-
-  class JTextFieldWithID extends JTextField {
-    private static final long serialVersionUID = 1L;
-	  String id;
-    public JTextFieldWithID(String text, String id) {
-      super(text);
-      this.id = id;
-    }
-  }
 }

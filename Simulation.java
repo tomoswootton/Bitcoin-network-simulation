@@ -17,6 +17,7 @@ public class Simulation {
   Boolean inLatency = false;
   Boolean timerBool = false;
 
+  //swing
   JPanel page;
   JPanel nodesPanel;
   JPanel nodesScrollPanel;
@@ -24,6 +25,11 @@ public class Simulation {
   JPanel chainScrollPanel;
   JScrollPane chainScrollPane;
   ArrayList<JPanelBlockDisp> blockDispHolderList;
+  ArrayList<JTextFieldWithID> userInputTextFields = new ArrayList<JTextFieldWithID>(); 
+  ArrayList<JButtonWithID> userInputButtons = new ArrayList<JButtonWithID>(); 
+  JButtonWithID addBlockButton;
+  JButtonWithID startNodeButton;
+  JButtonWithID stopNodeButton;
 
   //display on control panel
   JLabel averageFindLabel;
@@ -110,7 +116,9 @@ public class Simulation {
         public void actionPerformed(ActionEvent e) {
           if(e.getSource() == exitButton) {
             //stop mining
-            run(false);
+            if (running) {
+              run(false);
+            }
             simulationFrame.dispose();
           }
         }
@@ -129,112 +137,179 @@ public class Simulation {
   }
   private void constructControlPanel() {
     JPanel controlPanel = new JPanel(new GridBagLayout());
-    controlPanel.setMinimumSize(new Dimension(300, 100));
-    controlPanel.setPreferredSize(new Dimension(300, 100));
+    controlPanel.setMinimumSize(new Dimension(700, 200));
+    controlPanel.setPreferredSize(new Dimension(700, 200));
 
-    JButton addFakeBlockButton = new JButton(" Force Block");
-    addFakeBlockButton.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == addFakeBlockButton) {
-          String prevBlockHash;
-          //if in split
-          if (inLatency) {
-            //use prev panel block
-            prevBlockHash = blockDispHolderList.get(getCurrentBlockPanel().id - 1).block.getHash();
-          } else {
-            prevBlockHash = blockDispHolderList.get(getCurrentBlockPanel().id).block.getHash();
-          }
-          Block fakeBlock = new Block(globalInfo, blocksFoundList.size(), prevBlockHash, "None");
-          addBlockToGlobalChain(fakeBlock);
-        }
-      }
-    });
+    
+    //titles
+    JPanel controlTitlePanel = new JPanel(new GridBagLayout()); 
+    controlTitlePanel.setPreferredSize(new Dimension(700,50));
+    JLabel controlTitle = new JLabel("<HTML><U>Node Control Panel</U></HTML>");
+    controlTitle.setFont(controlTitle.getFont().deriveFont(16.0f));
+    GridBagConstraints titlePlacCons = new GridBagConstraints();
+    setCons(titlePlacCons,0,0,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
+    controlTitlePanel.add(controlTitle, titlePlacCons);
 
-    GridBagConstraints addFakeBlockButtonCons = new GridBagConstraints();
-    setCons(addFakeBlockButtonCons, 0, 0, 1, 1, GridBagConstraints.NONE, GridBagConstraints.CENTER, 0, 0);
-    controlPanel.add(addFakeBlockButton, addFakeBlockButtonCons);
+    GridBagConstraints controlTitlePanelCons = new GridBagConstraints();
+    setCons(controlTitlePanelCons, 0,0,3,1,GridBagConstraints.BOTH,GridBagConstraints.CENTER,10,10);
+    controlPanel.add(controlTitlePanel, controlTitlePanelCons);
 
-    JButton disableNodeButton = new JButton("Stop node");
-    disableNodeButton.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == disableNodeButton) {
-          //catch if nodesList is empty
-          int size = globalInfo.nodesListSize();
-          if (size == 0) {
-            JOptionPane.showMessageDialog(null, "No nodes to stop.", "Remove Node", JOptionPane.WARNING_MESSAGE);
-            return;
-          }
-          String inputValue = JOptionPane.showInputDialog(simulationFrame, "Id of node to stop:", "Remove Node", 1);
+    makeUserInputPanelButtonTextField("addBlock", "Force block find by node:","0",controlPanel, 1,1);
+    makeUserInputPanelButtonTextField("startNode", "Force start node:","",controlPanel, 1,2);
+    makeUserInputPanelButtonTextField("stopNode", "Force stop node:","",controlPanel, 1,3);
 
-          if (inputValue == null) {
-            return;
-          }
-          if (inputValue.length() == 0) {
-            System.out.println("inputValue = null");
-            return;
-          }
-          int inputValueInt = Integer.parseInt(inputValue);
-          //catch value out of range
-          if (inputValueInt < 0 || inputValueInt > size - 1) {
-            JOptionPane.showMessageDialog(null, "Input value out of range.", "Remove Node",
-                JOptionPane.WARNING_MESSAGE);
-            return;
-          }
-          System.out.println("Node "+inputValueInt+" stopped.");
-          stopNode(inputValueInt);
-        }
-      }
-    });
-
-    GridBagConstraints disableNodeButtonCons = new GridBagConstraints();
-    setCons(disableNodeButtonCons, 0, 1, 1, 1, GridBagConstraints.NONE, GridBagConstraints.CENTER, 0, 0);
-    controlPanel.add(disableNodeButton, disableNodeButtonCons);
-
-    JButton enableNodeButton = new JButton("Start node");
-    enableNodeButton.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        //open input window
-        if (e.getSource() == enableNodeButton) {
-          //catch if nodesList is empty
-          int size = globalInfo.nodesListSize();
-          if (size == 0) {
-            JOptionPane.showMessageDialog(null, "No nodes to stop.", "Remove Node", JOptionPane.WARNING_MESSAGE);
-            return;
-          }
-          String inputValue = JOptionPane.showInputDialog(simulationFrame, "Id of node to stop:", "Remove Node", 1);
-
-          if (inputValue == null) {
-            return;
-          }
-          if (inputValue.length() == 0) {
-            System.out.println("inputValue = null");
-            return;
-          }
-          int inputValueInt = Integer.parseInt(inputValue);
-          //catch value out of range
-          if (inputValueInt < 0 || inputValueInt > size - 1) {
-            JOptionPane.showMessageDialog(null, "Input value out of range.", "Remove Node",
-                JOptionPane.WARNING_MESSAGE);
-          return;
-          }
-          System.out.println("Node " + inputValueInt + " started.");          
-          startNode(inputValueInt);
-        }
-      }
-    });
-
-    GridBagConstraints enableNodeButtonCons = new GridBagConstraints();
-    setCons(enableNodeButtonCons, 0, 2, 1, 1, GridBagConstraints.NONE, GridBagConstraints.CENTER, 0, 0);
-    controlPanel.add(enableNodeButton, enableNodeButtonCons);
+    makeUserInputButtonListeners();
 
     averageFindLabel = new JLabel("Average 10 block find time: " + this.averageFindTime + "s");
     GridBagConstraints averageFindLabelCons = new GridBagConstraints();
-    setCons(averageFindLabelCons, 0, 3, 1, 1, GridBagConstraints.NONE, GridBagConstraints.CENTER, 0, 0);
+    setCons(averageFindLabelCons, 1, 4, 1, 1, GridBagConstraints.NONE, GridBagConstraints.CENTER, 0, 10);
     controlPanel.add(averageFindLabel, averageFindLabelCons);
 
     GridBagConstraints controlPanelCons = new GridBagConstraints();
     setCons(controlPanelCons, 0, 3, 5, 2, GridBagConstraints.NONE, GridBagConstraints.CENTER, 0, 0);
     page.add(controlPanel, controlPanelCons);
+  }
+
+  private void makeUserInputPanelButtonTextField(String id, String labelText,String textFieldText, JPanel panelToAddTo, int x, int y) {
+    JPanel panel = new JPanel(new GridBagLayout());
+    //label
+      JPanel labelPanel = new JPanel(new GridBagLayout());
+      labelPanel.setMinimumSize(new Dimension(350,20));
+      labelPanel.setPreferredSize(new Dimension(350,20));
+
+      GridBagConstraints labelPlacCons = new GridBagConstraints();
+      setCons(labelPlacCons,0,0,1,1,GridBagConstraints.NONE,GridBagConstraints.LINE_END,0,0);
+      JLabel label = new JLabel(labelText);
+      labelPanel.add(label, labelPlacCons);
+
+      GridBagConstraints labelCons = new GridBagConstraints();
+      setCons(labelCons,0,0,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
+      panel.add(labelPanel, labelCons);
+
+      //text field
+      JPanel textFieldPanel = new JPanel(new GridBagLayout());
+      textFieldPanel.setMinimumSize(new Dimension(100,20));
+      textFieldPanel.setPreferredSize(new Dimension(100,20));
+      
+      GridBagConstraints textFieldPlacCons = new GridBagConstraints();
+      setCons(textFieldPlacCons,0,0,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
+      JTextFieldWithID textField = new JTextFieldWithID(textFieldText, id);
+      textField.setColumns(2);
+      textFieldPanel.add(textField, textFieldPlacCons);
+      //add to array of input text fields
+      userInputTextFields.add(textField);
+      
+      GridBagConstraints textFieldCons = new GridBagConstraints();
+      setCons(textFieldCons,1,0,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
+      panel.add(textFieldPanel, textFieldCons);
+
+      //button
+      JPanel buttonPanel = new JPanel(new GridBagLayout());
+      buttonPanel.setMinimumSize(new Dimension(350,20));
+      buttonPanel.setPreferredSize(new Dimension(350,20));
+
+      GridBagConstraints buttonPlacCons = new GridBagConstraints();
+      setCons(buttonPlacCons,0,0,1,1,GridBagConstraints.NONE,GridBagConstraints.LINE_START,0,0);
+      JButtonWithID button = new JButtonWithID("Apply",id);
+      buttonPanel.add(button, buttonPlacCons);
+      //add button to array of user input buttons
+      userInputButtons.add(button);
+
+      GridBagConstraints buttonPanelCons = new GridBagConstraints();
+      setCons(buttonPanelCons,2,0,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
+      panel.add(buttonPanel, buttonPanelCons);
+
+    GridBagConstraints cons = new GridBagConstraints();
+    setCons(cons,x,y,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
+    panelToAddTo.add(panel, cons);
+
+  }
+  private void makeUserInputButtonListeners() {
+    //make action listeners for control panel buttons
+    //force block
+    addBlockButton = userInputButtons.get(0);
+    addBlockButton.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == addBlockButton) {
+          int textFieldText;
+          try {
+            textFieldText = Integer.parseInt(userInputTextFields.get(0).getText());
+          }
+          catch(NumberFormatException ex) {
+            textFieldText = -1;
+          }
+          //first ensure user has specified node
+          if (textFieldText < 0 || textFieldText > globalInfo.nodesListSize()-1 || globalInfo.nodesListSize() == 0) {
+            JOptionPane.showMessageDialog(simulationFrame,"Invalid node id","Error",JOptionPane.PLAIN_MESSAGE);
+            return;
+          }
+          //find blocks prevBlockHash
+          String prevBlockHash;
+          //if in split
+          if (inLatency) {
+            //use prev panel block
+            if (blockDispHolderList.get(getCurrentBlockPanel().id - 1).split) {
+              prevBlockHash = blockDispHolderList.get(getCurrentBlockPanel().id - 1).block2.getHash();
+            } else {
+              prevBlockHash = blockDispHolderList.get(getCurrentBlockPanel().id - 1).block.getHash();
+            }
+          } else {
+            prevBlockHash = blockDispHolderList.get(getCurrentBlockPanel().id).block.getHash();
+          }
+          //make block
+          Block fakeBlock = new Block(globalInfo, blocksFoundList.size(), prevBlockHash, globalInfo.getNode(textFieldText).getName());
+          fakeBlock.setForcedHash();
+          //add to ndoe
+          globalInfo.getNode(textFieldText).forceBlockFound(fakeBlock);
+        }
+      }
+    });
+
+    //force start node
+    startNodeButton = userInputButtons.get(1);
+    startNodeButton.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == startNodeButton) {
+          int textFieldText;
+          try {
+            textFieldText = Integer.parseInt(userInputTextFields.get(1).getText());
+          }
+          catch(NumberFormatException ex) {
+            textFieldText = -1;
+          }
+          //first ensure user has specified node
+          if (textFieldText < 0 || textFieldText > globalInfo.nodesListSize()-1 || globalInfo.nodesListSize() == 0) {
+            JOptionPane.showMessageDialog(simulationFrame,"Invalid node id","Error",JOptionPane.PLAIN_MESSAGE);
+            return;
+          }
+          startNode(textFieldText);
+        }
+      }
+    });
+
+    // force stop
+    stopNodeButton = userInputButtons.get(2);
+    stopNodeButton.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        //open input window
+        if (e.getSource() == stopNodeButton) {
+          int textFieldText;
+          try {
+            textFieldText = Integer.parseInt(userInputTextFields.get(2).getText());
+          }
+          catch(NumberFormatException ex) {
+            textFieldText = -1;
+          }
+          //first ensure user has specified node
+          if (textFieldText < 0 || textFieldText > globalInfo.nodesListSize()-1 || globalInfo.nodesListSize() == 0) {
+            JOptionPane.showMessageDialog(simulationFrame,"Invalid node id","Error",JOptionPane.PLAIN_MESSAGE);
+            return;
+          }
+          System.out.println("got here");
+          stopNode(textFieldText);
+        }
+      }
+    });
   }
   
   private void setCons(GridBagConstraints gridCons, int x, int y, int width, int height, int fill, int anchor, int ipadx, int ipady) {
@@ -265,6 +340,7 @@ public class Simulation {
   }
 
 
+
   //nodes panel
   private void constructNodesPanel() {
     //swing
@@ -279,7 +355,7 @@ public class Simulation {
       setCons(nodesTitleCons, 0,0,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
       nodesPanel.add(nodesTitle, nodesTitleCons);
 
-      JLabel titleLabel = new JLabel("                Name                     id         power      blocks                                                  ");
+      JLabel titleLabel = new JLabel("                         Name                   id         power      blocks                                                  ");
 
       GridBagConstraints titleLabelCons = new GridBagConstraints();
       setCons(titleLabelCons, 0,1,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
@@ -554,7 +630,7 @@ public class Simulation {
         for (Node node : globalInfo.getNodesList()) {
           if (!node.getRunningState()) {
             System.out.println("starting node "+node.getName());
-            node.mine(state,true );
+            node.mine(state,true);
             return;
           }
         }
@@ -574,15 +650,19 @@ public class Simulation {
     }
   }
   private void startNode(int id) {
+    
     for (Node node : globalInfo.getNodesList()) {
       if (node.id == id) {
+        System.out.println("Force starting node "+node.id);        
         node.userAllowRunning = true;
+        node.mine(true,false);
       }
     }
   }
   private void stopNode(int id) {
     for (Node node : globalInfo.getNodesList()) {
       if (node.id == id) {
+        System.out.println("Force stopping node "+node.id);
         node.userAllowRunning = false;
       }
     }
@@ -595,12 +675,7 @@ public class Simulation {
   }
 
   //general
-  private void updateAverageFindTimeLast10Blocks(double newTime) {
-    // The remove and poll methods both remove and return the head of the queue. 
-    // Exactly which element gets removed is a function of the queue's ordering policy.
-    // The remove and poll methods differ in their behavior only when the queue is empty.
-    // Under these circumstances, remove throws NoSuchElementException, while poll returns null.
-    
+  private void updateAverageFindTimeLast10Blocks(double newTime) {    
     int averageFindTimeSize = averageFindTimeArray.size();
     //if full remove last element
     if (averageFindTimeSize == 10) {
@@ -614,7 +689,7 @@ public class Simulation {
       sum = sum + time;
     }
     this.averageFindTime = Math.floor(((sum) / averageFindTimeSize)*100)/100;  
-    averageFindLabel.setText("Average block find time: " + this.averageFindTime + "s");
+    averageFindLabel.setText("Average block find time (seconds): " + this.averageFindTime);
   } 
 
 class JPanelBlockDisp extends JPanel{
@@ -764,7 +839,7 @@ class JPanelBlockDisp extends JPanel{
       }
       if (this.block2.getPrevBlockHash() == prevBlock2Hash) {
         System.out.println("block2 to block2");
-        g.drawLine(0,h/4,w/2,h/4);
+        g.drawLine(0,3*(h/4),w/2,3*(h/4));
       }
     }
     
@@ -779,7 +854,7 @@ class JPanelBlockDisp extends JPanel{
     
     //paint second half
     
-    //the resimulationFrameing code is called on the second to last panel in the list
+    //the followinging code is called on the second to last panel in the list
     JPanelBlockDisp nextBlockPanel = blockDispHolderList.get(id+1);
     //individual - individual
     if (!split) {
@@ -832,6 +907,7 @@ class JPanelBlockDisp extends JPanel{
   
   public void addBlockDispPanel(Block block) {
     this.block = block;
+    buffer2.removeAll();
     GridBagConstraints cons = new GridBagConstraints();
     setCons(cons,0,0,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
     buffer2.add(block.getDispPanel(), cons);

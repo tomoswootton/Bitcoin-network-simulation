@@ -29,15 +29,6 @@ class Block {
     this.foundBy = foundBy;
     newNonce();
     this.genHash();
-
-    // testing
-    // JFrame testMain = new JFrame();
-    // this.makeDispPanel();
-    // testMain.setSize(100, 100);
-    // testMain.setLocationRelativeTo(null);
-    // testMain.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    // testMain.add(this.dispPanel);
-    // testMain.setVisible(true);
   }
 
   //getters and setters
@@ -55,6 +46,9 @@ class Block {
   }
   public void setHash(String hash) {
     this.hash = hash;
+  }
+  public void setForcedHash() {
+    this.hash = formatHash((int) (Math.random() * (globalInfo.target)));
   }
   public JPanel getDispPanel() {
     if (dispPanel == null) {
@@ -83,12 +77,6 @@ class Block {
     this.nonce = (int) (Math.random() * globalInfo.hashSize);
   }
   public String genHash() {
-    //if block is added manually
-    if (this.foundBy == "None") {
-      //set hash to valid value
-      this.hash = formatHash((int) (Math.random() * (globalInfo.target)));
-      return this.hash;
-    }
     //hash is simply nonce
     this.hash = formatHash(this.nonce);
     return this.hash;

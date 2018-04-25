@@ -65,7 +65,6 @@ public class Node {
     button.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
         if (e.getSource() == button) {
-          System.out.println("got here");
           thread = new Thread(new Mine());
           thread.start();
         }
@@ -205,10 +204,12 @@ public class Node {
       if(giveOutput) {
         addToLog("\nMining paused\n");        
       }
-      thread.interrupt();
+      try {
+        thread.interrupt();
+      } catch (NullPointerException ex) {}
     }
     this.setRunningState(state);
-    System.out.println("node "+this.id+" states: isrunning "+this.isRunning+" userAllowRunning "+this.userAllowRunning);
+    // System.out.println("node "+this.id+" states: isrunning "+this.isRunning+" userAllowRunning "+this.userAllowRunning);
   }
   private void setNewWorkingBlock() {
     workingBlock = new Block(globalInfo, getChainSize(), getChainLastElement().getHash(), name);
@@ -226,6 +227,7 @@ public class Node {
     return false;
   }
   private void blockFound() {
+    thread.interrupt();
     //set time found
     workingBlock.setTimeFound(globalInfo.getTime());
     //propogate
@@ -254,6 +256,20 @@ public class Node {
     //continue mine
     addToLog("Find new block. id: "+getChainSize()+"\n");
     setNewWorkingBlock();
+  }
+  public void forceBlockFound(Block block) {
+    //halt mining
+    try {
+      thread.interrupt();
+    } catch (NullPointerException ex) {
+      System.out.println("ERROR: cannot force block upon non-mining node");
+      return;
+    }
+    //set working block
+    setWorkingBlock(block);
+    //run blockFound 
+    blockFound();
+    System.out.println("Block "+block.id+" forced on node "+this.id+".");
   }
 
   //node disp
@@ -363,8 +379,10 @@ public class Node {
 
     public void run() {
       isRunning = true;
-      while (isRunning && userAllowRunning) {
+      //isRunning is node, userAllowrunning is user input on simulation, simulation.running is simulation wide running
+      while (isRunning && userAllowRunning && simulation.running) {
         try {
+          setNewWorkingBlock();
           workingBlock.newNonce();
           String hash = workingBlock.genHash();
           //add to Log
@@ -372,7 +390,6 @@ public class Node {
           //check for valid hash
           if (checkHash(hash)) {
               blockFound();
-              setNewWorkingBlock();
           }
           Thread.sleep(timerExecutionTime);
         } catch (InterruptedException ex) {

@@ -16,7 +16,7 @@ class GlobalInfo {
   public LinkedList<Node> getNodesList() {
     return nodesList;
   }
-  public Node getNodeFromNodesList(int i) {
+  public Node getNode(int i) {
     return nodesList.get(i);
   }
   public void addToNodesList(Node node) {
@@ -29,6 +29,9 @@ class GlobalInfo {
     nodesList.clear();
   }
   public int nodesListSize() {
+    if (nodesList == null) {
+      return 0;
+    }
     return nodesList.size();
   }
   public int getHashSize() {
