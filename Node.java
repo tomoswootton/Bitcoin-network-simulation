@@ -141,7 +141,18 @@ public class Node {
     return this.chain;
   }
   public void setChain(LinkedList<Block> chain) {
+    System.out.println("old chain size: "+chain.size());
     this.chain = chain;
+    setWorkingBlock(getChainLastElement());
+    System.out.println("new chain size: "+chain.size());
+  }
+  
+  public void setBlockInChain(Block block) {
+    if (block.id != this.chain.size()-1) {
+      //if chain is ahead replace chain with simulation chain
+      this.chain = simulation.getBlocksFoundList();
+    }
+    this.chain.set(block.id,block);
   }
   public void setRunningState(boolean state) {
     if (isRunning != state) {
@@ -162,7 +173,7 @@ public class Node {
 
 
   //log methods
-  private void addToLog(String string) {
+  public void addToLog(String string) {
     this.log.add(string);
     //if log is open, append to text area aswell as log array
     if (logDispWindowOpen) {
@@ -180,7 +191,6 @@ public class Node {
   
   //mine methods
   public void mine(Boolean state, Boolean giveOutput) {
-    System.out.println("putting node "+this.id+" in state "+state);
     //if running stopped manually in simulation window
     if (!userAllowRunning) {
       this.setRunningState(state);
@@ -214,7 +224,7 @@ public class Node {
     this.setRunningState(state);
     // System.out.println("node "+this.id+" states: isrunning "+this.isRunning+" userAllowRunning "+this.userAllowRunning);
   }
-  private void setNewWorkingBlock() {
+  public void setNewWorkingBlock() {
     workingBlock = new Block(globalInfo, getChainSize(), getChainLastElement().getHash(), name);
   }
   public void setWorkingBlock(Block block) {
@@ -257,7 +267,7 @@ public class Node {
     addToLog("Block verified, adding to chain..\n");
     addBlockToChain(block);
     //continue mine
-    addToLog("Find new block. id: "+getChainSize()+"\n");
+    addToLog("Find new block. id: "+getChainSize()+"\n\n");
     setNewWorkingBlock();
   }
   public void forceBlockFound(Block block) {
@@ -270,9 +280,9 @@ public class Node {
     }
     //set working block
     setWorkingBlock(block);
+    System.out.println("Block "+block.id+" forced on node "+this.id+".");
     //run blockFound 
     blockFound();
-    System.out.println("Block "+block.id+" forced on node "+this.id+".");
   }
 
   //node disp

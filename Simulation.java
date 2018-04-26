@@ -38,6 +38,7 @@ public class Simulation {
   ArrayList<Double> averageFindTime10BlockAverages = new ArrayList<Double>();
   
   JButton startPauseButton;
+  JButton refreshAllButton;
   JButton exitButton;
 
 
@@ -60,10 +61,20 @@ public class Simulation {
   public LinkedList<Block> getBlocksFoundList() {
     return this.blocksFoundList;
   }
+  private void setRunningVar(boolean state) {
+    this.running = state;
+    if (!state) {
+      startPauseButton.setText("Start");
+    } else {
+      startPauseButton.setText("Pause");
+    }
+  }
 
   //JSwing stuff
   private void makePage() {
-
+    if (page != null) {
+      page.removeAll();
+    }
     //UI
     page = new JPanel();
     page.setLayout(new GridBagLayout());
@@ -98,10 +109,10 @@ public class Simulation {
         public void actionPerformed(ActionEvent e) {
           if(e.getSource() == startPauseButton) {
             if (running) {
-              startPauseButton.setText("Start");
+              setRunningVar(false);
               run(false);
             } else {
-              startPauseButton.setText("Pause");
+              setRunningVar(true);
               run(true);
             }
           }
@@ -111,6 +122,19 @@ public class Simulation {
       GridBagConstraints startPauseButtonCons = new GridBagConstraints();
       setCons(startPauseButtonCons, 0,1,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
       buttonsPanel.add(startPauseButton, startPauseButtonCons);
+
+      refreshAllButton = new JButton("Refresh");
+      refreshAllButton.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == refreshAllButton) {
+          refreshAll();
+        }
+      }
+    });
+
+    GridBagConstraints refreshAllButtonCons = new GridBagConstraints();
+    setCons(refreshAllButtonCons, 1, 1, 1, 1, GridBagConstraints.NONE, GridBagConstraints.CENTER, 0, 0);
+    buttonsPanel.add(refreshAllButton, refreshAllButtonCons);
 
       exitButton = new JButton("Exit");
       exitButton.addActionListener(new ActionListener() {
@@ -126,7 +150,7 @@ public class Simulation {
       });
 
       GridBagConstraints exitButtonCons = new GridBagConstraints();
-      setCons(exitButtonCons, 1,1,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
+      setCons(exitButtonCons, 2,1,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
       buttonsPanel.add(exitButton, exitButtonCons);
 
     GridBagConstraints buttonsPanelCons = new GridBagConstraints();
@@ -258,9 +282,10 @@ public class Simulation {
             prevBlockHash = blockDispHolderList.get(getCurrentBlockPanel().id).block.getHash();
           }
           //make block
+
           Block fakeBlock = new Block(globalInfo, blocksFoundList.size(), prevBlockHash, globalInfo.getNode(textFieldText).getName());
           fakeBlock.setForcedHash();
-          //add to ndoe
+          //add to node
           globalInfo.getNode(textFieldText).forceBlockFound(fakeBlock);
         }
       }
@@ -283,6 +308,7 @@ public class Simulation {
             JOptionPane.showMessageDialog(simulationFrame,"Invalid node id","Error",JOptionPane.PLAIN_MESSAGE);
             return;
           }
+          globalInfo.getNode(textFieldText).addToLog("\nForce restarted by simulation.\n\n");
           startNode(textFieldText);
         }
       }
@@ -306,7 +332,8 @@ public class Simulation {
             JOptionPane.showMessageDialog(simulationFrame,"Invalid node id","Error",JOptionPane.PLAIN_MESSAGE);
             return;
           }
-          System.out.println("got here");
+          //add force stop to nodes log
+          globalInfo.getNode(textFieldText).addToLog("\nForce stopped by simulation.\n\n");
           stopNode(textFieldText);
         }
       }
@@ -456,12 +483,17 @@ public class Simulation {
 
   }
   private void addBlockToHolderPanel(Block block) {
+    try{
+      //add block dispPanel to holder panel
+      blockDispHolderList.get(block.id).addBlockDispPanel(block);
 
-    //add block dispPanel to holder panel
-    blockDispHolderList.get(block.id).addBlockDispPanel(block);
-
-    //adjust size of panel to allow for new block
-    chainScrollPanel.setSize(new Dimension((block.id-9)*220 + 1100,220));
+      //adjust size of panel to allow for new block
+      chainScrollPanel.setSize(new Dimension((block.id-9)*220 + 1100,220));
+    }
+    catch (IndexOutOfBoundsException ex) {
+      refreshAll();
+      System.out.println("refresh all called by addBlockToHolderPanel");
+    }
   }
   private void splitChain(Block block) {
     System.out.println("Chain Split. block "+block.id);
@@ -473,7 +505,7 @@ public class Simulation {
     current.makeSplitLayout();
 
     //add previous block and newly found block to split panel
-    addBlocksToSplitPanel(getCurrentBlockPanel().block,block);
+    addBlocksToSplitPanel(current, getCurrentBlockPanel().block,block);
 
     current.revalidate();
     current.repaint();
@@ -483,9 +515,9 @@ public class Simulation {
 
     pushScrollBarToRight(chainScrollPane, chainScrollPanel);
   }
-  private void addBlocksToSplitPanel(Block block1, Block block2) {
+  private void addBlocksToSplitPanel(JPanelBlockDisp panel, Block block1, Block block2) {
     //add blocks
-    blockDispHolderList.get(block1.id).addBlockDispPanel(block1, block2);
+    panel.addBlockDispPanel(block1, block2);
     //adjust size of panel to allow for new block
     chainScrollPanel.setSize(new Dimension((block1.id-9)*220 + 1100,220));
     chainScrollPanel.revalidate();
@@ -507,8 +539,10 @@ public class Simulation {
   private void populateChainScrollPanel() {
     //displays already found blocks in panel
     for (Block block : blocksFoundList) {
+      addBlockHolderPanel();
       addBlockToHolderPanel(block);
     }
+    pushScrollBarToRight(chainScrollPane, chainScrollPanel);
 
   }
   private JPanelBlockDisp getCurrentBlockPanel() {
@@ -524,7 +558,13 @@ public class Simulation {
     return panel;
   }
   public void addBlockToGlobalChain(Block block) {
-    
+    //check block is of corret heigh
+    if (block.id != blocksFoundList.size()) {
+      refreshAll();
+      System.out.println("refresh all called by addBlockToGlobalChain");
+      
+      return;
+    }
     //set blocks timeElasped var and check for split
     if (block.id > 0) {
       long timeElapsedMiliSec = ((globalInfo.getTime() - blocksFoundList.get(block.id-1).getTimeFound()));
@@ -537,7 +577,9 @@ public class Simulation {
       }
       //if previous block panel is split, tell it which block won
       if (blockDispHolderList.get(getCurrentBlockPanel().id).split) {
-        blockDispHolderList.get(getCurrentBlockPanel().id).setWinnerBlock(block.getPrevBlockHash());
+        Block prevBlock = getBlockFromHash(block.getPrevBlockHash());
+        blockDispHolderList.get(getCurrentBlockPanel().id).setWinnerBlock(prevBlock);
+        updateNodesOfSplitwinner(prevBlock);
       }
       
       //create holder panel
@@ -572,7 +614,15 @@ public class Simulation {
       addBlockToHolderPanel(block);
       pushScrollBarToRight(chainScrollPane, chainScrollPanel);
     }
-
+  }
+  private Block getBlockFromHash(String hash) {
+    for (Block block : blocksFoundList) {
+      if (block.getHash() == hash) {
+        return block;
+      }
+    }
+    System.out.println("ERROR: no hash match");
+    return null;
   }
   private void propogateAndAddBlock(Block block) {
     //pause mining threads so block can be processed and propogated
@@ -645,7 +695,7 @@ public class Simulation {
     timer.cancel();
     timer.purge();
     for (Node node : globalInfo.getNodesList()) {
-      System.out.println("stopping node"+node.getName());
+      System.out.println("stopping node "+node.getName());
       node.mine(state, true);
     }
     }
@@ -671,7 +721,13 @@ public class Simulation {
   private void globalRun(boolean state) {
     //pause or unpause mining threads immmediatelty globally
     for (Node node : globalInfo.getNodesList()) {
-      node.mine(state, true);
+      node.mine(state, false);
+    }
+  }
+  private void updateNodesOfSplitwinner(Block prevBlock) {
+    //set prev block in its corrcet position in each nodes chain
+    for (Node node : globalInfo.getNodesList()) {
+      node.setBlockInChain(prevBlock);
     }
   }
 
@@ -703,7 +759,7 @@ public class Simulation {
     double old_target = globalInfo.getTarget();
     double new_target = ((averageFindTime10BlockAverages.get(averageFindTime10BlockAverages.size()-1))/globalInfo.getDesiredAverage())*old_target;
     //enforce 4x rule
-    if (new_target \ 4 > old_target) {
+    if (new_target / 4 > old_target) {
       new_target = old_target*4;
     } else if (new_target*4 < old_target) {
       new_target = new_target/4;
@@ -715,6 +771,18 @@ public class Simulation {
     for (Node node : globalInfo.getNodesList()) {
       node.addNewTargetToLog();
     }
+  }
+  private void refreshAll() {
+    globalRun(false);
+    //method reassigns each nodes chain to current global chain, revalidatd and repaints chain
+    for (Node node : globalInfo.getNodesList()) {
+      node.setChain(this.blocksFoundList);
+    }
+    chainScrollPane.revalidate();
+    chainScrollPane.repaint();
+    chainScrollPanel.revalidate();
+    chainScrollPanel.repaint();
+    globalRun(true);
   }
 
 class JPanelBlockDisp extends JPanel{
@@ -863,7 +931,6 @@ class JPanelBlockDisp extends JPanel{
         g.drawLine(w/4,3*(h/4),w/2,3*(h/4));
       }
       if (this.block2.getPrevBlockHash() == prevBlock2Hash) {
-        System.out.println("block2 to block2");
         g.drawLine(0,3*(h/4),w/2,3*(h/4));
       }
     }
@@ -954,8 +1021,8 @@ class JPanelBlockDisp extends JPanel{
     occupied = true;
   }
 
-  public void setWinnerBlock(String hash) {
-    if (hash == this.block1.getHash()) {
+  public void setWinnerBlock(Block block) {
+    if (block == this.block1) {
       this.block = this.block1;
     } else {
       this.block = this.block2;
