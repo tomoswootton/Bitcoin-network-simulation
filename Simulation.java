@@ -34,7 +34,8 @@ public class Simulation {
   //display on control panel
   JLabel averageFindLabel;
   double averageFindTime;
-  Queue<Double> averageFindTimeArray = new LinkedList<Double>();
+  Queue<Double> averageFindTimeQueue = new LinkedList<Double>();
+  ArrayList<Double> averageFindTime10BlockAverages = new ArrayList<Double>();
   
   JButton startPauseButton;
   JButton exitButton;
@@ -586,7 +587,7 @@ public class Simulation {
     }
     //add to global chain
     addBlockToFoundList(block);
-    updateAverageFindTimeLast10Blocks(block.getTimeElapsed());
+    updateAverageFindTimeLast10Blocks(block);
     //restart mining 
     globalRun(true);
   }
@@ -675,22 +676,46 @@ public class Simulation {
   }
 
   //general
-  private void updateAverageFindTimeLast10Blocks(double newTime) {    
-    int averageFindTimeSize = averageFindTimeArray.size();
+  private void updateAverageFindTimeLast10Blocks(Block block) {    
+    int averageFindTimeSize = averageFindTimeQueue.size();
     //if full remove last element
     if (averageFindTimeSize == 10) {
-      averageFindTimeArray.remove();
+      averageFindTimeQueue.remove();
     }
     //add new time to queue
-    averageFindTimeArray.add(newTime);
+    averageFindTimeQueue.add(block.getTimeElapsed());
     //calc average
     double sum = 0.0;
-    for (Double time : averageFindTimeArray) {
+    for (Double time : averageFindTimeQueue) {
       sum = sum + time;
     }
     this.averageFindTime = Math.floor(((sum) / averageFindTimeSize)*100)/100;  
     averageFindLabel.setText("Average block find time (seconds): " + this.averageFindTime);
+    if (block.id % 10 == 0) {
+      //add 10 block average to list
+      averageFindTime10BlockAverages.add(averageFindTime);
+      adjustDifficulty();
+    }
   } 
+  private void adjustDifficulty() {
+    //method uses value of previous 10 blocks average find time and compares to desired find time.
+    //alter target with new_target = (average/desired)*old_target
+    double old_target = globalInfo.getTarget();
+    double new_target = ((averageFindTime10BlockAverages.get(averageFindTime10BlockAverages.size()-1))/globalInfo.getDesiredAverage())*old_target;
+    //enforce 4x rule
+    if (new_target \ 4 > old_target) {
+      new_target = old_target*4;
+    } else if (new_target*4 < old_target) {
+      new_target = new_target/4;
+    }
+    globalInfo.setTarget(new_target);
+    //print to consol
+    System.out.println("Difficulty adjustment: target set to "+new_target);
+    //print to nodes's logs
+    for (Node node : globalInfo.getNodesList()) {
+      node.addNewTargetToLog();
+    }
+  }
 
 class JPanelBlockDisp extends JPanel{
   private static final long serialVersionUID = 1L;

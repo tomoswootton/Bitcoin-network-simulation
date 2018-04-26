@@ -39,7 +39,7 @@ public class Main {
   }
   public Main() {
     makePage();
-    globalInfo = new GlobalInfo(Integer.parseInt(getTextField("hashSize").getText()),Integer.parseInt(getTextField("target").getText()));
+    globalInfo = new GlobalInfo(Integer.parseInt(getTextField("hashSize").getText()),Integer.parseInt(getTextField("target").getText()),Integer.parseInt(getTextField("hashPerSec").getText()));
     makeTextFieldListeners();
   }
 
@@ -349,6 +349,33 @@ public class Main {
         globalInfo.setTarget(Integer.parseInt(getTextField("target").getText()));
       }
     });
+    getTextField("hashPerSec").getDocument().addDocumentListener(new DocumentListener() {
+      public void changedUpdate(DocumentEvent e) {
+        try {
+          changeHashPerSec();
+        } catch (NumberFormatException ex) {
+        }
+      }
+
+      public void removeUpdate(DocumentEvent e) {
+        try {
+          changeHashPerSec();
+        } catch (NumberFormatException ex) {
+        }
+      }
+
+      public void insertUpdate(DocumentEvent e) {
+        try {
+          changeHashPerSec();
+          return;
+        } catch (NumberFormatException ex) {
+        }
+      }
+
+      private void changeHashPerSec() {
+        globalInfo.setHashPerSec(Integer.parseInt(getTextField("hashPerSec").getText()));
+      }
+    });
     getTextField("hashPerSec").addMouseListener(new MouseAdapter() {
       @Override
       public void mouseClicked(MouseEvent e) {
@@ -620,6 +647,7 @@ public class Main {
       errorMsg("Global hashes per second");
       return;
     }
+
     //make simulation object
     Simulation simulation = new Simulation(globalInfo);
 

@@ -48,7 +48,7 @@ class Block {
     this.hash = hash;
   }
   public void setForcedHash() {
-    this.hash = formatHash((int) (Math.random() * (globalInfo.target)));
+    this.hash = formatHash((int) (Math.random() * (globalInfo.getTarget)));
   }
   public JPanel getDispPanel() {
     if (dispPanel == null) {

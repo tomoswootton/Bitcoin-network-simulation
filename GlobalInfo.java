@@ -4,14 +4,20 @@ import java.util.Date;
 class GlobalInfo {
   //class holds data that all others may require
   int hashSize;
-  int target;
+  double target;
+  int hashPerSec;
+  double desiredAverage;
   Date date = new Date();;
 
   private LinkedList<Node> nodesList = new LinkedList<Node>();
 
-  public GlobalInfo(int hashSize, int target) {
+  public GlobalInfo(int hashSize, int target, int hashPerSec) {
     this.hashSize = hashSize;
-    this.target = target;
+    this.target = (double) target;
+    this.hashPerSec = hashPerSec;
+    //var holds desired average block find time, based off of inital input values above
+    //used for difficulty adjustment: compare this value to average find time
+    this.desiredAverage = (hashSize/target)*hashPerSec;
   }
   public LinkedList<Node> getNodesList() {
     return nodesList;
@@ -40,11 +46,21 @@ class GlobalInfo {
   public void setHashSize(int hashSize) {
     this.hashSize = hashSize;
   }
-  public int getTarget() {
+  public double getTarget() {
     return this.target;
   }
-  public void setTarget(int target) {
+  public void setTarget(double target) {
     this.target = target;
+  }
+  public int getHashPerSec() {
+    return this.hashPerSec;
+  }
+  public void setHashPerSec(int hashPerSec) {
+    this.hashPerSec = hashPerSec;
+    System.out.println("hash per sec changed "+hashPerSec);
+  }
+  public double getDesiredAverage() {
+    return this.desiredAverage;
   }
   public long getTime() {
     date = new Date();

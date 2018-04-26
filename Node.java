@@ -174,6 +174,9 @@ public class Node {
       textArea.append(string);
     }
   }
+  public void addNewTargetToLog() {
+    addToLog("\nDifficulty adjustment.\nNew target: " + String.valueOf(globalInfo.getTarget())+"\n");
+  }
   
   //mine methods
   public void mine(Boolean state, Boolean giveOutput) {
