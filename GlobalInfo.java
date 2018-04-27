@@ -7,6 +7,7 @@ class GlobalInfo {
   double target;
   int hashPerSec;
   double desiredAverage;
+  double desiredTarget;
   Date date = new Date();;
 
   private LinkedList<Node> nodesList = new LinkedList<Node>();
@@ -18,6 +19,7 @@ class GlobalInfo {
     //var holds desired average block find time, based off of inital input values above
     //used for difficulty adjustment: compare this value to average find time
     this.desiredAverage = (hashSize/target)*hashPerSec;
+    this.desiredTarget = target;
   }
   public LinkedList<Node> getNodesList() {
     return nodesList;
@@ -65,5 +67,8 @@ class GlobalInfo {
   public long getTime() {
     date = new Date();
     return this.date.getTime();
+  }
+  public double getDesiredTarget() {
+    return this.desiredTarget;
   }
 }

@@ -108,6 +108,7 @@ public class Simulation {
       startPauseButton.addActionListener(new ActionListener() {
         public void actionPerformed(ActionEvent e) {
           if(e.getSource() == startPauseButton) {
+            System.out.println("desired find time: "+globalInfo.getDesiredAverage());
             if (running) {
               setRunningVar(false);
               run(false);
@@ -271,18 +272,23 @@ public class Simulation {
           //find blocks prevBlockHash
           String prevBlockHash;
           //if in split
-          if (inLatency) {
-            //use prev panel block
-            if (blockDispHolderList.get(getCurrentBlockPanel().id - 1).split) {
-              prevBlockHash = blockDispHolderList.get(getCurrentBlockPanel().id - 1).block2.getHash();
+          try {
+            if (inLatency) {
+              //use prev panel block
+              if (blockDispHolderList.get(getCurrentBlockPanel().id - 1).split) {
+                prevBlockHash = blockDispHolderList.get(getCurrentBlockPanel().id - 1).block2.getHash();
+              } else {
+                prevBlockHash = blockDispHolderList.get(getCurrentBlockPanel().id - 1).block.getHash();
+              }
             } else {
-              prevBlockHash = blockDispHolderList.get(getCurrentBlockPanel().id - 1).block.getHash();
+              prevBlockHash = blockDispHolderList.get(getCurrentBlockPanel().id).block.getHash();
             }
-          } else {
-            prevBlockHash = blockDispHolderList.get(getCurrentBlockPanel().id).block.getHash();
+          } catch (NullPointerException ex) {
+            System.out.println("ERROR: Refresh all called by addBlockButton");
+            return;
           }
-          //make block
 
+          //make block
           Block fakeBlock = new Block(globalInfo, blocksFoundList.size(), prevBlockHash, globalInfo.getNode(textFieldText).getName());
           fakeBlock.setForcedHash();
           //add to node
@@ -637,10 +643,11 @@ public class Simulation {
     propogateBlock(block);
     System.out.println("Adding block " + block.id + " to found list and contstructing panel");
  
-    System.out.println("all nodes should be at even height here.");
-    for (Node node : globalInfo.getNodesList()) {
-      System.out.println(node.getChainSize());
-    }
+    // System.out.println("all nodes should be at even height here.");
+    // for (Node node : globalInfo.getNodesList()) {
+    //   System.out.println(node.getChainSize());
+    // }
+    
     //add to global chain
     addBlockToFoundList(block);
     updateAverageFindTimeLast10Blocks(block);
@@ -761,21 +768,31 @@ public class Simulation {
   } 
   private void adjustDifficulty() {
     //method uses value of previous 10 blocks average find time and compares to desired find time.
-    //alter target with new_target = (average/desired)*old_target
     double old_target = globalInfo.getTarget();
-    double new_target = Math.floor((((averageFindTime10BlockAverages.get(averageFindTime10BlockAverages.size()-1))/globalInfo.getDesiredAverage())*old_target)*100)/100;
+    double new_target;
+    double desired_target = globalInfo.getDesiredTarget();
+    double averageFindTime = averageFindTime10BlockAverages.get(averageFindTime10BlockAverages.size()-1);
+    double desiredFindTime = globalInfo.getDesiredAverage();
+      //alter target with new_target = (average/desired)*old_target
+      new_target = Math.floor(((averageFindTime/desiredFindTime)*old_target)*100)/100;
+
     //enforce 4x rule
     if (new_target / 4 > old_target) {
+      System.out.println("x4 upwards");
       new_target = old_target*4;
-    } else if (new_target*4 < old_target) {
-      new_target = new_target/4;
     }
+    if (new_target*4 < old_target) {
+      System.out.println("x4 downwards");      
+      new_target = old_target/4;
+    }
+    System.out.println("averageFindtime: "+averageFindTime+"\nold target: "+old_target+"\nnew target: "+new_target);
     globalInfo.setTarget(new_target);
+    
     //print to consol
-    System.out.println("Difficulty adjustment: target set to "+new_target);
+    System.out.println("Difficulty adjustment: target set to "+(int) new_target);
     //print to nodes's logs
     for (Node node : globalInfo.getNodesList()) {
-      node.addNewTargetToLog();
+      node.addNewTargetToLog(averageFindTime10BlockAverages.get(averageFindTime10BlockAverages.size() - 1));
     }
   }
   private void refreshAll() {

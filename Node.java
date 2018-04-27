@@ -141,10 +141,8 @@ public class Node {
     return this.chain;
   }
   public void setChain(LinkedList<Block> chain) {
-    System.out.println("old chain size: "+chain.size());
     this.chain = chain;
-    setWorkingBlock(getChainLastElement());
-    System.out.println("new chain size: "+chain.size());
+    setNewWorkingBlock();
   }
   
   public void setBlockInChain(Block block) {
@@ -185,8 +183,8 @@ public class Node {
       textArea.append(string);
     }
   }
-  public void addNewTargetToLog() {
-    addToLog("\nDifficulty adjustment.\nNew target: " + String.valueOf(globalInfo.getTarget())+"\n");
+  public void addNewTargetToLog(double average) {
+    addToLog("\nDifficulty adjustment.\nAverage block find time: "+average+"\nNew target: " + String.valueOf(globalInfo.getTarget())+"\n\n");
   }
   
   //mine methods
