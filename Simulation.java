@@ -492,7 +492,7 @@ public class Simulation {
     }
     catch (IndexOutOfBoundsException ex) {
       refreshAll();
-      System.out.println("refresh all called by addBlockToHolderPanel");
+      System.out.println("refresh all called by addBlockToHolderPanel indexOutOfBounds");
     }
   }
   private void splitChain(Block block) {
@@ -517,7 +517,13 @@ public class Simulation {
   }
   private void addBlocksToSplitPanel(JPanelBlockDisp panel, Block block1, Block block2) {
     //add blocks
-    panel.addBlockDispPanel(block1, block2);
+    try {
+      panel.addBlockDispPanel(block1, block2);
+    } catch (NullPointerException ex) {
+      refreshAll();
+      System.out.println("refresh all called by addBlockDispPanal nullPointerExep");
+      
+    }
     //adjust size of panel to allow for new block
     chainScrollPanel.setSize(new Dimension((block1.id-9)*220 + 1100,220));
     chainScrollPanel.revalidate();
@@ -557,7 +563,7 @@ public class Simulation {
     }
     return panel;
   }
-  public void addBlockToGlobalChain(Block block) {
+  public synchronized void addBlockToGlobalChain(Block block) {
     //check block is of corret heigh
     if (block.id != blocksFoundList.size()) {
       refreshAll();
@@ -757,7 +763,7 @@ public class Simulation {
     //method uses value of previous 10 blocks average find time and compares to desired find time.
     //alter target with new_target = (average/desired)*old_target
     double old_target = globalInfo.getTarget();
-    double new_target = ((averageFindTime10BlockAverages.get(averageFindTime10BlockAverages.size()-1))/globalInfo.getDesiredAverage())*old_target;
+    double new_target = Math.floor((((averageFindTime10BlockAverages.get(averageFindTime10BlockAverages.size()-1))/globalInfo.getDesiredAverage())*old_target)*100)/100;
     //enforce 4x rule
     if (new_target / 4 > old_target) {
       new_target = old_target*4;
