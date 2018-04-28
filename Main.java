@@ -1,8 +1,8 @@
 import java.awt.*;
-import javax.swing.*;
-import javax.swing.event.*;
 import java.awt.GridBagLayout;
 import java.awt.event.*;
+import javax.swing.*;
+import javax.swing.event.*;
 import java.util.LinkedList;
 import java.util.ArrayList;
 import java.io.*;
@@ -294,7 +294,6 @@ public class Main {
     setCons(cons,x,y,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
     panelToAddTo.add(panel, cons);
   }
-  
   private void makeUserInputDisplayPanel(String labelText, JLabel labelPassedIn, JPanel panelToAddTo, int x, int y) {
     JPanel panel = new JPanel(new GridBagLayout());
 
@@ -370,7 +369,12 @@ public class Main {
         } catch(NumberFormatException ex) {}
         }
         private void changeMaxTarget() {
-          globalInfo.setMaxTarget(Integer.parseInt(getTextField("maxTarget").getText()));
+          int maxTarget = Integer.parseInt(getTextField("maxTarget").getText());
+          if (maxTarget < 0) {
+            JOptionPane.showMessageDialog(main, "Max target must be greater than 0.", "Error", JOptionPane.PLAIN_MESSAGE);
+            return;
+          }
+          globalInfo.setMaxTarget(maxTarget);
           //update difficlty and label
           globalInfo.updateDifficulty();
           updateDifficultyLabel();
@@ -397,7 +401,12 @@ public class Main {
         } catch(NumberFormatException ex) {}
       }
       private void changeTarget() {
-        globalInfo.setTarget(Integer.parseInt(getTextField("target").getText()));
+        int target = Integer.parseInt(getTextField("target").getText());
+        if (target < 0 || target > globalInfo.getMaxTarget()) {
+          JOptionPane.showMessageDialog(main, "0 < Target < maximum target.", "Error", JOptionPane.PLAIN_MESSAGE);          
+          return;
+        }
+        globalInfo.setTarget(target);
         //update difficlty and label
         globalInfo.updateDifficulty();
         updateDifficultyLabel();
@@ -430,7 +439,12 @@ public class Main {
       }
 
       private void changeHashPerSec() {
-        globalInfo.setHashPerSec(Integer.parseInt(getTextField("hashPerSec").getText()));
+        int hashPerSec = Integer.parseInt(getTextField("hashPerSec").getText());
+        if (hashPerSec <= 0) {
+          JOptionPane.showMessageDialog(main, "Must have positive value.", "Error",JOptionPane.PLAIN_MESSAGE);
+          
+        }
+        globalInfo.setHashPerSec(hashPerSec);
         //update difficlty and label
         globalInfo.updateDifficulty();
         updateDifficultyLabel();
@@ -506,7 +520,7 @@ public class Main {
 
   //add nodes
   public Node createNode(String name, String hashShare) {
-    Double mine_speed = (Double.parseDouble(hashShare)/100)*Double.parseDouble(getTextField("hashPerSec").getText());
+    double mine_speed = (Double.parseDouble(hashShare)/100)*(double)(globalInfo.getHashPerSec());
     //create node
     Node node = new Node(globalInfo,name,hashShare,mine_speed);
 
@@ -629,7 +643,9 @@ public class Main {
 
         while((line = bufferedReader.readLine()) != null) {
             //dont process start and end of JSON
-            if(line.length() > 1 && lineNum < 11) {
+
+            // if(line.length() > 1 && lineNum < 11) { used for testing
+            if(line.length() > 1) {
               lineNum = lineNum + 1;
 
               //find end of name in line
@@ -698,8 +714,8 @@ public class Main {
       return;
     }
     try {
-      int maxTarget = Integer.parseInt(getTextField("target").getText());
-      if (maxTarget < 0) {
+      int target = Integer.parseInt(getTextField("target").getText());
+      if (target < 0 || target > globalInfo.getMaxTarget()) {
         errorMsg("Target");
         return;
       }

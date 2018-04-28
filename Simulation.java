@@ -526,7 +526,7 @@ public class Simulation {
       panel.addBlockDispPanel(block1, block2);
     } catch (NullPointerException ex) {
       refreshAll();
-      System.out.println("refresh all called by addBlockDispPanal nullPointerExep");
+      System.out.println("Refresh all called by addBlockDispPanel nullPointerExeption");
       
     }
     //adjust size of panel to allow for new block
