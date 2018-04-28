@@ -5,6 +5,7 @@ class GlobalInfo {
   //class holds data that all others may require
   int maxTarget;
   double target;
+  double difficulty;
   int hashPerSec;
   double desiredAverage;
   double desiredTarget;
@@ -15,6 +16,7 @@ class GlobalInfo {
   public GlobalInfo(int maxTarget, int target, int hashPerSec) {
     this.maxTarget = maxTarget;
     this.target = (double) target;
+    this.difficulty = maxTarget/target;
     this.hashPerSec = hashPerSec;
     //var holds desired average block find time, based off of inital input values above
     //used for difficulty adjustment: compare this value to average find time
@@ -70,7 +72,12 @@ class GlobalInfo {
   public double getDesiredTarget() {
     return this.desiredTarget;
   }
-  
+  public double getDifficulty() {
+    return this.difficulty;
+  }
+  public void updateDifficulty() {
+    this.difficulty = Math.floor((maxTarget/target)*100)/100;
+  }
   public void updateDesiredAverage() {
     this.desiredAverage = Math.floor((maxTarget / target) * hashPerSec*100)/100;
   }

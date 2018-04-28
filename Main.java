@@ -16,6 +16,7 @@ public class Main {
   JTextFieldWithID MaxHashValueTextField;
   JTextFieldWithID targetTextField;
   JTextFieldWithID globalHashShareTextField;
+  JLabel difficultyLabel;
   JLabel setupAverageDisplayLabel;
   ArrayList<JTextFieldWithID> userInputTextFields = new ArrayList<JTextFieldWithID>();
   JLabel nodeIdLabel;
@@ -43,12 +44,13 @@ public class Main {
     globalInfo = new GlobalInfo(Integer.parseInt(getTextField("maxTarget").getText()),Integer.parseInt(getTextField("target").getText()),Integer.parseInt(getTextField("hashPerSec").getText()));
     makeTextFieldListeners();
     //set text of desired average label 
+    updateDifficultyLabel();
     updateDesiredAverageLabel();
   }
 
   //JSwing methods
   private void makePage() {
-    main.setSize(800, 600);
+    main.setSize(800, 650);
     main.setLocationRelativeTo(null);
     main.setResizable(false);
     main.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -82,18 +84,20 @@ public class Main {
       setCons(settingsTitleCons,0,0,2,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
       settingsPanel.add(settingsTitle, settingsTitleCons);
 
-      //add input boxes
+      //add inputs
       makeUserInputPanel("maxTarget","Maximum target value: ", "10000", settingsPanel,0,1);
       makeUserInputPanel("target","Target: ", "1000", settingsPanel, 0,2);
-      makeUserInputPanel("hashPerSec","Global Hashes per second: ", "1", settingsPanel, 0,3);
+      //difficulty label
+      makeUserInputDisplayPanel("Difficulty:", difficultyLabel = new JLabel(), settingsPanel, 0, 3);
+      makeUserInputPanel("hashPerSec","Global Hashes per second: ", "1", settingsPanel, 0,4);
 
       setupAverageDisplayLabel = new JLabel();
       GridBagConstraints setupAverageDisplayLabelCons = new GridBagConstraints();
-      setCons(setupAverageDisplayLabelCons, 0, 4, 1, 1, GridBagConstraints.NONE, GridBagConstraints.CENTER, 0, 10);
+      setCons(setupAverageDisplayLabelCons, 0, 5, 1, 1, GridBagConstraints.NONE, GridBagConstraints.CENTER, 0, 10);
       settingsPanel.add(setupAverageDisplayLabel, setupAverageDisplayLabelCons);
 
         JPanel settingsfillerPanel = new JPanel();
-        settingsfillerPanel.setPreferredSize(new Dimension(400,10));
+        settingsfillerPanel.setPreferredSize(new Dimension(400,30));
 
         GridBagConstraints settingsfillerPanelCons = new GridBagConstraints();
         setCons(settingsfillerPanelCons,0,4,4,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
@@ -290,6 +294,39 @@ public class Main {
     setCons(cons,x,y,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,10,10);
     panelToAddTo.add(panel, cons);
   }
+  
+  private void makeUserInputDisplayPanel(String labelText, JLabel labelPassedIn, JPanel panelToAddTo, int x, int y) {
+    JPanel panel = new JPanel(new GridBagLayout());
+
+    JPanel labelPanel = new JPanel(new GridBagLayout());
+    labelPanel.setMinimumSize(new Dimension(200, 20));
+    labelPanel.setPreferredSize(new Dimension(200, 20));
+
+    GridBagConstraints labelPlacCons = new GridBagConstraints();
+    setCons(labelPlacCons, 0, 0, 1, 1, GridBagConstraints.NONE, GridBagConstraints.LINE_END, 0, 0);
+    JLabel label = new JLabel(labelText);
+    labelPanel.add(label, labelPlacCons);
+
+    GridBagConstraints labelCons = new GridBagConstraints();
+    setCons(labelCons, 0, 0, 1, 1, GridBagConstraints.NONE, GridBagConstraints.CENTER, 0, 0);
+    panel.add(labelPanel, labelCons);
+
+    JPanel labelPassedPanel = new JPanel(new GridBagLayout());
+    labelPassedPanel.setMinimumSize(new Dimension(200, 20));
+    labelPassedPanel.setPreferredSize(new Dimension(200, 20));
+
+    GridBagConstraints labelPassedPlacCons = new GridBagConstraints();
+    setCons(labelPassedPlacCons, 0, 0, 1, 1, GridBagConstraints.NONE, GridBagConstraints.LINE_START, 0, 0);
+    labelPassedPanel.add(labelPassedIn, labelPassedPlacCons);
+
+    GridBagConstraints labelPassedCons = new GridBagConstraints();
+    setCons(labelPassedCons, 1, 0, 1, 1, GridBagConstraints.NONE, GridBagConstraints.CENTER, 0, 0);
+    panel.add(labelPassedPanel, labelPassedCons);
+
+    GridBagConstraints cons = new GridBagConstraints();
+    setCons(cons, x, y, 1, 1, GridBagConstraints.NONE, GridBagConstraints.CENTER, 10, 10);
+    panelToAddTo.add(panel, cons);
+  }
   private JTextFieldWithID getTextField(String id) {
     for (JTextFieldWithID textField : userInputTextFields) {
       if (textField.id == id) {
@@ -334,6 +371,9 @@ public class Main {
         }
         private void changeMaxTarget() {
           globalInfo.setMaxTarget(Integer.parseInt(getTextField("maxTarget").getText()));
+          //update difficlty and label
+          globalInfo.updateDifficulty();
+          updateDifficultyLabel();
           //update desiredAverage and label
           globalInfo.updateDesiredAverage();
           updateDesiredAverageLabel();
@@ -358,6 +398,9 @@ public class Main {
       }
       private void changeTarget() {
         globalInfo.setTarget(Integer.parseInt(getTextField("target").getText()));
+        //update difficlty and label
+        globalInfo.updateDifficulty();
+        updateDifficultyLabel();
         //update desiredAverage and label
         globalInfo.updateDesiredAverage();
         updateDesiredAverageLabel();
@@ -388,6 +431,9 @@ public class Main {
 
       private void changeHashPerSec() {
         globalInfo.setHashPerSec(Integer.parseInt(getTextField("hashPerSec").getText()));
+        //update difficlty and label
+        globalInfo.updateDifficulty();
+        updateDifficultyLabel();
         //update desiredAverage and label
         globalInfo.updateDesiredAverage();
         updateDesiredAverageLabel();
@@ -421,6 +467,9 @@ public class Main {
         }
       }
     });
+  }
+  private void updateDifficultyLabel() {
+    difficultyLabel.setText(String.valueOf(globalInfo.getDifficulty()));
   }
   private void updateDesiredAverageLabel() {
     setupAverageDisplayLabel.setText("This setup will find a block on average every " + globalInfo.getDesiredAverage() + " seconds.");
