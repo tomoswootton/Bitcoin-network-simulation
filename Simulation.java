@@ -108,7 +108,6 @@ public class Simulation {
       startPauseButton.addActionListener(new ActionListener() {
         public void actionPerformed(ActionEvent e) {
           if(e.getSource() == startPauseButton) {
-            System.out.println("desired find time: "+globalInfo.getDesiredAverage());
             if (running) {
               setRunningVar(false);
               run(false);

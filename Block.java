@@ -74,7 +74,7 @@ class Block {
 
   //methods
   public void newNonce() {
-    this.nonce = (int) (Math.random() * globalInfo.hashSize);
+    this.nonce = (int) (Math.random() * globalInfo.getMaxTarget());
   }
   public String genHash() {
     //hash is simply nonce

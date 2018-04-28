@@ -31,7 +31,6 @@ public class Node {
   Block workingBlock;
   ArrayList<String> log;
   int blocks_mined;
-  int hashSize;
 
   // nodes version of chain
   LinkedList<Block> chain;

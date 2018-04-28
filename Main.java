@@ -16,6 +16,7 @@ public class Main {
   JTextFieldWithID MaxHashValueTextField;
   JTextFieldWithID targetTextField;
   JTextFieldWithID globalHashShareTextField;
+  JLabel setupAverageDisplayLabel;
   ArrayList<JTextFieldWithID> userInputTextFields = new ArrayList<JTextFieldWithID>();
   JLabel nodeIdLabel;
   JComboBox<String> nodesDisplayedCBox;
@@ -39,8 +40,10 @@ public class Main {
   }
   public Main() {
     makePage();
-    globalInfo = new GlobalInfo(Integer.parseInt(getTextField("hashSize").getText()),Integer.parseInt(getTextField("target").getText()),Integer.parseInt(getTextField("hashPerSec").getText()));
+    globalInfo = new GlobalInfo(Integer.parseInt(getTextField("maxTarget").getText()),Integer.parseInt(getTextField("target").getText()),Integer.parseInt(getTextField("hashPerSec").getText()));
     makeTextFieldListeners();
+    //set text of desired average label 
+    updateDesiredAverageLabel();
   }
 
   //JSwing methods
@@ -80,9 +83,14 @@ public class Main {
       settingsPanel.add(settingsTitle, settingsTitleCons);
 
       //add input boxes
-      makeUserInputPanel("hashSize","Maximum hash value: ", "10000", settingsPanel,0,1);
+      makeUserInputPanel("maxTarget","Maximum target value: ", "10000", settingsPanel,0,1);
       makeUserInputPanel("target","Target: ", "1000", settingsPanel, 0,2);
       makeUserInputPanel("hashPerSec","Global Hashes per second: ", "1", settingsPanel, 0,3);
+
+      setupAverageDisplayLabel = new JLabel();
+      GridBagConstraints setupAverageDisplayLabelCons = new GridBagConstraints();
+      setCons(setupAverageDisplayLabelCons, 0, 4, 1, 1, GridBagConstraints.NONE, GridBagConstraints.CENTER, 0, 10);
+      settingsPanel.add(setupAverageDisplayLabel, setupAverageDisplayLabelCons);
 
         JPanel settingsfillerPanel = new JPanel();
         settingsfillerPanel.setPreferredSize(new Dimension(400,10));
@@ -308,24 +316,27 @@ public class Main {
   }
   private void makeTextFieldListeners() {
     //update globalInfo when values change
-    getTextField("hashSize").getDocument().addDocumentListener(new DocumentListener() {
+    getTextField("maxTarget").getDocument().addDocumentListener(new DocumentListener() {
         public void changedUpdate(DocumentEvent e) {
           try {
-          changeHashSize();
+          changeMaxTarget();
         } catch(NumberFormatException ex) {}
         }
         public void removeUpdate(DocumentEvent e) {
           try {
-          changeHashSize();
+          changeMaxTarget();
         } catch(NumberFormatException ex) {}
         }
         public void insertUpdate(DocumentEvent e) {
           try {
-          changeHashSize();
+          changeMaxTarget();
         } catch(NumberFormatException ex) {}
         }
-        private void changeHashSize() {
-          globalInfo.setHashSize(Integer.parseInt(getTextField("hashSize").getText()));
+        private void changeMaxTarget() {
+          globalInfo.setMaxTarget(Integer.parseInt(getTextField("maxTarget").getText()));
+          //update desiredAverage and label
+          globalInfo.updateDesiredAverage();
+          updateDesiredAverageLabel();
         }
     });
     getTextField("target").getDocument().addDocumentListener(new DocumentListener() {
@@ -347,6 +358,9 @@ public class Main {
       }
       private void changeTarget() {
         globalInfo.setTarget(Integer.parseInt(getTextField("target").getText()));
+        //update desiredAverage and label
+        globalInfo.updateDesiredAverage();
+        updateDesiredAverageLabel();
       }
     });
     getTextField("hashPerSec").getDocument().addDocumentListener(new DocumentListener() {
@@ -374,6 +388,9 @@ public class Main {
 
       private void changeHashPerSec() {
         globalInfo.setHashPerSec(Integer.parseInt(getTextField("hashPerSec").getText()));
+        //update desiredAverage and label
+        globalInfo.updateDesiredAverage();
+        updateDesiredAverageLabel();
       }
     });
     getTextField("hashPerSec").addMouseListener(new MouseAdapter() {
@@ -405,6 +422,10 @@ public class Main {
       }
     });
   }
+  private void updateDesiredAverageLabel() {
+    setupAverageDisplayLabel.setText("This setup will find a block on average every " + globalInfo.getDesiredAverage() + " seconds.");
+  }
+  
   private void setCons(GridBagConstraints gridCons, int x, int y, int width, int height, int fill, int anchor, int ipadx, int ipady) {
     //method sets GridBagConstraints variables
 
@@ -618,8 +639,8 @@ public class Main {
 
     //check for input errors
     try {
-      int hashSize = Integer.parseInt(getTextField("hashSize").getText());
-      if (hashSize < 0) {
+      int maxTarget = Integer.parseInt(getTextField("maxTarget").getText());
+      if (maxTarget < 0) {
         errorMsg("Hash size");
         return;
       }
@@ -628,8 +649,8 @@ public class Main {
       return;
     }
     try {
-      int hashSize = Integer.parseInt(getTextField("target").getText());
-      if (hashSize < 0) {
+      int maxTarget = Integer.parseInt(getTextField("target").getText());
+      if (maxTarget < 0) {
         errorMsg("Target");
         return;
       }
@@ -638,8 +659,8 @@ public class Main {
       return;
     }
     try {
-      int hashSize = Integer.parseInt(getTextField("hashPerSec").getText());
-      if (hashSize < 0) {
+      int maxTarget = Integer.parseInt(getTextField("hashPerSec").getText());
+      if (maxTarget < 0) {
         errorMsg("Global hashes per second");
         return;
       }
