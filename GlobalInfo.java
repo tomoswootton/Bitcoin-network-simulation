@@ -81,4 +81,10 @@ class GlobalInfo {
   public void updateDesiredAverage() {
     this.desiredAverage = Math.floor((maxTarget / target) * hashPerSec*100)/100;
   }
+
+  public void clearNodes() {
+    for (Node node : nodesList) {
+      node.reset();
+    }
+  }
 }

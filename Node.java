@@ -166,6 +166,8 @@ public class Node {
     GenBlock genBlock = new GenBlock(globalInfo, 0, "1234", null);
     chain.add(genBlock);
     this.log =  new ArrayList<String>();
+    blocks_mined = 0;
+    blocksMinedLabel.setText("0");
   }
 
 

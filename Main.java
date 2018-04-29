@@ -6,6 +6,7 @@ import javax.swing.event.*;
 import java.util.LinkedList;
 import java.util.ArrayList;
 import java.io.*;
+import java.net.URL;
 
 public class Main {
 
@@ -621,9 +622,72 @@ public class Main {
     getTextField("hashShare").setText(Double.toString(hashShareAvailable));
   }
   private void importStats() {
-    //methods reads imported stats from JSON
-    //input is name of pool and number of blocks mined in past however many days
+    //methods reads stats from blockchain.info's pool data
+    //input is name of pool and number of blocks mined in past however many days JSON
 
+    try {
+      URL poolsData = new URL("https://api.blockchain.info/pools?timespan=10days");
+      BufferedReader in = new BufferedReader(new InputStreamReader(poolsData.openStream()));
+
+      //arrays as node info
+      LinkedList<String> nodeNamesList = new LinkedList<String>();
+      LinkedList<Double> hashShareList = new LinkedList<Double>();
+
+      String line;
+      while ((line = in.readLine()) != null) {
+        //dont process start and end of JSON
+
+            // if(line.length() > 1 && lineNum < 11) { used for testing
+            if(line.length() > 1) {
+
+              //find end of name in line
+              int j = 3;
+              while (line.charAt(j) != '\"') {
+                j++;
+              }
+              //find name
+              String nodeName = line.substring(3,j);
+              //find number of blocks mined in timepspan
+              String numberBlocksMined = line.substring(j+3,line.length());
+              if (numberBlocksMined.charAt(numberBlocksMined.length()-1) == ',') {
+                numberBlocksMined = numberBlocksMined.substring(0,numberBlocksMined.length()-1);
+              }
+
+              nodeNamesList.add(nodeName);
+              hashShareList.add(Double.parseDouble(numberBlocksMined));
+            }
+        }
+        //sum up total blocks mined
+        Double sum = 0.0;
+        for (Double hashShare : hashShareList) {
+          sum += hashShare;
+        }
+        System.out.println("sum = "+sum);
+        //change each value in hashShare to percentage of blocks (therefore hashShare value)
+        for (int i=0;i<hashShareList.size();i++) {
+          Double temp = (hashShareList.get(i)/sum)*100;
+          String stringtemp = temp.toString();
+          if (stringtemp.length() > 3) {
+            stringtemp = stringtemp.substring(0,4);
+          }
+          temp = Double.parseDouble(stringtemp);
+          hashShareList.set(i,temp);
+        }
+        //add each node
+        System.out.println("hash share list: "+hashShareList);
+        System.out.println("node names list: "+nodeNamesList);
+        for (int i=0;i<nodeNamesList.size();i++) {
+          addNodeFromImport(nodeNamesList.get(i),Double.toString(hashShareList.get(i)));
+        }
+      in.close();
+    } catch (Exception ex) {
+      System.out.println("Unable to pull pool data from Blockchain.info. Using file instead. ");
+      importFromFile();
+    }
+
+    
+  }
+  private void importFromFile() {
     // The name of the file to open.
     String fileName = "pool_stats.txt";
     // This will reference one line at a time
@@ -638,16 +702,9 @@ public class Main {
         LinkedList<String> nodeNamesList = new LinkedList<String>();
         LinkedList<Double> hashShareList = new LinkedList<Double>();
 
-        //var stops after 10 entries
-        int lineNum = 0;
-
         while((line = bufferedReader.readLine()) != null) {
             //dont process start and end of JSON
-
-            // if(line.length() > 1 && lineNum < 11) { used for testing
             if(line.length() > 1) {
-              lineNum = lineNum + 1;
-
               //find end of name in line
               int j = 3;
               while (line.charAt(j) != '\"') {
@@ -743,6 +800,7 @@ public class Main {
       node.reset();
     }
   }
+
   private void errorMsg(String var) {
     JOptionPane.showMessageDialog(null,
       "Error: "+var+" must be an integer bigger than 0", "Error Message",

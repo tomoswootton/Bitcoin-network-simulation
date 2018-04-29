@@ -5,6 +5,7 @@ import java.awt.event.*;
 
 import java.util.*;
 import java.util.Timer;
+import java.util.concurrent.TimeUnit;
 
 public class Simulation {
 
@@ -37,18 +38,18 @@ public class Simulation {
   Queue<Double> averageFindTimeQueue = new LinkedList<Double>();
   ArrayList<Double> averageFindTime10BlockAverages = new ArrayList<Double>();
   
+  //buttons
   JButton startPauseButton;
   JButton refreshAllButton;
   JButton exitButton;
 
-
-  //list of blocks foundBlocks
+  //list of blocks found
   private LinkedList<Block> blocksFoundList = new LinkedList<Block>();
 
   //construtors
   public Simulation(GlobalInfo globalInfo) {
     this.globalInfo = globalInfo;
-    //init
+    //init frame 
     simulationFrame.setSize(1200,900);
     simulationFrame.setLocationRelativeTo(null);
     simulationFrame.setResizable(false);
@@ -56,8 +57,11 @@ public class Simulation {
     simulationFrame.setTitle("Simulation");
 
     makePage();
+    //clear nodes
+    globalInfo.clearNodes();
   }
 
+  //getters and setters
   public LinkedList<Block> getBlocksFoundList() {
     return this.blocksFoundList;
   }
@@ -256,6 +260,7 @@ public class Simulation {
     addBlockButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
         if (e.getSource() == addBlockButton) {
+          addBlockButton.setEnabled(false);
           int textFieldText;
           try {
             textFieldText = Integer.parseInt(userInputTextFields.get(0).getText());
@@ -291,7 +296,11 @@ public class Simulation {
           Block fakeBlock = new Block(globalInfo, blocksFoundList.size(), prevBlockHash, globalInfo.getNode(textFieldText).getName());
           fakeBlock.setForcedHash();
           //add to node
-          globalInfo.getNode(textFieldText).forceBlockFound(fakeBlock);
+          try {
+            globalInfo.getNode(textFieldText).forceBlockFound(fakeBlock);
+          } catch (NullPointerException ex) {
+            System.out.println("ERROR: Refresh all called because force adding blocks too quickly.");          }
+            refreshAll();
         }
       }
     });
