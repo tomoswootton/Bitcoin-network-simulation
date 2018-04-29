@@ -260,7 +260,6 @@ public class Simulation {
     addBlockButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
         if (e.getSource() == addBlockButton) {
-          addBlockButton.setEnabled(false);
           int textFieldText;
           try {
             textFieldText = Integer.parseInt(userInputTextFields.get(0).getText());
@@ -299,8 +298,8 @@ public class Simulation {
           try {
             globalInfo.getNode(textFieldText).forceBlockFound(fakeBlock);
           } catch (NullPointerException ex) {
-            System.out.println("ERROR: Refresh all called because force adding blocks too quickly.");          }
-            refreshAll();
+            System.out.println("ERROR: Force adding blocks too quickly.");          }
+            return;
         }
       }
     });
@@ -493,8 +492,8 @@ public class Simulation {
       setCons(panelCons,blockDispHolderList.size(),0,1,1,GridBagConstraints.NONE,GridBagConstraints.CENTER,0,0);
       chainScrollPanel.add(blockDispHolder, panelCons);
     }
-    pushScrollBarToRight(chainScrollPane, chainScrollPanel);
 
+    pushScrollBarToRight(chainScrollPane, chainScrollPanel);
   }
   private void addBlockToHolderPanel(Block block) {
     try{
@@ -545,10 +544,6 @@ public class Simulation {
   }
   //chain panel methods
   private void pushScrollBarToRight(JScrollPane scrollPane, JPanel scrollPanel) {
-    scrollPanel.revalidate();
-    scrollPanel.repaint();
-    scrollPane.revalidate();
-    scrollPane.repaint();
     JScrollBar horizontal = scrollPane.getHorizontalScrollBar();
     horizontal.setValue(horizontal.getMaximum());
     scrollPanel.revalidate();
@@ -634,6 +629,8 @@ public class Simulation {
       addBlockToHolderPanel(block);
       pushScrollBarToRight(chainScrollPane, chainScrollPanel);
     }
+
+    pushScrollBarToRight(chainScrollPane, chainScrollPanel);
   }
   private Block getBlockFromHash(String hash) {
     for (Block block : blocksFoundList) {
